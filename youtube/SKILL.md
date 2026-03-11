@@ -267,4 +267,4 @@ Every response includes `usage.cost` and `usage.credits_remaining`.
 
 ## Full API Reference
 
-See [API Reference](https://aisa.mintlify.app/api-reference/introduction) for complete endpoint documentation.
+See [API Reference](https://docs.aisa.one/reference/introduction) for complete endpoint documentation.

@@ -75,7 +75,7 @@ See existing skills for reference.
 
 - 🦞 [OpenClaw](https://openclaw.ai) - The autonomous agent framework
 - ⚡ [AIsa](https://aisa.one) - Unified API backend
-- 📖 [Documentation](https://aisa.mintlify.app) - API reference
+- 📖 [Documentation](https://docs.aisa.one) - API reference
 
 ---
 

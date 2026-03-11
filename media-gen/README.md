@@ -5,7 +5,7 @@
 - **Gemini 图片**：`gemini-3-pro-image-preview`（`/v1/models/{model}:generateContent`）
 - **Wan 2.6 视频**：`wan2.6-t2v`（`/apis/v1/services/aigc/...` 异步任务 + 轮询）
 
-相关 API 文档索引：[`https://aisa.mintlify.app/api-reference/introduction`](https://aisa.mintlify.app/api-reference/introduction)
+相关 API 文档索引：[`https://docs.aisa.one/reference/introduction`](https://docs.aisa.one/reference/introduction)
 
 ### 快速开始
 

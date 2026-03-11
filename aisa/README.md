@@ -230,7 +230,7 @@ Every response includes `usage.cost` and `usage.credits_remaining`.
 
 - [SKILL.md](SKILL.md) - OpenClaw skill specification
 - [API Reference](references/api-reference.md) - Complete endpoint documentation
-- [AIsa Docs](https://aisa.mintlify.app) - Full API documentation
+- [AIsa Docs](https://docs.aisa.one) - Full API documentation
 
 ---
 
@@ -256,7 +256,7 @@ Apache 2.0 License - see [LICENSE](../LICENSE) for details.
 
 - 🦞 [OpenClaw](https://openclaw.ai) - The autonomous agent framework
 - ⚡ [AIsa](https://aisa.one) - Unified API backend
-- 📖 [API Docs](https://aisa.mintlify.app) - Full documentation
+- 📖 [API Docs](https://docs.aisa.one) - Full documentation
 
 ---
 

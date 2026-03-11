@@ -341,9 +341,9 @@ Every response includes `usage.cost` and `usage.credits_remaining`.
 
 ## Full API Reference
 
-See [API Reference](https://aisa.mintlify.app/api-reference/introduction) for complete endpoint documentation.
+See [API Reference](https://docs.aisa.one/reference/introduction) for complete endpoint documentation.
 
 ## Resources
 
 - [AIsa Verity](https://github.com/AIsa-team/verity) - Reference implementation of confidence-scored search agent
-- [AIsa Documentation](https://aisa.mintlify.app) - Complete API documentation
+- [AIsa Documentation](https://docs.aisa.one) - Complete API documentation

@@ -2,7 +2,7 @@
 
 **Powered by AIsa**
 
-Complete API documentation based on [aisa.mintlify.app](https://aisa.mintlify.app/api-reference/introduction).
+Complete API documentation based on [docs.aisa.one](https://docs.aisa.one/reference/introduction).
 
 ## Base URL
 
@@ -194,5 +194,5 @@ OpenAI-compatible chat completions.
 ## Full Documentation
 
 For complete API documentation including all endpoints:
-- [AIsa API Reference](https://aisa.mintlify.app/api-reference/introduction)
-- [Documentation Index](https://aisa.mintlify.app/llms.txt)
+- [AIsa API Reference](https://docs.aisa.one/reference/introduction)
+- [Documentation Index](https://docs.aisa.one/llms.txt)

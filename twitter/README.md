@@ -33,4 +33,4 @@ Sign up at [aisa.one](https://aisa.one)
 ## Links
 
 - [ClawHub](https://www.clawhub.com/aisa-one/openclaw-twitter)
-- [API Reference](https://aisa.mintlify.app/api-reference/introduction)
+- [API Reference](https://docs.aisa.one/reference/introduction)

@@ -12,7 +12,7 @@ metadata: {"openclaw":{"emoji":"🎬","requires":{"bins":["python3","curl"],"env
 - **图片**：`gemini-3-pro-image-preview`（Gemini GenerateContent）
 - **视频**：`wan2.6-t2v`（通义万相 / Qwen Wan 2.6，异步任务）
 
-API 文档索引见 [AIsa API Reference](https://aisa.mintlify.app/api-reference/introduction)（可从 `https://aisa.mintlify.app/llms.txt` 找到所有页面）。
+API 文档索引见 [AIsa API Reference](https://docs.aisa.one/reference/introduction)（可从 `https://docs.aisa.one/llms.txt` 找到所有页面）。
 
 ## 🔥 你可以做什么
 
@@ -41,7 +41,7 @@ export AISA_API_KEY="your-key"
 - Base URL: `https://api.aisa.one/v1`
 - `POST /models/{model}:generateContent`
 
-文档：`google-gemini-chat`（GenerateContent）见 `https://aisa.mintlify.app/api-reference/chat/chat-api/google-gemini-chat.md`。
+文档：`google-gemini-chat`（GenerateContent）见 `https://docs.aisa.one/reference/chat/chat-api/google-gemini-chat.md`。
 
 ### curl 示例（返回 inline_data 时为图片）
 
@@ -68,7 +68,7 @@ curl -X POST "https://api.aisa.one/v1/models/gemini-3-pro-image-preview:generate
 - `POST /services/aigc/video-generation/video-synthesis`
 - Header：`X-DashScope-Async: enable`（必填，异步）
 
-文档：`video-generation` 见 `https://aisa.mintlify.app/api-reference/aliyun/video/video-generation.md`。
+文档：`video-generation` 见 `https://docs.aisa.one/reference/aliyun/video/video-generation.md`。
 
 ```bash
 curl -X POST "https://api.aisa.one/apis/v1/services/aigc/video-generation/video-synthesis" \
@@ -94,7 +94,7 @@ curl -X POST "https://api.aisa.one/apis/v1/services/aigc/video-generation/video-
 
 - `GET /services/aigc/tasks?task_id=...`
 
-文档：`task` 见 `https://aisa.mintlify.app/api-reference/aliyun/video/task.md`。
+文档：`task` 见 `https://docs.aisa.one/reference/aliyun/video/task.md`。
 
 ```bash
 curl "https://api.aisa.one/apis/v1/services/aigc/tasks?task_id=YOUR_TASK_ID" \
