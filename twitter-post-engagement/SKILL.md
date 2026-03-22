@@ -11,7 +11,7 @@ metadata: {"openclaw":{"emoji":"\ud83d\udd10","requires":{"bins":["python3"],"en
 
 One API key. Simple authorization. Direct posting.
 
-## 馃敟 What Can You Do?
+## 🔥 What Can You Do?
 
 ### Publish Posts
 ```text
