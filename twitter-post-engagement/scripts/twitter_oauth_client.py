@@ -127,7 +127,7 @@ def command_post(args: argparse.Namespace) -> None:
         payload["media_ids"] = args.media_id
 
     result = send_json_request(
-        f"{config['base_url']}/twitter/post_tweet",
+        f"{config['base_url']}/twitter/post_twitter",
         payload,
         timeout=config["timeout"],
     )
@@ -153,7 +153,7 @@ def command_status(args: argparse.Namespace) -> None:
         "callback_url": config["callback_url"],
         "timeout": config["timeout"],
         "supported_commands": ["authorize", "post", "status"],
-        "supported_endpoints": ["/twitter/auth_twitter", "/twitter/post_tweet"],
+        "supported_endpoints": ["/twitter/auth_twitter", "/twitter/post_twitter"],
     }
     print(json.dumps(response, indent=2, ensure_ascii=False))
 
