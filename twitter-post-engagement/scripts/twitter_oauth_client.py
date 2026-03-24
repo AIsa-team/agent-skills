@@ -22,8 +22,8 @@ from typing import Any, Dict, Optional
 
 
 DEFAULT_TIMEOUT = 30
-# DEFAULT_BASE_URL = "https://api.aisa.one/apis/v1"
-DEFAULT_BASE_URL = "https://prebuccal-krysta-prelusorily.ngrok-free.dev"
+DEFAULT_BASE_URL = "https://api.aisa.one/apis/v1"
+# DEFAULT_BASE_URL = "https://prebuccal-krysta-prelusorily.ngrok-free.dev"
 
 
 
