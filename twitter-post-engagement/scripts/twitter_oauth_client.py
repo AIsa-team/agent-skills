@@ -24,8 +24,8 @@ from typing import Any, Dict, Optional
 
 
 DEFAULT_TIMEOUT = 30
-DEFAULT_BASE_URL = "https://api.aisa.one/apis/v1"
-# DEFAULT_BASE_URL = "https://prebuccal-krysta-prelusorily.ngrok-free.dev"
+# DEFAULT_BASE_URL = "https://api.aisa.one/apis/v1"
+DEFAULT_BASE_URL = "https://prebuccal-krysta-prelusorily.ngrok-free.dev"
 
 
 
@@ -71,11 +71,28 @@ def parse_response_body(raw: str, status: Any, default_message: str) -> Dict[str
         return {"code": status, "msg": raw or default_message, "data": None}
 
 
-def send_json_request(url: str, payload: Dict[str, Any], timeout: int) -> Dict[str, Any]:
+def build_auth_headers(aisa_api_key: str, extra_headers: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+    headers = {
+        "Authorization": f"Bearer {aisa_api_key}",
+    }
+    if extra_headers:
+        headers.update(extra_headers)
+    return headers
+
+
+def send_json_request(
+    url: str,
+    payload: Dict[str, Any],
+    timeout: int,
+    aisa_api_key: str,
+) -> Dict[str, Any]:
     request = urllib.request.Request(
         url,
         data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json", "Accept": "application/json"},
+        headers=build_auth_headers(
+            aisa_api_key,
+            {"Content-Type": "application/json", "Accept": "application/json"},
+        ),
         method="POST",
     )
     try:
@@ -143,15 +160,19 @@ def send_multipart_request(
     fields: Dict[str, Any],
     files: list[Dict[str, Any]],
     timeout: int,
+    aisa_api_key: str,
 ) -> Dict[str, Any]:
     body, boundary = encode_multipart_form_data(fields, files)
     request = urllib.request.Request(
         url,
         data=body,
-        headers={
-            "Content-Type": f"multipart/form-data; boundary={boundary}",
-            "Accept": "application/json",
-        },
+        headers=build_auth_headers(
+            aisa_api_key,
+            {
+                "Content-Type": f"multipart/form-data; boundary={boundary}",
+                "Accept": "application/json",
+            },
+        ),
         method="POST",
     )
     try:
@@ -346,8 +367,14 @@ def post_single_tweet(
             payload,
             media_files,
             timeout=config["timeout"],
+            aisa_api_key=config["aisa_api_key"],
         )
-    return send_json_request(endpoint, payload, timeout=config["timeout"])
+    return send_json_request(
+        endpoint,
+        payload,
+        timeout=config["timeout"],
+        aisa_api_key=config["aisa_api_key"],
+    )
 
 
 def load_media_files(paths: Optional[list[str]]) -> list[Dict[str, Any]]:
@@ -403,6 +430,7 @@ def command_authorize(args: argparse.Namespace) -> None:
         f"{config['base_url']}/twitter/auth_twitter",
         payload,
         timeout=config["timeout"],
+        aisa_api_key=config["aisa_api_key"],
     )
 
     if result.get("ok") is False:
