@@ -44,6 +44,14 @@ One API key. Full Polymarket and Kalshi intelligence.
 export AISA_API_KEY="your-key"
 ```
 
+## How to Look Up IDs
+
+Most endpoints require an ID that comes from the `/markets` response. Always query markets first, then pass the relevant ID to downstream endpoints.
+
+1. **Polymarket `token_id`** — Query `/polymarket/markets`, find `side_a.id` or `side_b.id` in the response, then pass it to `/polymarket/market-price/{token_id}`.
+2. **Polymarket `condition_id`** — Query `/polymarket/markets`, find `condition_id` in the response, then pass it to `/polymarket/candlesticks/{condition_id}`.
+3. **Kalshi `market_ticker`** — Query `/kalshi/markets`, find `market_ticker` in the response, then pass it to `/kalshi/market-price/{market_ticker}`.
+
 ## Core Capabilities
 
 ### Polymarket
