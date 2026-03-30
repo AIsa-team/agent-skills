@@ -1,8 +1,17 @@
 #!/usr/bin/env python3
 
 """
-OpenClaw Prediction Market - AIsa API Client
+Cross-Platform Prediction Market Data - AIsa API Client
 Prediction market data from Polymarket and Kalshi for autonomous agents.
+Powered by AIsa.
+
+ID Lookup:
+  Most endpoints require an ID that comes from the /markets response.
+  Always query markets first, then pass the relevant ID to downstream endpoints.
+
+  - Polymarket token_id:    from side_a.id or side_b.id in /polymarket/markets response
+  - Polymarket condition_id: from condition_id in /polymarket/markets response
+  - Kalshi market_ticker:   from market_ticker in /kalshi/markets response
 
 Usage:
   # Polymarket
@@ -38,7 +47,7 @@ from typing import Any, Dict, List, Optional
 
 
 class PredictionMarketClient:
-    """OpenClaw Prediction Market - AIsa API Client."""
+    """Cross-Platform Prediction Market Data - AIsa API Client."""
 
     BASE_URL = "https://api.aisa.one/apis/v1"
 
@@ -98,7 +107,12 @@ class PredictionMarketClient:
         start_time: Optional[int] = None,
         end_time: Optional[int] = None,
     ) -> Dict[str, Any]:
-        """Search/filter Polymarket markets."""
+        """Search/filter Polymarket markets.
+
+        Use this endpoint first to obtain IDs needed by other endpoints:
+          - token_id:     from side_a.id or side_b.id in the response
+          - condition_id: from condition_id in the response
+        """
         params: Dict[str, Any] = {"limit": limit, "offset": offset}
         if search:
             params["search"] = search
@@ -128,7 +142,10 @@ class PredictionMarketClient:
         return self._raw_get(url)
 
     def polymarket_price(self, token_id: str, at_time: Optional[int] = None) -> Dict[str, Any]:
-        """Get current (or historical) price for a Polymarket token."""
+        """Get current (or historical) price for a Polymarket token.
+
+        token_id comes from side_a.id or side_b.id in /polymarket/markets response.
+        """
         return self._request(f"/polymarket/market-price/{token_id}", params={"at_time": at_time})
 
     def polymarket_activity(self, user: str, market_slug: Optional[str] = None,
@@ -153,7 +170,10 @@ class PredictionMarketClient:
     def polymarket_orderbooks(self, token_id: str, start_time: Optional[int] = None,
                               end_time: Optional[int] = None, limit: int = 100,
                               pagination_key: Optional[str] = None) -> Dict[str, Any]:
-        """Get Polymarket orderbook snapshots for a token."""
+        """Get Polymarket orderbook snapshots for a token.
+
+        token_id comes from side_a.id or side_b.id in /polymarket/markets response.
+        """
         return self._request("/polymarket/orderbooks", params={
             "token_id": token_id, "start_time": start_time, "end_time": end_time,
             "limit": limit, "pagination_key": pagination_key,
@@ -161,7 +181,10 @@ class PredictionMarketClient:
 
     def polymarket_candlesticks(self, condition_id: str, start_time: int,
                                 end_time: int, interval: int = 1) -> Dict[str, Any]:
-        """Get Polymarket candlestick data. interval: 1=1m, 60=1h, 1440=1d."""
+        """Get Polymarket candlestick data. interval: 1=1m, 60=1h, 1440=1d.
+
+        condition_id comes from /polymarket/markets response.
+        """
         return self._request(f"/polymarket/candlesticks/{condition_id}", params={
             "start_time": start_time, "end_time": end_time, "interval": interval,
         })
@@ -195,7 +218,11 @@ class PredictionMarketClient:
     def kalshi_markets(self, search: Optional[str] = None, market_ticker: Optional[List[str]] = None,
                        event_ticker: Optional[List[str]] = None, status: Optional[str] = None,
                        min_volume: Optional[float] = None, limit: int = 10, offset: int = 0) -> Dict[str, Any]:
-        """Search/filter Kalshi markets."""
+        """Search/filter Kalshi markets.
+
+        Use this endpoint first to obtain IDs needed by other endpoints:
+          - market_ticker: from market_ticker in the response
+        """
         url = f"{self.BASE_URL}/kalshi/markets"
         parts = []
         if search:
@@ -215,12 +242,18 @@ class PredictionMarketClient:
         return self._raw_get(url)
 
     def kalshi_price(self, market_ticker: str, at_time: Optional[int] = None) -> Dict[str, Any]:
-        """Get current (or historical) price for a Kalshi market."""
+        """Get current (or historical) price for a Kalshi market.
+
+        market_ticker comes from /kalshi/markets response.
+        """
         return self._request(f"/kalshi/market-price/{market_ticker}", params={"at_time": at_time})
 
     def kalshi_trades(self, ticker: Optional[str] = None, start_time: Optional[int] = None,
                       end_time: Optional[int] = None, limit: int = 100, offset: int = 0) -> Dict[str, Any]:
-        """Get Kalshi trade history."""
+        """Get Kalshi trade history.
+
+        ticker (market_ticker) comes from /kalshi/markets response.
+        """
         return self._request("/kalshi/trades", params={
             "ticker": ticker, "start_time": start_time, "end_time": end_time,
             "limit": limit, "offset": offset,
@@ -228,7 +261,10 @@ class PredictionMarketClient:
 
     def kalshi_orderbooks(self, ticker: str, start_time: Optional[int] = None,
                           end_time: Optional[int] = None, limit: int = 100) -> Dict[str, Any]:
-        """Get Kalshi orderbook snapshots."""
+        """Get Kalshi orderbook snapshots.
+
+        ticker (market_ticker) comes from /kalshi/markets response.
+        """
         return self._request("/kalshi/orderbooks", params={
             "ticker": ticker, "start_time": start_time, "end_time": end_time, "limit": limit,
         })
@@ -237,7 +273,11 @@ class PredictionMarketClient:
 
     def sports_matching(self, polymarket_slugs: Optional[List[str]] = None,
                         kalshi_tickers: Optional[List[str]] = None) -> Dict[str, Any]:
-        """Find equivalent sports markets across platforms."""
+        """Find equivalent sports markets across Polymarket and Kalshi.
+
+        Provide either polymarket_market_slug(s) or kalshi_event_ticker(s)
+        to find the matching market on the other platform.
+        """
         url = f"{self.BASE_URL}/matching-markets/sports"
         parts = []
         for slug in (polymarket_slugs or []):
@@ -249,7 +289,10 @@ class PredictionMarketClient:
         return self._raw_get(url)
 
     def sports_by_date(self, sport: str, date: str) -> Dict[str, Any]:
-        """Find sports markets by sport and date (YYYY-MM-DD)."""
+        """Find matching sports markets across platforms by sport and date (YYYY-MM-DD).
+
+        Supported sports: nba, nfl, mlb, nhl, soccer, tennis.
+        """
         return self._request(f"/matching-markets/sports/{sport}", params={"date": date})
 
     def _raw_get(self, url: str) -> Dict[str, Any]:
@@ -275,9 +318,15 @@ class PredictionMarketClient:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="OpenClaw Prediction Market - Polymarket & Kalshi data via AIsa API",
+        description="Cross-Platform Prediction Market Data - Polymarket & Kalshi via AIsa API",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
+ID Lookup:
+  Most endpoints require an ID from the /markets response. Query markets first.
+    Polymarket token_id:     side_a.id or side_b.id from /polymarket/markets
+    Polymarket condition_id: condition_id from /polymarket/markets
+    Kalshi market_ticker:    market_ticker from /kalshi/markets
+
 Examples:
   %(prog)s polymarket markets --search "election" --status open
   %(prog)s polymarket price <token_id>
@@ -316,12 +365,12 @@ Examples:
     pm_markets.add_argument("--start-time", type=int)
     pm_markets.add_argument("--end-time", type=int)
 
-    pm_price = pm_sub.add_parser("price")
-    pm_price.add_argument("token_id")
-    pm_price.add_argument("--at-time", type=int)
+    pm_price = pm_sub.add_parser("price", help="Get price for a Polymarket token")
+    pm_price.add_argument("token_id", help="token_id from side_a.id or side_b.id in /polymarket/markets")
+    pm_price.add_argument("--at-time", type=int, help="Unix timestamp for historical price")
 
-    pm_activity = pm_sub.add_parser("activity")
-    pm_activity.add_argument("--user", required=True)
+    pm_activity = pm_sub.add_parser("activity", help="Get activity for a Polymarket wallet")
+    pm_activity.add_argument("--user", required=True, help="Wallet address")
     pm_activity.add_argument("--market-slug")
     pm_activity.add_argument("--condition-id")
     pm_activity.add_argument("--start-time", type=int)
@@ -329,7 +378,7 @@ Examples:
     pm_activity.add_argument("--limit", type=int, default=100)
     pm_activity.add_argument("--offset", type=int, default=0)
 
-    pm_orders = pm_sub.add_parser("orders")
+    pm_orders = pm_sub.add_parser("orders", help="Get Polymarket trade history")
     pm_orders.add_argument("--market-slug")
     pm_orders.add_argument("--condition-id")
     pm_orders.add_argument("--token-id")
@@ -339,34 +388,35 @@ Examples:
     pm_orders.add_argument("--limit", type=int, default=100)
     pm_orders.add_argument("--offset", type=int, default=0)
 
-    pm_ob = pm_sub.add_parser("orderbooks")
-    pm_ob.add_argument("--token-id", required=True)
+    pm_ob = pm_sub.add_parser("orderbooks", help="Get Polymarket orderbook snapshots")
+    pm_ob.add_argument("--token-id", required=True, help="token_id from side_a.id or side_b.id in /polymarket/markets")
     pm_ob.add_argument("--start", type=int, dest="start_time")
     pm_ob.add_argument("--end", type=int, dest="end_time")
     pm_ob.add_argument("--limit", type=int, default=100)
     pm_ob.add_argument("--pagination-key")
 
-    pm_candles = pm_sub.add_parser("candlesticks")
-    pm_candles.add_argument("condition_id")
+    pm_candles = pm_sub.add_parser("candlesticks", help="Get Polymarket candlestick data")
+    pm_candles.add_argument("condition_id", help="condition_id from /polymarket/markets")
     pm_candles.add_argument("--start", type=int, required=True, dest="start_time")
     pm_candles.add_argument("--end", type=int, required=True, dest="end_time")
-    pm_candles.add_argument("--interval", type=int, default=1, choices=[1, 60, 1440])
+    pm_candles.add_argument("--interval", type=int, default=1, choices=[1, 60, 1440],
+                            help="1=1min, 60=1hr, 1440=1day")
 
-    pm_pos = pm_sub.add_parser("positions")
-    pm_pos.add_argument("wallet_address")
+    pm_pos = pm_sub.add_parser("positions", help="Get Polymarket positions for a wallet")
+    pm_pos.add_argument("wallet_address", help="Proxy wallet address")
     pm_pos.add_argument("--limit", type=int, default=100)
     pm_pos.add_argument("--pagination-key")
 
-    pm_wallet = pm_sub.add_parser("wallet")
+    pm_wallet = pm_sub.add_parser("wallet", help="Get Polymarket wallet info")
     pm_wallet_group = pm_wallet.add_mutually_exclusive_group(required=True)
-    pm_wallet_group.add_argument("--eoa")
-    pm_wallet_group.add_argument("--proxy")
+    pm_wallet_group.add_argument("--eoa", help="EOA wallet address")
+    pm_wallet_group.add_argument("--proxy", help="Proxy wallet address")
     pm_wallet.add_argument("--with-metrics", action="store_true")
     pm_wallet.add_argument("--start-time", type=int)
     pm_wallet.add_argument("--end-time", type=int)
 
-    pm_pnl = pm_sub.add_parser("pnl")
-    pm_pnl.add_argument("wallet_address")
+    pm_pnl = pm_sub.add_parser("pnl", help="Get Polymarket wallet P&L")
+    pm_pnl.add_argument("wallet_address", help="Wallet address")
     pm_pnl.add_argument("--granularity", required=True, choices=["day", "week", "month"])
     pm_pnl.add_argument("--start-time", type=int)
     pm_pnl.add_argument("--end-time", type=int)
@@ -375,7 +425,7 @@ Examples:
     ks = subparsers.add_parser("kalshi", help="Kalshi commands")
     ks_sub = ks.add_subparsers(dest="command", help="Command")
 
-    ks_markets = ks_sub.add_parser("markets")
+    ks_markets = ks_sub.add_parser("markets", help="Search/filter Kalshi markets")
     ks_markets.add_argument("--search")
     ks_markets.add_argument("--market-ticker", nargs="+")
     ks_markets.add_argument("--event-ticker", nargs="+")
@@ -384,35 +434,35 @@ Examples:
     ks_markets.add_argument("--limit", type=int, default=10)
     ks_markets.add_argument("--offset", type=int, default=0)
 
-    ks_price = ks_sub.add_parser("price")
-    ks_price.add_argument("market_ticker")
-    ks_price.add_argument("--at-time", type=int)
+    ks_price = ks_sub.add_parser("price", help="Get price for a Kalshi market")
+    ks_price.add_argument("market_ticker", help="market_ticker from /kalshi/markets")
+    ks_price.add_argument("--at-time", type=int, help="Unix timestamp for historical price")
 
-    ks_trades = ks_sub.add_parser("trades")
-    ks_trades.add_argument("--ticker")
+    ks_trades = ks_sub.add_parser("trades", help="Get Kalshi trade history")
+    ks_trades.add_argument("--ticker", help="market_ticker from /kalshi/markets")
     ks_trades.add_argument("--start-time", type=int)
     ks_trades.add_argument("--end-time", type=int)
     ks_trades.add_argument("--limit", type=int, default=100)
     ks_trades.add_argument("--offset", type=int, default=0)
 
-    ks_ob = ks_sub.add_parser("orderbooks")
-    ks_ob.add_argument("--ticker", required=True)
+    ks_ob = ks_sub.add_parser("orderbooks", help="Get Kalshi orderbook snapshots")
+    ks_ob.add_argument("--ticker", required=True, help="market_ticker from /kalshi/markets")
     ks_ob.add_argument("--start", type=int, dest="start_time")
     ks_ob.add_argument("--end", type=int, dest="end_time")
     ks_ob.add_argument("--limit", type=int, default=100)
 
-    # Sports
+    # Sports (Cross-Platform)
     sp = subparsers.add_parser("sports", help="Cross-platform sports market commands")
     sp_sub = sp.add_subparsers(dest="command", help="Command")
 
-    sp_match = sp_sub.add_parser("matching")
+    sp_match = sp_sub.add_parser("matching", help="Find equivalent markets across platforms")
     sp_match_group = sp_match.add_mutually_exclusive_group(required=True)
-    sp_match_group.add_argument("--polymarket-slug", nargs="+")
-    sp_match_group.add_argument("--kalshi-ticker", nargs="+")
+    sp_match_group.add_argument("--polymarket-slug", nargs="+", help="Polymarket market slug(s)")
+    sp_match_group.add_argument("--kalshi-ticker", nargs="+", help="Kalshi event ticker(s)")
 
-    sp_date = sp_sub.add_parser("by-date")
+    sp_date = sp_sub.add_parser("by-date", help="Find matching sports markets by date")
     sp_date.add_argument("sport", choices=["nba", "nfl", "mlb", "nhl", "soccer", "tennis"])
-    sp_date.add_argument("--date", required=True)
+    sp_date.add_argument("--date", required=True, help="Date in YYYY-MM-DD format")
 
     args = parser.parse_args()
 
