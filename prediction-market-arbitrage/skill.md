@@ -68,7 +68,9 @@ curl -X GET "https://api.aisa.one/apis/v1/matching-markets/sports?kalshi_event_t
 
 ```bash
 # Find all matching sports markets across platforms for a specific date
-curl -X GET "https://api.aisa.one/apis/v1/matching-markets/sports/nba?date=2024-03-01" \
+# sport options: nfl, mlb, cfb, nba, nhl, cbb, pga, tennis
+# date format: YYYY-MM-DD
+curl -X GET "https://api.aisa.one/apis/v1/matching-markets/sports/nba?date=2025-08-16" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -79,8 +81,8 @@ Once matching markets are found, fetch the real-time prices on both platforms to
 #### Get Polymarket Price
 
 ```bash
-# Fetch the current market price for a Polymarket token
-# token_id comes from side_a.id or side_b.id in /polymarket/markets response
+# Step 1: query /polymarket/markets to get a token_id from side_a.id or side_b.id
+# Step 2: pass that token_id here to get the current price
 curl -X GET "https://api.aisa.one/apis/v1/polymarket/market-price/{token_id}" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
@@ -123,7 +125,20 @@ curl -X GET "https://api.aisa.one/apis/v1/kalshi/orderbooks?ticker={ticker}" \
 | Endpoint | Description | Key Params |
 |----------|-------------|------------|
 | `/matching-markets/sports` | Find matching sports markets | `polymarket_market_slug` or `kalshi_event_ticker` |
-| `/matching-markets/sports/{sport}` | Find sports markets by date | `sport`, `date` |
+| `/matching-markets/sports/{sport}` | Find sports markets by date | `sport` (nfl\|mlb\|cfb\|nba\|nhl\|cbb\|pga\|tennis), `date` (YYYY-MM-DD) |
+
+Sport abbreviations:
+
+| Abbreviation | Sport |
+|---|---|
+| `nfl` | Football |
+| `mlb` | Baseball |
+| `cfb` | College Football |
+| `nba` | Basketball |
+| `nhl` | Hockey |
+| `cbb` | College Basketball |
+| `pga` | Golf |
+| `tennis` | Tennis |
 
 ### Price & Liquidity Endpoints (GET)
 

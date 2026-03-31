@@ -546,7 +546,7 @@ Examples:
     )
     scan_parser.add_argument(
         "sport",
-        choices=["nba", "nfl", "mlb", "nhl", "soccer", "tennis"],
+        choices=["nfl", "mlb", "cfb", "nba", "nhl", "cbb", "pga", "tennis"],
         help="Sport to scan",
     )
     scan_parser.add_argument("--date", required=True, help="Date in YYYY-MM-DD format")

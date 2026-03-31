@@ -291,7 +291,7 @@ class PredictionMarketClient:
     def sports_by_date(self, sport: str, date: str) -> Dict[str, Any]:
         """Find matching sports markets across platforms by sport and date (YYYY-MM-DD).
 
-        Supported sports: nba, nfl, mlb, nhl, soccer, tennis.
+        Supported sports: nfl, mlb, cfb, nba, nhl, cbb, pga, tennis.
         """
         return self._request(f"/matching-markets/sports/{sport}", params={"date": date})
 
@@ -461,7 +461,7 @@ Examples:
     sp_match_group.add_argument("--kalshi-ticker", nargs="+", help="Kalshi event ticker(s)")
 
     sp_date = sp_sub.add_parser("by-date", help="Find matching sports markets by date")
-    sp_date.add_argument("sport", choices=["nba", "nfl", "mlb", "nhl", "soccer", "tennis"])
+    sp_date.add_argument("sport", choices=["nfl", "mlb", "cfb", "nba", "nhl", "cbb", "pga", "tennis"])
     sp_date.add_argument("--date", required=True, help="Date in YYYY-MM-DD format")
 
     args = parser.parse_args()
