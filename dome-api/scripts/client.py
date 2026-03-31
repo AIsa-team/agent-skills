@@ -2,9 +2,9 @@ import requests
 import urllib.parse
 from typing import Dict, Any, Optional, List, Union
 
-class DomeAPIClient:
+class PredictionMarketAPIClient:
     """
-    Client for Dome API with base URL changed to api.aisa.one/apis/v1.
+    Client for the AIsa API proxy for prediction market data.
     Provides access to Polymarket, Kalshi, and Matching Markets.
     """
     
@@ -12,7 +12,7 @@ class DomeAPIClient:
     
     def __init__(self, api_key: Optional[str] = None):
         """
-        Initialize the Dome API client.
+        Initialize the AIsa API proxy client.
         
         Args:
             api_key: Optional API key. Can be passed in headers or query params.
@@ -253,7 +253,7 @@ class DomeAPIClient:
     def place_order(self, signed_order: Dict[str, Any], order_type: str, 
                     credentials: Dict[str, str], client_order_id: Optional[str] = None) -> Dict[str, Any]:
         """
-        Places an order on Polymarket via Dome server.
+        Places an order on Polymarket via the AIsa API proxy.
         Note: This is a direct REST API call.
         """
         payload = {
@@ -273,5 +273,5 @@ class DomeAPIClient:
 
 # Example usage:
 if __name__ == "__main__":
-    client = DomeAPIClient(api_key="your_api_key_here")
+    client = PredictionMarketAPIClient(api_key="your_api_key_here")
     # print(client.get_polymarket_market_price("19701256321759583954581192053894521654935987478209343000964756587964612528044"))
