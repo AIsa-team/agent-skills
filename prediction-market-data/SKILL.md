@@ -28,7 +28,7 @@ To use the API, import the `PredictionMarketAPIClient` from the bundled script.
 ```python
 import sys
 
-sys.path.append('/home/ubuntu/skills/prediction-market-api/scripts')
+sys.path.append('/home/ubuntu/skills/prediction-market-data/scripts')
 from client import PredictionMarketAPIClient
 
 # Initialize the client
