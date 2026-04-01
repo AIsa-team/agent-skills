@@ -2,10 +2,10 @@
 name: Prediction Market Data
 description: "Prediction markets data - Polymarket, Kalshi markets, prices, positions, and trades"
 homepage: https://openclaw.ai
-metadata: {"openclaw":{"emoji":"ð","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY"}}
+metadata: {"openclaw":{"emoji":"📈","requires":{"bins":["curl","python"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY"}}
 ---
 
-# Cross-Platform Prediction Market Data ð
+# Cross-Platform Prediction Market Data 📈
 
 **Prediction markets data access for autonomous agents. Powered by AIsa.**
 
@@ -48,9 +48,9 @@ export AISA_API_KEY="your-key"
 
 Most endpoints require an ID that comes from the `/markets` response. Always query markets first, then pass the relevant ID to downstream endpoints.
 
-1. **Polymarket `token_id`** â Query `/polymarket/markets`, find `side_a.id` or `side_b.id` in the response, then pass it to `/polymarket/market-price/{token_id}`.
-2. **Polymarket `condition_id`** â Query `/polymarket/markets`, find `condition_id` in the response, then pass it to `/polymarket/candlesticks/{condition_id}`.
-3. **Kalshi `market_ticker`** â Query `/kalshi/markets`, find `market_ticker` in the response, then pass it to `/kalshi/market-price/{market_ticker}`.
+1. **Polymarket `token_id`**: Query `/polymarket/markets`, find `side_a.id` or `side_b.id` in the response, then pass it to `/polymarket/market-price/{token_id}`.
+2. **Polymarket `condition_id`**: Query `/polymarket/markets`, find `condition_id` in the response, then pass it to `/polymarket/candlesticks/{condition_id}`.
+3. **Kalshi `market_ticker`**: Query `/kalshi/markets`, find `market_ticker` in the response, then pass it to `/kalshi/market-price/{market_ticker}`.
 
 ## End-to-End Examples
 
@@ -58,14 +58,14 @@ Most endpoints require an ID that comes from the `/markets` response. Always que
 
 Prices require a `token_id`, which comes from the `/markets` response. Always query markets first.
 
-**Step 1 â Find a market and extract the token_id:**
+**Step 1: Find a market and extract the token_id:**
 
 ```bash
 # Search for open election markets and grab a token_id
-python prediction_market_client.py polymarket markets --search "election" --status open --limit 5
+python scripts/prediction_market_client.py polymarket markets --search "election" --status open --limit 5
 ```
 
-The response includes a `side_a.id` and `side_b.id` for each market â these are the token IDs for the Yes and No sides respectively:
+The response includes a `side_a.id` and `side_b.id` for each market; these are the token IDs for the Yes and No sides respectively:
 
 ```json
 {
@@ -87,11 +87,11 @@ The response includes a `side_a.id` and `side_b.id` for each market â these
 }
 ```
 
-**Step 2 â Fetch the current price using the token_id:**
+**Step 2: Fetch the current price using the token_id:**
 
 ```bash
 # Use side_a.id (Yes) or side_b.id (No) from Step 1
-python prediction_market_client.py polymarket price 44482086252598348208660011972852804909957485351743405768768577675743702971026
+python scripts/prediction_market_client.py polymarket price 44482086252598348208660011972852804909957485351743405768768577675743702971026
 ```
 
 The price is a decimal between 0 and 1 representing the probability (e.g. `0.20` = 20% chance of Yes).
@@ -100,10 +100,10 @@ The price is a decimal between 0 and 1 representing the probability (e.g. `0.20`
 
 ### Get the current price of a Kalshi market
 
-**Step 1 â Find a market and extract the market_ticker:**
+**Step 1: Find a market and extract the market_ticker:**
 
 ```bash
-python prediction_market_client.py kalshi markets --search "fed rate" --status open --limit 5
+python scripts/prediction_market_client.py kalshi markets --search "fed rate" --status open --limit 5
 ```
 
 ```json
@@ -118,10 +118,10 @@ python prediction_market_client.py kalshi markets --search "fed rate" --status o
 }
 ```
 
-**Step 2 â Fetch the price using the market_ticker:**
+**Step 2: Fetch the price using the market_ticker:**
 
 ```bash
-python prediction_market_client.py kalshi price KXFED-26MAR-T3.75
+python scripts/prediction_market_client.py kalshi price KXFED-26MAR-T3.75
 ```
 
 ---
@@ -159,7 +159,7 @@ curl -X GET "https://api.aisa.one/apis/v1/polymarket/activity?user={wallet_addre
 
 ```bash
 # Fetch historical trade data
-curl -X GET "https://api.aisa.one/apis/v1/polymarket/orders?market={market_id}" \
+curl -X GET "https://api.aisa.one/apis/v1/polymarket/orders?market_slug={market_slug}" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 

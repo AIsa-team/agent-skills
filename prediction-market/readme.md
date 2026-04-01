@@ -27,3 +27,4 @@ python scripts/prediction_market_client.py kalshi price <market_ticker>
 
 # Find matching NBA markets across platforms
 python scripts/prediction_market_client.py sports by-date nba --date 2025-03-01
+```

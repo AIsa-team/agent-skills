@@ -15,25 +15,25 @@ ID Lookup:
 
 Usage:
   # Polymarket
-  python prediction_market_client.py polymarket markets [--search <kw>] [--status open|closed] [--min-volume <n>] [--limit <n>]
-  python prediction_market_client.py polymarket price <token_id> [--at-time <unix_ts>]
-  python prediction_market_client.py polymarket activity --user <wallet> [--market-slug <slug>] [--limit <n>]
-  python prediction_market_client.py polymarket orders [--market-slug <slug>] [--token-id <id>] [--user <wallet>] [--limit <n>]
-  python prediction_market_client.py polymarket orderbooks --token-id <id> [--start <ms>] [--end <ms>] [--limit <n>]
-  python prediction_market_client.py polymarket candlesticks <condition_id> --start <unix_ts> --end <unix_ts> [--interval 1|60|1440]
-  python prediction_market_client.py polymarket positions <wallet_address> [--limit <n>]
-  python prediction_market_client.py polymarket wallet (--eoa <addr> | --proxy <addr>) [--with-metrics] [--start <unix_ts>] [--end <unix_ts>]
-  python prediction_market_client.py polymarket pnl <wallet_address> --granularity <day|week|month> [--start <unix_ts>] [--end <unix_ts>]
+  python scripts/prediction_market_client.py polymarket markets [--search <kw>] [--status open|closed] [--min-volume <n>] [--limit <n>]
+  python scripts/prediction_market_client.py polymarket price <token_id> [--at-time <unix_ts>]
+  python scripts/prediction_market_client.py polymarket activity --user <wallet> [--market-slug <slug>] [--limit <n>]
+  python scripts/prediction_market_client.py polymarket orders [--market-slug <slug>] [--token-id <id>] [--user <wallet>] [--limit <n>]
+  python scripts/prediction_market_client.py polymarket orderbooks --token-id <id> [--start <ms>] [--end <ms>] [--limit <n>]
+  python scripts/prediction_market_client.py polymarket candlesticks <condition_id> --start <unix_ts> --end <unix_ts> [--interval 1|60|1440]
+  python scripts/prediction_market_client.py polymarket positions <wallet_address> [--limit <n>]
+  python scripts/prediction_market_client.py polymarket wallet (--eoa <addr> | --proxy <addr>) [--with-metrics] [--start <unix_ts>] [--end <unix_ts>]
+  python scripts/prediction_market_client.py polymarket pnl <wallet_address> --granularity <day|week|month> [--start <unix_ts>] [--end <unix_ts>]
 
   # Kalshi
-  python prediction_market_client.py kalshi markets [--search <kw>] [--status open|closed] [--min-volume <n>] [--limit <n>]
-  python prediction_market_client.py kalshi price <market_ticker> [--at-time <unix_ts>]
-  python prediction_market_client.py kalshi trades [--ticker <ticker>] [--start <unix_ts>] [--end <unix_ts>] [--limit <n>]
-  python prediction_market_client.py kalshi orderbooks --ticker <ticker> [--start <ms>] [--end <ms>] [--limit <n>]
+  python scripts/prediction_market_client.py kalshi markets [--search <kw>] [--status open|closed] [--min-volume <n>] [--limit <n>]
+  python scripts/prediction_market_client.py kalshi price <market_ticker> [--at-time <unix_ts>]
+  python scripts/prediction_market_client.py kalshi trades [--ticker <ticker>] [--start <unix_ts>] [--end <unix_ts>] [--limit <n>]
+  python scripts/prediction_market_client.py kalshi orderbooks --ticker <ticker> [--start <ms>] [--end <ms>] [--limit <n>]
 
   # Cross-platform sports
-  python prediction_market_client.py sports matching (--polymarket-slug <slug> | --kalshi-ticker <ticker>)
-  python prediction_market_client.py sports by-date <sport> --date <YYYY-MM-DD>
+  python scripts/prediction_market_client.py sports matching (--polymarket-slug <slug> | --kalshi-ticker <ticker>)
+  python scripts/prediction_market_client.py sports by-date <sport> --date <YYYY-MM-DD>
 """
 
 import argparse
