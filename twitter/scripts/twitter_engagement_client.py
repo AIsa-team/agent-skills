@@ -351,7 +351,7 @@ def execute_tweet_action(
         "tweet_id": tweet_id.strip(),
     }
     relay_result = relay_action(config, endpoint, payload)
-    ok = relay_result.get("ok") is not False and relay_result.get("code") == 200
+    ok = relay_result.get("ok") is not False and is_success_response(relay_result)
     response = {
         "ok": ok,
         "action": action,
@@ -384,7 +384,7 @@ def execute_user_action(
         "target_user_id": target_user_id.strip(),
     }
     relay_result = relay_action(config, endpoint, payload)
-    ok = relay_result.get("ok") is not False and relay_result.get("code") == 200
+    ok = relay_result.get("ok") is not False and is_success_response(relay_result)
     response = {
         "ok": ok,
         "action": action,
