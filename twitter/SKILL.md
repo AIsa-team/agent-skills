@@ -38,6 +38,7 @@ One API key. Full Twitter intelligence.
 This file does not define like / unlike / follow / unfollow logic directly.
 
 If the user asks to like, unlike, follow, or unfollow on X/Twitter, handle that workflow with `./references/engage_twitter.md`.
+**OAuth Authorization is required and must be obtained from `./references/post_twitter.md` before executing.**
 
 ## Posting Workflows
 
