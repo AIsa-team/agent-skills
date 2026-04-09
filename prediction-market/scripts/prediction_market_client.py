@@ -40,7 +40,7 @@ from typing import Any, Dict, List, Optional
 class DomeClient:
     """OpenClaw Prediction Market - AIsa Dome API Client."""
 
-    BASE_URL = "https://api.aisa.one/apis/v1/dome"
+    BASE_URL = "https://api.aisa.one/apis/v1"
 
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or os.environ.get("AISA_API_KEY")
@@ -76,11 +76,34 @@ class DomeClient:
         except urllib.error.HTTPError as e:
             error_body = e.read().decode("utf-8")
             try:
-                return json.loads(error_body)
+                parsed = json.loads(error_body)
             except json.JSONDecodeError:
-                return {"success": False, "error": {"code": str(e.code), "message": error_body}}
+                parsed = {"success": False, "error": {"code": str(e.code), "message": error_body}}
+            return self._check_insufficient_quota(e.code, error_body, parsed)
         except urllib.error.URLError as e:
             return {"success": False, "error": {"code": "NETWORK_ERROR", "message": str(e.reason)}}
+
+    @staticmethod
+    def _check_insufficient_quota(status_code: int, raw_body: str, parsed: Dict[str, Any]) -> Dict[str, Any]:
+        """Detect 403 pre-deduction failures and add deposit instructions."""
+        if status_code == 403 and "Pre-deduction failed" in raw_body:
+            parsed["action_required"] = "DEPOSIT_FUNDS"
+            parsed["instructions"] = (
+                "Insufficient AIsa API quota. Deposit more USDC into the Circle Gateway contract "
+                "to continue making requests.\n\n"
+                "Run the following commands:\n"
+                "  1. Check current balance:\n"
+                "     node x402-payment/scripts/setup.mjs balance\n"
+                "  2. If the wallet's USDC balance on Arc testnet is below 5 USDC, claim more from the faucet:\n"
+                "     https://faucet.circle.com/\n"
+                "  3. Deposit USDC (e.g. 5 USDC):\n"
+                "     node x402-payment/scripts/setup.mjs deposit --amount 5\n\n"
+                "If the Gateway has not been approved yet, run:\n"
+                "     node x402-payment/scripts/setup.mjs approve\n"
+                "     node x402-payment/scripts/setup.mjs deposit --amount 5\n\n"
+                "After depositing, retry the failed request."
+            )
+        return parsed
 
     # ==================== Polymarket ====================
 
@@ -266,9 +289,10 @@ class DomeClient:
         except urllib.error.HTTPError as e:
             error_body = e.read().decode("utf-8")
             try:
-                return json.loads(error_body)
+                parsed = json.loads(error_body)
             except json.JSONDecodeError:
-                return {"success": False, "error": {"code": str(e.code), "message": error_body}}
+                parsed = {"success": False, "error": {"code": str(e.code), "message": error_body}}
+            return self._check_insufficient_quota(e.code, error_body, parsed)
         except urllib.error.URLError as e:
             return {"success": False, "error": {"code": "NETWORK_ERROR", "message": str(e.reason)}}
 

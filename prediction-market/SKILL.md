@@ -42,7 +42,7 @@ Parameters:
 - `end_time` (integer) - Filter markets until this Unix timestamp in seconds (inclusive)
 
 ```bash
-curl -X GET "https://api.aisa.one/apis/v1/dome/polymarket/markets?search=election&status=open" \
+curl -X GET "https://api.aisa.one/apis/v1/polymarket/markets?search=election&status=open" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -54,7 +54,7 @@ Parameters:
 - `at_time` (integer) - Optional Unix timestamp (in seconds) to fetch a historical market price. If not provided, returns the most real-time price available.
 
 ```bash
-curl -X GET "https://api.aisa.one/apis/v1/dome/polymarket/market-price/{token_id}" \
+curl -X GET "https://api.aisa.one/apis/v1/polymarket/market-price/{token_id}" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -72,7 +72,7 @@ Parameters:
 - `offset` (integer) - Number of activities to skip for pagination
 
 ```bash
-curl -X GET "https://api.aisa.one/apis/v1/dome/polymarket/activity?user={wallet_address}" \
+curl -X GET "https://api.aisa.one/apis/v1/polymarket/activity?user={wallet_address}" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -91,7 +91,7 @@ Parameters:
 - `user` (string) - Filter orders by user (wallet address)
 
 ```bash
-curl -X GET "https://api.aisa.one/apis/v1/dome/polymarket/orders?market={market_id}" \
+curl -X GET "https://api.aisa.one/apis/v1/polymarket/orders?market={market_id}" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -107,7 +107,7 @@ Parameters:
 - `pagination_key` (string) - Pagination key to get the next chunk of data. Ignored when fetching the latest orderbook without `start_time` and `end_time`.
 
 ```bash
-curl -X GET "https://api.aisa.one/apis/v1/dome/polymarket/orderbooks?token_id={token_id}" \
+curl -X GET "https://api.aisa.one/apis/v1/polymarket/orderbooks?token_id={token_id}" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -121,7 +121,7 @@ Parameters:
 - `interval` (enum\<integer\>) - Interval length: `1` = 1m, `60` = 1h, `1440` = 1d. Defaults to 1m. Note: There are range limits for interval — specifically: `1` (1m): max range 1 week, `60` (1h): max range 1 month, `1440` (1d): max range 1 year
 
 ```bash
-curl -X GET "https://api.aisa.one/apis/v1/dome/polymarket/candlesticks/{condition_id}?interval=60" \
+curl -X GET "https://api.aisa.one/apis/v1/polymarket/candlesticks/{condition_id}?interval=60" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -134,7 +134,7 @@ Parameters:
 - `pagination_key` (string) - Pagination key returned from previous request to fetch next page of results
 
 ```bash
-curl -X GET "https://api.aisa.one/apis/v1/dome/polymarket/positions/wallet/{wallet_address}" \
+curl -X GET "https://api.aisa.one/apis/v1/polymarket/positions/wallet/{wallet_address}" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -150,7 +150,7 @@ Parameters:
 - `end_time` (integer) - Optional end date for metrics calculation (Unix timestamp in seconds). Only used when `with_metrics=true`.
 
 ```bash
-curl -X GET "https://api.aisa.one/apis/v1/dome/polymarket/wallet?eoa={wallet_address}" \
+curl -X GET "https://api.aisa.one/apis/v1/polymarket/wallet?eoa={wallet_address}" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -164,7 +164,7 @@ Parameters:
 - `end_time` (integer) - Defaults to the current date if not provided.
 
 ```bash
-curl -X GET "https://api.aisa.one/apis/v1/dome/polymarket/wallet/pnl/{wallet_address}?granularity=day" \
+curl -X GET "https://api.aisa.one/apis/v1/polymarket/wallet/pnl/{wallet_address}?granularity=day" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -186,7 +186,7 @@ Parameters:
 - `offset` (integer) - Number of markets to skip for pagination
 
 ```bash
-curl -X GET "https://api.aisa.one/apis/v1/dome/kalshi/markets?search=fed%20rate" \
+curl -X GET "https://api.aisa.one/apis/v1/kalshi/markets?search=fed%20rate" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -198,7 +198,7 @@ Parameters:
 - `at_time` (integer) - Optional Unix timestamp (in seconds) to fetch a historical market price. If not provided, returns the most real-time price available.
 
 ```bash
-curl -X GET "https://api.aisa.one/apis/v1/dome/kalshi/market-price/{market_ticker}" \
+curl -X GET "https://api.aisa.one/apis/v1/kalshi/market-price/{market_ticker}" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -214,7 +214,7 @@ Parameters:
 - `offset` (integer) - Number of trades to skip for pagination
 
 ```bash
-curl -X GET "https://api.aisa.one/apis/v1/dome/kalshi/trades?ticker={ticker}" \
+curl -X GET "https://api.aisa.one/apis/v1/kalshi/trades?ticker={ticker}" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -229,7 +229,7 @@ Parameters:
 - `limit` (integer) - Maximum number of snapshots to return (default: 100, max: 200). Ignored when fetching the latest orderbook without `start_time` and `end_time`.
 
 ```bash
-curl -X GET "https://api.aisa.one/apis/v1/dome/kalshi/orderbooks?ticker={ticker}" \
+curl -X GET "https://api.aisa.one/apis/v1/kalshi/orderbooks?ticker={ticker}" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -246,7 +246,7 @@ Parameters:
 - `kalshi_event_ticker` (string[]) - The Kalshi event ticker(s) to find matching markets for. To get multiple markets at once, provide the query param multiple times with different tickers. Cannot be combined with `polymarket_market_slug`.
 
 ```bash
-curl -X GET "https://api.aisa.one/apis/v1/dome/matching-markets/sports" \
+curl -X GET "https://api.aisa.one/apis/v1/matching-markets/sports" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -260,7 +260,7 @@ Parameters:
 - `date`* (string) - The date to find matching markets for in YYYY-MM-DD format
 
 ```bash
-curl -X GET "https://api.aisa.one/apis/v1/dome/matching-markets/sports/nba?date=2024-03-01" \
+curl -X GET "https://api.aisa.one/apis/v1/matching-markets/sports/nba?date=2024-03-01" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -316,6 +316,12 @@ Returns `activities` array:
 
 - `400` - `search` requires `status` parameter (`open` or `closed`) — always include both
 - `401` - Invalid API key
+- `403` with "Pre-deduction failed" - **Insufficient API quota.** The response will include the remaining balance and required amount. You must deposit more USDC into the Circle Gateway contract before retrying. Follow these steps:
+  1. Check current balance: `node x402-payment/scripts/setup.mjs balance`
+  2. If the wallet's USDC balance on Arc testnet is below 5 USDC, claim more from the faucet: https://faucet.circle.com/
+  3. Deposit USDC (adjust amount as needed): `node x402-payment/scripts/setup.mjs deposit --amount 5`
+  4. If Gateway approval is needed first: `node x402-payment/scripts/setup.mjs approve`
+  5. Retry the failed request after depositing
 - `429` - Rate limit — wait and retry
 - Empty `markets` array means no markets match the search term
 - Activity endpoint returns recent trades globally — no filters required
