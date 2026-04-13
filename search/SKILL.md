@@ -1,11 +1,11 @@
 ---
-name: openclaw-search
+name: aisa-search
 description: "Intelligent search for agents. Multi-source retrieval across web, scholar, Tavily, and Perplexity Sonar models."
-homepage: https://openclaw.ai
-metadata: {"openclaw":{"emoji":"🔎","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY"}}
+homepage: https://aisa.one
+metadata: {"aisa":{"emoji":"🔎","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
 ---
 
-# OpenClaw Search
+# AIsa Search
 
 Intelligent search for autonomous agents, powered by AIsa.
 

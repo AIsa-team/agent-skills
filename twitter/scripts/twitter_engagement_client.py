@@ -535,13 +535,13 @@ def build_parser() -> argparse.ArgumentParser:
     unlike_latest.set_defaults(func=command_like_latest)
 
     like_tweet = subparsers.add_parser("like-tweet", help="Like a specific tweet ID")
-    like_tweet.add_argument("--tweet-id", required=True, help="Tweet ID resolved by OpenClaw context")
+    like_tweet.add_argument("--tweet-id", required=True, help="Tweet ID resolved by agent context")
     like_tweet.add_argument("--username", help="Optional username for natural-language response")
     like_tweet.add_argument("--label", help='Optional label such as "Tweet #2"')
     like_tweet.set_defaults(func=command_like_tweet)
 
     unlike_tweet = subparsers.add_parser("unlike-tweet", help="Unlike a specific tweet ID")
-    unlike_tweet.add_argument("--tweet-id", required=True, help="Tweet ID resolved by OpenClaw context")
+    unlike_tweet.add_argument("--tweet-id", required=True, help="Tweet ID resolved by agent context")
     unlike_tweet.add_argument("--username", help="Optional username for natural-language response")
     unlike_tweet.add_argument("--label", help='Optional label such as "Tweet #5"')
     unlike_tweet.set_defaults(func=command_like_tweet)
@@ -555,12 +555,12 @@ def build_parser() -> argparse.ArgumentParser:
     unfollow_user.set_defaults(func=command_follow_user)
 
     follow_user_id = subparsers.add_parser("follow-user-id", help="Follow a user by resolved user ID")
-    follow_user_id.add_argument("--target-user-id", required=True, help="User ID resolved by OpenClaw context")
+    follow_user_id.add_argument("--target-user-id", required=True, help="User ID resolved by agent context")
     follow_user_id.add_argument("--username", help="Optional username for natural-language response")
     follow_user_id.set_defaults(func=command_follow_user_id)
 
     unfollow_user_id = subparsers.add_parser("unfollow-user-id", help="Unfollow a user by resolved user ID")
-    unfollow_user_id.add_argument("--target-user-id", required=True, help="User ID resolved by OpenClaw context")
+    unfollow_user_id.add_argument("--target-user-id", required=True, help="User ID resolved by agent context")
     unfollow_user_id.add_argument("--username", help="Optional username for natural-language response")
     unfollow_user_id.set_defaults(func=command_follow_user_id)
 

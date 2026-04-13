@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-OpenClaw Market - AIsa API Client
+AIsa Market - AIsa API Client
 Complete market data for autonomous agents: Stocks + Crypto.
 
 Usage:
@@ -35,7 +35,7 @@ from typing import Any, Dict, List, Optional
 
 
 class MarketClient:
-    """OpenClaw Market - Unified Market Data API Client."""
+    """AIsa Market - Unified Market Data API Client."""
     
     BASE_URL = "https://api.aisa.one/apis/v1"
     
@@ -66,7 +66,7 @@ class MarketClient:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "User-Agent": "OpenClaw-Market/1.0"
+            "User-Agent": "AIsa-Market/1.0"
         }
         
         request_data = None
@@ -249,7 +249,7 @@ def _normalize_crypto_ticker(symbol: str) -> str:
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        description="OpenClaw Market - Complete market data (Stocks + Crypto)",
+        description="AIsa Market - Complete market data (Stocks + Crypto)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

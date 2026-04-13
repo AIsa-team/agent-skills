@@ -1,8 +1,8 @@
 ---
 name: Prediction Market Data
 description: "Prediction markets data - Polymarket, Kalshi markets, prices, positions, and trades"
-homepage: https://openclaw.ai
-metadata: {"openclaw":{"emoji":"📈","requires":{"bins":["curl","python"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY"}}
+homepage: https://aisa.one
+metadata: {"aisa":{"emoji":"📈","requires":{"bins":["curl","python"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
 ---
 
 # Cross-Platform Prediction Market Data 📈

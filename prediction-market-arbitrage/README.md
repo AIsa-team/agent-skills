@@ -1,4 +1,4 @@
-# OpenClaw Prediction Market Toolkit 📈⚖️
+# AIsa Prediction Market Toolkit 📈⚖️
 
 **A comprehensive toolkit for accessing prediction market data and finding cross-platform arbitrage opportunities for autonomous agents. Powered by AIsa.**
 
@@ -7,7 +7,7 @@ This repository contains skills and Python clients that allow AI agents and deve
 ## 📁 Included Files
 
 ### Skill
-- `skill.md`: The OpenClaw skill definition for cross-platform prediction-market arbitrage lookups.
+- `skill.md`: The skill definition for cross-platform prediction-market arbitrage lookups.
 
 ### Scripts
 - `script/prediction_market_client.py`: CLI and Python wrapper for Polymarket, Kalshi, and cross-platform market-matching endpoints.

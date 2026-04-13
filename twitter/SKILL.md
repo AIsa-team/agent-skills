@@ -1,11 +1,11 @@
 ---
 name: Twitter Command Center (Search + Post + Interact)
 description: "Searches and reads X (Twitter): profiles, timelines, mentions, followers, tweet search, trends, lists, communities, and Spaces. Publishes posts, likes/unlikes tweets, and follows/unfollows users after the user completes OAuth in the browser. Use when the user asks about Twitter/X data, social listening, posting, or interacting with tweets/users without sharing account passwords."
-homepage: https://openclaw.ai
-metadata: {"openclaw":{"emoji":"🐦","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY"}}
+homepage: https://aisa.one
+metadata: {"aisa":{"emoji":"🐦","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
 ---
 
-# OpenClaw Twitter 🐦
+# AIsa Twitter 🐦
 
 **Twitter/X data access and automation for autonomous agents. Powered by AIsa.**
 

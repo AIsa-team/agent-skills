@@ -1,4 +1,4 @@
-# OpenClaw Twitter 🐦
+# AIsa Twitter 🐦
 
 Twitter/X intelligence and automation for autonomous agents. Powered by AIsa.
 
@@ -29,7 +29,7 @@ python scripts/twitter_client.py trends
 ### Post & Write (Requires OAuth)
 ```bash
 # Publish a text post
-python scripts/twitter_oauth_client.py post --text "Hello from OpenClaw!"
+python scripts/twitter_oauth_client.py post --text "Hello from AIsa!"
 
 # Publish a post with media
 python scripts/twitter_oauth_client.py post --text "Check out this image" --media-file ./photo.png
@@ -55,5 +55,5 @@ Sign up at [aisa.one](https://aisa.one)
 
 ## Links
 
-- [ClawHub](https://www.clawhub.com/aisa-one/openclaw-twitter)
+- [AIsa](https://aisa.one)
 - [API Reference](https://docs.aisa.one/reference/)

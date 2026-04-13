@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-OpenClaw Search - AIsa API Client.
+AIsa Search - AIsa API Client.
 
 Usage:
     python search_client.py web --query <query> [--count <n>]
@@ -28,7 +28,7 @@ from typing import Any, Dict, List, Optional
 
 
 class SearchClient:
-    """OpenClaw Search API client."""
+    """AIsa Search API client."""
 
     BASE_URL = "https://api.aisa.one/apis/v1"
 
@@ -61,7 +61,7 @@ class SearchClient:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "User-Agent": "OpenClaw-Search/2.0",
+            "User-Agent": "AIsa-Search/2.0",
         }
 
         request_data = None
@@ -372,7 +372,7 @@ class SearchClient:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="OpenClaw Search - structured search plus Perplexity Sonar endpoints",
+        description="AIsa Search - structured search plus Perplexity Sonar endpoints",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

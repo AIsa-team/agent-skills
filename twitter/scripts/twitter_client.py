@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-OpenClaw Twitter - AIsa API Client
+AIsa Twitter - AIsa API Client
 Twitter/X read APIs for autonomous agents.
 
 Read operations use GET with Authorization: Bearer AISA_API_KEY.
@@ -31,7 +31,7 @@ URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
 
 
 class TwitterClient:
-    """OpenClaw Twitter - Twitter/X API Client."""
+    """AIsa Twitter - Twitter/X API Client."""
 
     BASE_URL = "https://api.aisa.one/apis/v1"
 
@@ -62,7 +62,7 @@ class TwitterClient:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "User-Agent": "OpenClaw-Twitter/1.0",
+            "User-Agent": "AIsa-Twitter/1.0",
         }
 
         request_data = None
@@ -218,7 +218,7 @@ class TwitterClient:
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        description="OpenClaw Twitter - Twitter/X read APIs",
+        description="AIsa Twitter - Twitter/X read APIs",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 

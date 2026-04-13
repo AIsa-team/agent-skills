@@ -1,4 +1,4 @@
-# OpenClaw YouTube 📺
+# AIsa YouTube 📺
 
 YouTube SERP Scout for autonomous agents. Search top-ranking videos, channels, and trends.
 

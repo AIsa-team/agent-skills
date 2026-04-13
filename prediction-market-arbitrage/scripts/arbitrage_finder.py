@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-OpenClaw Prediction Market Arbitrage Finder
+AIsa Prediction Market Arbitrage Finder
 Automated cross-platform arbitrage detection across Polymarket and Kalshi.
 Powered by AIsa.
 
@@ -60,7 +60,7 @@ class AIsaClient:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "User-Agent": "OpenClaw-ArbitrageFinder/1.0",
+            "User-Agent": "AIsa-ArbitrageFinder/1.0",
         }
         req = urllib.request.Request(url, headers=headers, method="GET")
 
@@ -84,7 +84,7 @@ class AIsaClient:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "User-Agent": "OpenClaw-ArbitrageFinder/1.0",
+            "User-Agent": "AIsa-ArbitrageFinder/1.0",
         }
         req = urllib.request.Request(url, headers=headers, method="GET")
 
@@ -526,7 +526,7 @@ def print_summary(results: List[Dict[str, Any]]) -> None:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="OpenClaw Prediction Market Arbitrage Finder - Detect cross-platform price discrepancies",
+        description="AIsa Prediction Market Arbitrage Finder - Detect cross-platform price discrepancies",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

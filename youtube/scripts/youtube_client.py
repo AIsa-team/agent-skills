@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-OpenClaw YouTube - AIsa API Client
+AIsa YouTube - AIsa API Client
 YouTube SERP Scout for content research, competitor tracking, and trend discovery.
 
 Usage:
@@ -19,7 +19,7 @@ from typing import Any, Dict, List, Optional
 
 
 class YouTubeClient:
-    """OpenClaw YouTube - YouTube SERP Scout API Client."""
+    """AIsa YouTube - YouTube SERP Scout API Client."""
     
     BASE_URL = "https://api.aisa.one/apis/v1"
     
@@ -50,7 +50,7 @@ class YouTubeClient:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "User-Agent": "OpenClaw-YouTube/1.0",
+            "User-Agent": "AIsa-YouTube/1.0",
             "Accept": "application/json"
         }
         
@@ -229,7 +229,7 @@ class YouTubeClient:
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        description="OpenClaw YouTube - YouTube SERP Scout",
+        description="AIsa YouTube - YouTube SERP Scout",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

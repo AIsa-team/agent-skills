@@ -1,11 +1,11 @@
 ---
-name: openclaw-youtube
+name: aisa-youtube
 description: "YouTube SERP Scout for agents. Search top-ranking videos, channels, and trends for content research and competitor tracking."
-homepage: https://openclaw.ai
-metadata: {"openclaw":{"emoji":"📺","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY"}}
+homepage: https://aisa.one
+metadata: {"aisa":{"emoji":"📺","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
 ---
 
-# OpenClaw YouTube 📺
+# AIsa YouTube 📺
 
 **YouTube SERP Scout for autonomous agents. Powered by AIsa.**
 

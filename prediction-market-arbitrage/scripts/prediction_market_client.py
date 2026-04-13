@@ -74,7 +74,7 @@ class PredictionMarketClient:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "User-Agent": "OpenClaw-PredictionMarket/1.0",
+            "User-Agent": "AIsa-PredictionMarket/1.0",
         }
 
         req = urllib.request.Request(url, headers=headers, method="GET")
@@ -300,7 +300,7 @@ class PredictionMarketClient:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "User-Agent": "OpenClaw-PredictionMarket/1.0",
+            "User-Agent": "AIsa-PredictionMarket/1.0",
         }
         req = urllib.request.Request(url, headers=headers, method="GET")
         try:

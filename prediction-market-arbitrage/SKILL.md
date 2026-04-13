@@ -1,8 +1,8 @@
 ---
 name: Prediction Market Arbitrage
 description: "Find and analyze arbitrage opportunities across prediction markets like Polymarket and Kalshi."
-homepage: https://openclaw.ai
-metadata: {"openclaw":{"emoji":"⚖️","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY"}}
+homepage: https://aisa.one
+metadata: {"aisa":{"emoji":"⚖️","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
 ---
 
 # Cross-Platform Prediction Market Arbitrage ⚖️

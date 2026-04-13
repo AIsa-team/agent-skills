@@ -1,4 +1,4 @@
-## OpenClaw Media Gen
+## AIsa Media Gen
 
 Generate images and videos using the AIsa API:
 

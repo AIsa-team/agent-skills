@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-OpenClaw Media Gen - AIsa API Client
+AIsa Media Gen - AIsa API Client
 
 Image:
   - Gemini GenerateContent: POST https://api.aisa.one/v1/models/{model}:generateContent
@@ -44,7 +44,7 @@ def _http_request_json(
     headers: Optional[Dict[str, str]] = None,
     body: Optional[Dict[str, Any]] = None,
     timeout_s: int = 60,
-    user_agent: str = "OpenClaw-Media-Gen/1.0",
+    user_agent: str = "AIsa-Media-Gen/1.0",
 ) -> Dict[str, Any]:
     all_headers = {
         "Authorization": f"Bearer {api_key}",
@@ -88,7 +88,7 @@ def _download_to_file(url: str, out_path: str, timeout_s: int = 300) -> Dict[str
     Designed for OSS signed URLs returned by video generation tasks.
     """
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
-    req = urllib.request.Request(url, headers={"User-Agent": "OpenClaw-Media-Gen/1.0"})
+    req = urllib.request.Request(url, headers={"User-Agent": "AIsa-Media-Gen/1.0"})
     try:
         with urllib.request.urlopen(req, timeout=timeout_s) as resp, open(out_path, "wb") as f:
             total = 0
@@ -290,7 +290,7 @@ def cmd_video_wait(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(description="OpenClaw Media Gen - image & video generation")
+    p = argparse.ArgumentParser(description="AIsa Media Gen - image & video generation")
     p.add_argument("--api-key", help="Override AISA_API_KEY")
 
     sub = p.add_subparsers(dest="command")

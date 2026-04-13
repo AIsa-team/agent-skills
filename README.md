@@ -1,15 +1,14 @@
-# OpenClaw Skills Collection 🦞
+# AIsa Agent Skills ⚡
 
-> **Official skill library for OpenClaw autonomous agents.**
+> **Production-ready skills for autonomous agents. Compatible with all major agent harnesses, including OpenClaw, Claude Code, and Hermes.**
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![OpenClaw Compatible](https://img.shields.io/badge/OpenClaw-Compatible-brightgreen.svg)](https://openclaw.ai)
 
 ---
 
 ## What is This?
 
-This repository contains **production-ready skills** for [OpenClaw](https://openclaw.ai) autonomous agents. Each skill provides a specific capability that your agent can use.
+This repository contains **production-ready skills** for autonomous agents powered by [AIsa](https://aisa.one). Each skill provides a specific capability that your agent can use, and is compatible with all major agent harnesses — including OpenClaw, Claude Code, and Hermes.
 
 ---
 
@@ -38,13 +37,13 @@ Browse the skills above and pick what your agent needs.
 
 Each skill folder contains:
 - `README.md` - Human-readable documentation
-- `SKILL.md` - OpenClaw skill specification
+- `SKILL.md` - Skill specification
 - Supporting scripts and references
 
 ### 3. Configure Your Agent
 
 ```bash
-# Example: Using the OpenClaw Starter Kit
+# Example: Set your AIsa API key
 export AISA_API_KEY="your-api-key"
 ```
 
@@ -54,18 +53,17 @@ export AISA_API_KEY="your-api-key"
 
 Want to contribute a skill? Each skill should include:
 
-1. **SKILL.md** - OpenClaw skill specification with metadata
+1. **SKILL.md** - Skill specification with metadata
 2. **README.md** - Human-readable documentation
 3. **Scripts/Tools** - Any supporting code
 4. **References** - API docs, examples
 
-See existing skills in the `openclaw-skills/` directory for reference.
+See existing skills in this repository for reference.
 
 ---
 
 ## Links
 
-- 🦞 [OpenClaw](https://openclaw.ai) - The autonomous agent framework
 - ⚡ [AIsa](https://aisa.one) - Unified API backend
 - 📖 [Documentation](https://docs.aisa.one) - API reference
 
@@ -78,5 +76,5 @@ Apache 2.0 License - see [LICENSE](LICENSE) for details.
 ---
 
 <p align="center">
-  <b>OpenClaw Skills</b> - Extend your agent's capabilities.
+  <b>AIsa Agent Skills</b> - Extend your agent's capabilities.
 </p>

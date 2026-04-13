@@ -1,11 +1,11 @@
 ---
-name: openclaw-media-gen
+name: aisa-media-gen
 description: "Generate images & videos with AIsa. Gemini 3 Pro Image (image) + Qwen Wan 2.6 (video) via one API key."
-homepage: https://openclaw.ai
-metadata: {"openclaw":{"emoji":"🎬","requires":{"bins":["python3","curl"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY"}}
+homepage: https://aisa.one
+metadata: {"aisa":{"emoji":"🎬","requires":{"bins":["python3","curl"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
 ---
 
-# OpenClaw Media Gen 🎬
+# AIsa Media Gen 🎬
 
 Generate **images** and **videos** with a single AIsa API key:
 

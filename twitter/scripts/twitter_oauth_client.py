@@ -120,7 +120,7 @@ def encode_multipart_form_data(
     fields: Dict[str, Any],
     files: list[Dict[str, Any]],
 ) -> tuple[bytes, str]:
-    boundary = f"----OpenClawTwitterBoundary{uuid.uuid4().hex}"
+    boundary = f"----AIsaTwitterBoundary{uuid.uuid4().hex}"
     body = bytearray()
 
     def append_text_part(name: str, value: Any) -> None:
