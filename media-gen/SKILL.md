@@ -5,7 +5,7 @@ homepage: https://aisa.one
 metadata: {"aisa":{"emoji":"🎬","requires":{"bins":["python3","curl"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
 ---
 
-# AIsa Media Gen 🎬
+# Media Gen 🎬
 
 Generate **images** and **videos** with a single AIsa API key:
 

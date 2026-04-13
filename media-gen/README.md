@@ -1,4 +1,4 @@
-## AIsa Media Gen
+## Media Gen
 
 Generate images and videos using the AIsa API:
 

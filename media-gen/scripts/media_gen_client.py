@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AIsa Media Gen - AIsa API Client
+Media Gen - AIsa API Client
 
 Image:
   - Gemini GenerateContent: POST https://api.aisa.one/v1/models/{model}:generateContent
@@ -290,7 +290,7 @@ def cmd_video_wait(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(description="AIsa Media Gen - image & video generation")
+    p = argparse.ArgumentParser(description="Media Gen - image & video generation")
     p.add_argument("--api-key", help="Override AISA_API_KEY")
 
     sub = p.add_subparsers(dest="command")
