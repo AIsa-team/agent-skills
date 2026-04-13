@@ -1,6 +1,6 @@
-# AIsa YouTube 📺
+# YouTube SERP 📺
 
-YouTube SERP Scout for autonomous agents. Search top-ranking videos, channels, and trends.
+YouTube SERP for autonomous agents. Search top-ranking videos, channels, and trends.
 
 ## Features
 

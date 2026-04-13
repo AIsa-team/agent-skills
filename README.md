@@ -19,11 +19,11 @@ This repository contains **production-ready skills** for autonomous agents power
 | [**Market**](./market/) | Query real-time and historical financial data across equities and crypto. | ✅ Ready |
 | [**Media Gen**](./media-gen/) | Generate images & videos with AIsa. | ✅ Ready |
 | [**Perplexity Search**](./perplexity-search/) | Perplexity Sonar search and answer generation through AIsa. | ✅ Ready |
-| [**Prediction Market**](./prediction-market/) | Prediction markets data - Polymarket, Kalshi markets, prices, positions, and trades. | ✅ Ready |
+| [**Prediction Market Data**](./prediction-market-data/) | Prediction markets data - Polymarket, Kalshi markets, prices, positions, and trades. | ✅ Ready |
 | [**Prediction Market Arbitrage**](./prediction-market-arbitrage/) | Find and analyze arbitrage opportunities across prediction markets. | ✅ Ready |
-| [**Search**](./search/) | Intelligent search for agents. Multi-source retrieval across web, scholar, Tavily, and Perplexity Sonar models. | ✅ Ready |
+| [**Multi-source Search**](./multi-source-search/) | Multi-source intelligent search for agents. Retrieval across web, scholar, Tavily, and Perplexity Sonar models. | ✅ Ready |
 | [**Twitter**](./twitter/) | Searches and reads X (Twitter): profiles, timelines, mentions, followers, tweet search, trends, lists, communities, and Spaces. | ✅ Ready |
-| [**YouTube**](./youtube/) | Search YouTube videos, channels, and trends. | ✅ Ready |
+| [**YouTube SERP**](./youtube-serp/) | Search YouTube videos, channels, and trends. | ✅ Ready |
 
 ---
 

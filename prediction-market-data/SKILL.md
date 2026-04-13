@@ -1,5 +1,5 @@
 ---
-name: Prediction Market Data
+name: prediction-market-data
 description: "Prediction markets data - Polymarket, Kalshi markets, prices, positions, and trades"
 homepage: https://aisa.one
 metadata: {"aisa":{"emoji":"📈","requires":{"bins":["curl","python"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}

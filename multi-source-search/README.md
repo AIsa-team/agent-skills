@@ -1,4 +1,4 @@
-# AIsa Search
+# Multi-source Search
 
 Intelligent search for autonomous agents with structured retrieval plus Perplexity Sonar answer endpoints.
 

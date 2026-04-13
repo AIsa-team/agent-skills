@@ -1,13 +1,13 @@
 ---
-name: aisa-youtube
-description: "YouTube SERP Scout for agents. Search top-ranking videos, channels, and trends for content research and competitor tracking."
+name: youtube-serp
+description: "YouTube SERP for agents. Search top-ranking videos, channels, and trends for content research and competitor tracking."
 homepage: https://aisa.one
 metadata: {"aisa":{"emoji":"📺","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
 ---
 
-# AIsa YouTube 📺
+# YouTube SERP 📺
 
-**YouTube SERP Scout for autonomous agents. Powered by AIsa.**
+**YouTube SERP for autonomous agents. Powered by AIsa.**
 
 One API key. Rank discovery. Content research. Competitor tracking.
 

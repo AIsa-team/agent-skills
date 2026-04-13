@@ -1,11 +1,11 @@
 ---
-name: aisa-search
-description: "Intelligent search for agents. Multi-source retrieval across web, scholar, Tavily, and Perplexity Sonar models."
+name: multi-source-search
+description: "Multi-source intelligent search for agents. Retrieval across web, scholar, Tavily, and Perplexity Sonar models."
 homepage: https://aisa.one
 metadata: {"aisa":{"emoji":"🔎","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
 ---
 
-# AIsa Search
+# Multi-source Search
 
 Intelligent search for autonomous agents, powered by AIsa.
 
