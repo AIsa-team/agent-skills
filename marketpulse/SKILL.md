@@ -1,36 +1,26 @@
 ---
 name: marketpulse
-description: "Query real-time and historical financial data across equities and crypto—prices, market moves, metrics, and trends for analysis, alerts, and reporting."
+description: "Query real-time and historical financial data for equities—prices, news, financial statements, metrics, analyst estimates, insider and institutional activity, SEC filings, earnings press releases, segmented revenues, stock screening, and macro interest rates."
 homepage: https://aisa.one
 metadata: {"aisa":{"emoji":"📊","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
 ---
 
 # MarketPulse 📊
 
-**Complete market data for autonomous agents. Powered by AIsa.**
+**Complete equity market data for autonomous agents. Powered by AIsa.**
 
-One API key. Stocks + Crypto + Financials. Everything you need.
+One API key. Stocks, financials, filings, and macro data. Everything you need.
 
 ## 🔥 What Can You Do?
-
-### Cross-Asset Portfolio
-```
-"Get BTC, ETH prices alongside AAPL, NVDA stock data for my portfolio"
-```
 
 ### Investment Research
 ```
 "Full analysis: NVDA price trends, insider trades, analyst estimates, SEC filings"
 ```
 
-### Crypto Tracking
-```
-"Real-time prices for BTC, ETH, SOL with 30-day historical charts"
-```
-
 ### Earnings Analysis
 ```
-"Get Tesla earnings reports, analyst estimates, and price reaction"
+"Get Tesla earnings press releases, analyst estimates, and price reaction"
 ```
 
 ### Market Screening
@@ -41,6 +31,11 @@ One API key. Stocks + Crypto + Financials. Everything you need.
 ### Whale Watching
 ```
 "Track insider trades at Apple and correlate with price movements"
+```
+
+### Segment Deep-Dive
+```
+"Break down Apple's revenue by product segment and geography"
 ```
 
 ## Quick Start
@@ -87,22 +82,38 @@ curl "https://api.aisa.one/apis/v1/financial/news?ticker=AAPL&limit=10" \
 ### Financial Statements
 
 ```bash
-# All financial statements
-curl "https://api.aisa.one/apis/v1/financial/financial_statements/all?ticker=AAPL" \
+# All financial statements (requires period)
+curl "https://api.aisa.one/apis/v1/financial/financials?ticker=AAPL&period=annual" \
   -H "Authorization: Bearer $AISA_API_KEY"
 
 # Income statements
-curl "https://api.aisa.one/apis/v1/financial/financial_statements/income?ticker=AAPL" \
+curl "https://api.aisa.one/apis/v1/financial/financials/income-statements?ticker=AAPL&period=annual" \
   -H "Authorization: Bearer $AISA_API_KEY"
 
 # Balance sheets
-curl "https://api.aisa.one/apis/v1/financial/financial_statements/balance?ticker=AAPL" \
+curl "https://api.aisa.one/apis/v1/financial/financials/balance-sheets?ticker=AAPL&period=annual" \
   -H "Authorization: Bearer $AISA_API_KEY"
 
 # Cash flow statements
-curl "https://api.aisa.one/apis/v1/financial/financial_statements/cash?ticker=AAPL" \
+curl "https://api.aisa.one/apis/v1/financial/financials/cash-flow-statements?ticker=AAPL&period=annual" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
+
+**Parameters:**
+- `ticker`: Stock symbol (required)
+- `period`: `annual`, `quarterly`, or `ttm` (required)
+
+### Segmented Revenues
+
+```bash
+# Break down revenue by business segment and geography
+curl "https://api.aisa.one/apis/v1/financial/financials/segmented-revenues?ticker=AAPL&period=annual" \
+  -H "Authorization: Bearer $AISA_API_KEY"
+```
+
+**Parameters:**
+- `ticker`: Stock symbol (required)
+- `period`: `annual` or `quarterly` (required)
 
 ### Financial Metrics
 
@@ -111,8 +122,8 @@ curl "https://api.aisa.one/apis/v1/financial/financial_statements/cash?ticker=AA
 curl "https://api.aisa.one/apis/v1/financial/financial-metrics/snapshot?ticker=AAPL" \
   -H "Authorization: Bearer $AISA_API_KEY"
 
-# Historical financial metrics
-curl "https://api.aisa.one/apis/v1/financial/financial-metrics?ticker=AAPL" \
+# Historical financial metrics (period required)
+curl "https://api.aisa.one/apis/v1/financial/financial-metrics?ticker=AAPL&period=annual" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -120,23 +131,33 @@ curl "https://api.aisa.one/apis/v1/financial/financial-metrics?ticker=AAPL" \
 
 ```bash
 # Earnings per share estimates
-curl "https://api.aisa.one/apis/v1/financial/analyst/eps?ticker=AAPL&period=annual" \
+curl "https://api.aisa.one/apis/v1/financial/analyst-estimates?ticker=AAPL&period=annual" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
+
+### Earnings Press Releases
+
+```bash
+# Get earnings press releases
+curl "https://api.aisa.one/apis/v1/financial/earnings/press-releases?ticker=NVDA" \
+  -H "Authorization: Bearer $AISA_API_KEY"
+```
+
+**Note:** This endpoint has narrower ticker coverage than other financial endpoints. Passing an unsupported ticker returns `{"error":"Invalid ticker"}`. See [earnings-press-releases-tickers.md](./earnings-press-releases-tickers.md) for the full list of supported tickers (~2,776 as of 2026-04-14).
 
 ### Insider Trading
 
 ```bash
 # Get insider trades
-curl "https://api.aisa.one/apis/v1/financial/insider/trades?ticker=AAPL" \
+curl "https://api.aisa.one/apis/v1/financial/insider-trades?ticker=AAPL" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
 ### Institutional Ownership
 
 ```bash
-# Get institutional ownership
-curl "https://api.aisa.one/apis/v1/financial/institutional/ownership?ticker=AAPL" \
+# Get institutional ownership (by ticker OR investor)
+curl "https://api.aisa.one/apis/v1/financial/institutional-ownership?ticker=AAPL" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -144,18 +165,18 @@ curl "https://api.aisa.one/apis/v1/financial/institutional/ownership?ticker=AAPL
 
 ```bash
 # Get SEC filings
-curl "https://api.aisa.one/apis/v1/financial/sec/filings?ticker=AAPL" \
+curl "https://api.aisa.one/apis/v1/financial/filings?ticker=AAPL" \
   -H "Authorization: Bearer $AISA_API_KEY"
 
-# Get SEC filing items
-curl "https://api.aisa.one/apis/v1/financial/sec/items?ticker=AAPL" \
+# Get SEC filing items (requires filing type and year)
+curl "https://api.aisa.one/apis/v1/financial/filings/items?ticker=AAPL&filing_type=10-K&year=2024" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
 ### Company Facts
 
 ```bash
-# Get company facts by CIK
+# Get company facts (by ticker or CIK)
 curl "https://api.aisa.one/apis/v1/financial/company/facts?ticker=AAPL" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
@@ -164,82 +185,33 @@ curl "https://api.aisa.one/apis/v1/financial/company/facts?ticker=AAPL" \
 
 ```bash
 # Screen for stocks matching criteria
-curl -X POST "https://api.aisa.one/apis/v1/financial/search/stock" \
+curl -X POST "https://api.aisa.one/apis/v1/financial/financials/search/screener" \
   -H "Authorization: Bearer $AISA_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"filters":{"pe_ratio":{"max":15},"revenue_growth":{"min":0.2}}}'
 ```
 
-### Interest Rates
+### Search Line Items
+
+```bash
+# Search specific financial line items across tickers
+curl -X POST "https://api.aisa.one/apis/v1/financial/financials/search/line-items" \
+  -H "Authorization: Bearer $AISA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"tickers":["AAPL","MSFT"],"line_items":["revenue","net_income"],"period":"annual"}'
+```
+
+### Interest Rates (Macro)
 
 ```bash
 # Current interest rates
-curl "https://api.aisa.one/apis/v1/financial/interest_rates/snapshot" \
+curl "https://api.aisa.one/apis/v1/financial/macro/interest-rates/snapshot" \
   -H "Authorization: Bearer $AISA_API_KEY"
 
 # Historical interest rates
-curl "https://api.aisa.one/apis/v1/financial/interest_rates/historical?bank=fed" \
+curl "https://api.aisa.one/apis/v1/financial/macro/interest-rates?bank=fed" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
-
----
-
-## ₿ Cryptocurrency
-
-### Real-Time Price Snapshot
-
-```bash
-# Get current BTC price (use ticker format: SYMBOL-USD)
-curl "https://api.aisa.one/apis/v1/financial/crypto/prices/snapshot?ticker=BTC-USD" \
-  -H "Authorization: Bearer $AISA_API_KEY"
-
-# Get current ETH price
-curl "https://api.aisa.one/apis/v1/financial/crypto/prices/snapshot?ticker=ETH-USD" \
-  -H "Authorization: Bearer $AISA_API_KEY"
-
-# Get current SOL price
-curl "https://api.aisa.one/apis/v1/financial/crypto/prices/snapshot?ticker=SOL-USD" \
-  -H "Authorization: Bearer $AISA_API_KEY"
-
-# Get TRUMP token price
-curl "https://api.aisa.one/apis/v1/financial/crypto/prices/snapshot?ticker=TRUMP-USD" \
-  -H "Authorization: Bearer $AISA_API_KEY"
-```
-
-**Note:** Crypto tickers use format `SYMBOL-USD` (e.g., `BTC-USD`, `ETH-USD`).
-
-### Historical Price Data
-
-```bash
-# Get BTC historical prices (daily)
-curl "https://api.aisa.one/apis/v1/financial/crypto/prices?ticker=BTC-USD&interval=day&interval_multiplier=1&start_date=2025-01-01&end_date=2025-01-31" \
-  -H "Authorization: Bearer $AISA_API_KEY"
-
-# Get ETH hourly data
-curl "https://api.aisa.one/apis/v1/financial/crypto/prices?ticker=ETH-USD&interval=minute&interval_multiplier=60&start_date=2025-01-15&end_date=2025-01-16" \
-  -H "Authorization: Bearer $AISA_API_KEY"
-```
-
-### Supported Cryptocurrencies
-
-| Ticker | Name |
-|--------|------|
-| BTC-USD | Bitcoin |
-| ETH-USD | Ethereum |
-| SOL-USD | Solana |
-| BNB-USD | Binance Coin |
-| XRP-USD | Ripple |
-| DOGE-USD | Dogecoin |
-| ADA-USD | Cardano |
-| AVAX-USD | Avalanche |
-| DOT-USD | Polkadot |
-| MATIC-USD | Polygon |
-| LINK-USD | Chainlink |
-| UNI-USD | Uniswap |
-| ATOM-USD | Cosmos |
-| LTC-USD | Litecoin |
-| TRUMP-USD | Trump Token |
-| ... | And many more |
 
 ---
 
@@ -253,14 +225,19 @@ python3 {baseDir}/scripts/market_client.py stock prices --ticker AAPL --start 20
 python3 {baseDir}/scripts/market_client.py stock news --ticker AAPL --count 10
 
 # ==================== Financial Statements ====================
-python3 {baseDir}/scripts/market_client.py stock statements --ticker AAPL --type all
-python3 {baseDir}/scripts/market_client.py stock statements --ticker AAPL --type income
-python3 {baseDir}/scripts/market_client.py stock statements --ticker AAPL --type balance
-python3 {baseDir}/scripts/market_client.py stock statements --ticker AAPL --type cash
+python3 {baseDir}/scripts/market_client.py stock statements --ticker AAPL --type all --period annual
+python3 {baseDir}/scripts/market_client.py stock statements --ticker AAPL --type income --period quarterly
+python3 {baseDir}/scripts/market_client.py stock statements --ticker AAPL --type balance --period annual
+python3 {baseDir}/scripts/market_client.py stock statements --ticker AAPL --type cash --period ttm
+
+# ==================== Segmented Revenues ====================
+python3 {baseDir}/scripts/market_client.py stock segments --ticker AAPL --period annual
 
 # ==================== Metrics & Analysis ====================
 python3 {baseDir}/scripts/market_client.py stock metrics --ticker AAPL
+python3 {baseDir}/scripts/market_client.py stock metrics --ticker AAPL --historical --period annual
 python3 {baseDir}/scripts/market_client.py stock analyst --ticker AAPL
+python3 {baseDir}/scripts/market_client.py stock earnings --ticker AAPL
 
 # ==================== Insider & Institutional ====================
 python3 {baseDir}/scripts/market_client.py stock insider --ticker AAPL
@@ -268,54 +245,43 @@ python3 {baseDir}/scripts/market_client.py stock ownership --ticker AAPL
 
 # ==================== SEC Filings ====================
 python3 {baseDir}/scripts/market_client.py stock filings --ticker AAPL
+python3 {baseDir}/scripts/market_client.py stock filings --ticker AAPL --items --filing-type 10-K --year 2024
 
-# ==================== Stock Screener ====================
+# ==================== Stock Screener / Line Items ====================
 python3 {baseDir}/scripts/market_client.py stock screen --pe-max 15 --growth-min 0.2
+python3 {baseDir}/scripts/market_client.py stock line-items --tickers AAPL,MSFT --items revenue,net_income --period annual
 
 # ==================== Interest Rates ====================
 python3 {baseDir}/scripts/market_client.py stock rates
-python3 {baseDir}/scripts/market_client.py stock rates --historical
-
-# ==================== Crypto Data ====================
-# Note: Use ticker format SYMBOL-USD (or just SYMBOL, auto-converted)
-python3 {baseDir}/scripts/market_client.py crypto snapshot --ticker BTC-USD
-python3 {baseDir}/scripts/market_client.py crypto snapshot --ticker ETH  # Auto-converts to ETH-USD
-python3 {baseDir}/scripts/market_client.py crypto historical --ticker BTC-USD --start 2025-01-01 --end 2025-01-31
-python3 {baseDir}/scripts/market_client.py crypto portfolio --tickers BTC-USD,ETH-USD,SOL-USD
+python3 {baseDir}/scripts/market_client.py stock rates --historical --bank fed
 ```
 
 ---
 
 ## API Endpoints Reference
 
-### Traditional Finance
-
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/financial/prices` | GET | Historical stock prices (requires interval params) |
 | `/financial/news` | GET | Company news by ticker |
-| `/financial/financial_statements/all` | GET | All financial statements |
-| `/financial/financial_statements/income` | GET | Income statements |
-| `/financial/financial_statements/balance` | GET | Balance sheets |
-| `/financial/financial_statements/cash` | GET | Cash flow statements |
+| `/financial/financials` | GET | All financial statements (requires `period`) |
+| `/financial/financials/income-statements` | GET | Income statements (requires `period`) |
+| `/financial/financials/balance-sheets` | GET | Balance sheets (requires `period`) |
+| `/financial/financials/cash-flow-statements` | GET | Cash flow statements (requires `period`) |
+| `/financial/financials/segmented-revenues` | GET | Revenue by segment/geography (requires `period`) |
 | `/financial/financial-metrics/snapshot` | GET | Real-time financial metrics |
-| `/financial/financial-metrics` | GET | Historical metrics |
-| `/financial/analyst/eps` | GET | EPS estimates |
-| `/financial/insider/trades` | GET | Insider trades |
-| `/financial/institutional/ownership` | GET | Institutional ownership |
-| `/financial/sec/filings` | GET | SEC filings |
-| `/financial/sec/items` | GET | SEC filing items |
+| `/financial/financial-metrics` | GET | Historical metrics (requires `period`) |
+| `/financial/analyst-estimates` | GET | EPS estimates |
+| `/financial/earnings/press-releases` | GET | Earnings press releases (see [supported tickers](./earnings-press-releases-tickers.md)) |
+| `/financial/insider-trades` | GET | Insider trades |
+| `/financial/institutional-ownership` | GET | Institutional ownership |
+| `/financial/filings` | GET | SEC filings |
+| `/financial/filings/items` | GET | SEC filing items (requires `filing_type`, `year`) |
 | `/financial/company/facts` | GET | Company facts |
-| `/financial/search/stock` | POST | Stock screener |
-| `/financial/interest_rates/snapshot` | GET | Current interest rates |
-| `/financial/interest_rates/historical` | GET | Historical rates |
-
-### Cryptocurrency
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/financial/crypto/prices/snapshot` | GET | Real-time price snapshot |
-| `/financial/crypto/prices` | GET | Historical OHLCV data |
+| `/financial/financials/search/screener` | POST | Stock screener |
+| `/financial/financials/search/line-items` | POST | Search specific line items across tickers |
+| `/financial/macro/interest-rates/snapshot` | GET | Current interest rates |
+| `/financial/macro/interest-rates` | GET | Historical rates |
 
 ---
 
@@ -326,10 +292,12 @@ python3 {baseDir}/scripts/market_client.py crypto portfolio --tickers BTC-USD,ET
 | Stock prices | ~$0.001 |
 | Company news | ~$0.001 |
 | Financial statements | ~$0.002 |
+| Segmented revenues | ~$0.002 |
 | Analyst estimates | ~$0.002 |
+| Earnings press releases | ~$0.001 |
 | SEC filings | ~$0.001 |
-| Crypto snapshot | ~$0.0005 |
-| Crypto historical | ~$0.001 |
+| Line items / screener | ~$0.002 |
+| Interest rates | ~$0.0005 |
 
 Every response includes `usage.cost` and `usage.credits_remaining`.
 
