@@ -139,9 +139,11 @@ curl "https://api.aisa.one/apis/v1/financial/analyst-estimates?ticker=AAPL&perio
 
 ```bash
 # Get earnings press releases
-curl "https://api.aisa.one/apis/v1/financial/earnings/press-releases?ticker=AAPL" \
+curl "https://api.aisa.one/apis/v1/financial/earnings/press-releases?ticker=NVDA" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
+
+**Note:** This endpoint has narrower ticker coverage than other financial endpoints. Passing an unsupported ticker returns `{"error":"Invalid ticker"}`. See [earnings-press-releases-tickers.md](./earnings-press-releases-tickers.md) for the full list of supported tickers (~2,776 as of 2026-04-14).
 
 ### Insider Trading
 
@@ -270,7 +272,7 @@ python3 {baseDir}/scripts/market_client.py stock rates --historical --bank fed
 | `/financial/financial-metrics/snapshot` | GET | Real-time financial metrics |
 | `/financial/financial-metrics` | GET | Historical metrics (requires `period`) |
 | `/financial/analyst-estimates` | GET | EPS estimates |
-| `/financial/earnings/press-releases` | GET | Earnings press releases |
+| `/financial/earnings/press-releases` | GET | Earnings press releases (see [supported tickers](./earnings-press-releases-tickers.md)) |
 | `/financial/insider-trades` | GET | Insider trades |
 | `/financial/institutional-ownership` | GET | Institutional ownership |
 | `/financial/filings` | GET | SEC filings |
