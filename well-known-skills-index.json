@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "provider": {
+    "name": "AIsa",
+    "repository": "https://github.com/AIsa-team/agent-skills",
+    "branch": "agentskills",
+    "homepage": "https://github.com/AIsa-team/agent-skills/tree/agentskills"
+  },
+  "skills": [
+    {
+      "name": "aisa-twitter-command-center",
+      "description": "Twitter/X research and approved posting through the AIsa relay.",
+      "location": "https://github.com/AIsa-team/agent-skills/tree/agentskills/aisa-twitter-command-center"
+    },
+    {
+      "name": "aisa-twitter-api",
+      "description": "Twitter/X research and approved posting through the AIsa relay.",
+      "location": "https://github.com/AIsa-team/agent-skills/tree/agentskills/aisa-twitter-api"
+    },
+    {
+      "name": "aisa-twitter-post-engage",
+      "description": "Twitter/X research, posting, and engagement through the AIsa relay.",
+      "location": "https://github.com/AIsa-team/agent-skills/tree/agentskills/aisa-twitter-post-engage"
+    },
+    {
+      "name": "aisa-twitter-engagement-suite",
+      "description": "Twitter/X research, posting, and engagement through the AIsa relay.",
+      "location": "https://github.com/AIsa-team/agent-skills/tree/agentskills/aisa-twitter-engagement-suite"
+    },
+    {
+      "name": "x-intelligence-automation",
+      "description": "Twitter/X research, posting, and engagement through the AIsa relay.",
+      "location": "https://github.com/AIsa-team/agent-skills/tree/agentskills/x-intelligence-automation"
+    },
+    {
+      "name": "aisa-youtube-search",
+      "description": "YouTube discovery and search through the AIsa relay.",
+      "location": "https://github.com/AIsa-team/agent-skills/tree/agentskills/aisa-youtube-search"
+    },
+    {
+      "name": "aisa-youtube-serp-scout",
+      "description": "YouTube research, competitor tracking, and trend discovery through the AIsa relay.",
+      "location": "https://github.com/AIsa-team/agent-skills/tree/agentskills/aisa-youtube-serp-scout"
+    }
+  ]
+}

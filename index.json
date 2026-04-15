@@ -1,0 +1,63 @@
+{
+  "repository": "https://github.com/AIsa-team/agent-skills",
+  "branch": "agentskills",
+  "branch_url": "https://github.com/AIsa-team/agent-skills/tree/agentskills",
+  "skills": [
+    {
+      "name": "aisa-twitter-command-center",
+      "category": "twitter",
+      "description": "Search X/Twitter profiles, tweets, trends, lists, communities, and Spaces through the AIsa relay, then support approved posting workflows with OAuth.",
+      "path": "aisa-twitter-command-center",
+      "source": "https://github.com/AIsa-team/agent-skills/tree/agentskills/aisa-twitter-command-center",
+      "entry": "SKILL.md"
+    },
+    {
+      "name": "aisa-twitter-api",
+      "category": "twitter",
+      "description": "Search X/Twitter profiles, tweets, trends, lists, communities, and Spaces through the AIsa relay, then support approved posting workflows with OAuth.",
+      "path": "aisa-twitter-api",
+      "source": "https://github.com/AIsa-team/agent-skills/tree/agentskills/aisa-twitter-api",
+      "entry": "SKILL.md"
+    },
+    {
+      "name": "aisa-twitter-post-engage",
+      "category": "twitter",
+      "description": "Search X/Twitter profiles, tweets, trends, and approved engagement actions through the AIsa relay, including posting, likes, follows, and related workflows.",
+      "path": "aisa-twitter-post-engage",
+      "source": "https://github.com/AIsa-team/agent-skills/tree/agentskills/aisa-twitter-post-engage",
+      "entry": "SKILL.md"
+    },
+    {
+      "name": "aisa-twitter-engagement-suite",
+      "category": "twitter",
+      "description": "Search X/Twitter profiles, tweets, trends, and approved engagement actions through the AIsa relay, with a bundled engagement workflow suite.",
+      "path": "aisa-twitter-engagement-suite",
+      "source": "https://github.com/AIsa-team/agent-skills/tree/agentskills/aisa-twitter-engagement-suite",
+      "entry": "SKILL.md"
+    },
+    {
+      "name": "x-intelligence-automation",
+      "category": "twitter",
+      "description": "Search X/Twitter profiles, tweets, trends, and approved engagement actions through the AIsa relay, packaged under the X Intelligence Automation brand.",
+      "path": "x-intelligence-automation",
+      "source": "https://github.com/AIsa-team/agent-skills/tree/agentskills/x-intelligence-automation",
+      "entry": "SKILL.md"
+    },
+    {
+      "name": "aisa-youtube-search",
+      "category": "youtube",
+      "description": "Search YouTube videos, channels, and playlists through the AIsa YouTube relay with one API key.",
+      "path": "aisa-youtube-search",
+      "source": "https://github.com/AIsa-team/agent-skills/tree/agentskills/aisa-youtube-search",
+      "entry": "SKILL.md"
+    },
+    {
+      "name": "aisa-youtube-serp-scout",
+      "category": "youtube",
+      "description": "Search YouTube videos, channels, and trends through the AIsa YouTube SERP client for content research, competitor tracking, and trend discovery.",
+      "path": "aisa-youtube-serp-scout",
+      "source": "https://github.com/AIsa-team/agent-skills/tree/agentskills/aisa-youtube-serp-scout",
+      "entry": "SKILL.md"
+    }
+  ]
+}
