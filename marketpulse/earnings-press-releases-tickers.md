@@ -3,7 +3,6 @@
 Tickers accepted by `GET https://api.aisa.one/apis/v1/financial/earnings/press-releases`.
 
 **Total:** 2776 tickers  
-**Source:** [financialdatasets.ai — earnings/press-releases/tickers](https://api.financialdatasets.ai/earnings/press-releases/tickers) (as surfaced by the AIsa endpoint)  
 **Snapshot date:** 2026-04-14
 
 ## Usage
