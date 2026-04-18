@@ -92,12 +92,12 @@ curl -X POST "https://api.aisa.one/apis/v1/services/aigc/video-generation/video-
 
 ### Poll task
 
-- `GET /services/aigc/tasks?task_id=...`
+- `GET /services/aigc/tasks/{task_id}` — `task_id` is a **path parameter**. The query-string form `?task_id=...` returns HTTP 500 `unsupported uri`.
 
-Documentation: `task` at `https://docs.aisa.one/reference/get_services-aigc-tasks`.
+Documentation: [Get video generation task result](https://aisa.mintlify.app/api-reference/video/get_services-aigc-tasks).
 
 ```bash
-curl "https://api.aisa.one/apis/v1/services/aigc/tasks?task_id=YOUR_TASK_ID" \
+curl "https://api.aisa.one/apis/v1/services/aigc/tasks/YOUR_TASK_ID" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
