@@ -8,7 +8,7 @@ Image:
 Video:
   - Wan 2.6 async task:
       POST https://api.aisa.one/apis/v1/services/aigc/video-generation/video-synthesis
-      GET  https://api.aisa.one/apis/v1/services/aigc/tasks?task_id=...
+      GET  https://api.aisa.one/apis/v1/services/aigc/tasks/{task_id}
 """
 
 from __future__ import annotations
@@ -192,7 +192,10 @@ def video_create_task(
 
 
 def video_task_status(*, api_key: str, task_id: str) -> Dict[str, Any]:
-    url = f"{VIDEO_BASE_URL}/services/aigc/tasks?{urllib.parse.urlencode({'task_id': task_id})}"
+    # task_id is a PATH parameter, not a query string. The query-string form
+    # returns HTTP 500 "unsupported uri".
+    safe_id = urllib.parse.quote(task_id, safe="")
+    url = f"{VIDEO_BASE_URL}/services/aigc/tasks/{safe_id}"
     return _http_request_json(method="GET", url=url, api_key=api_key, timeout_s=60)
 
 
