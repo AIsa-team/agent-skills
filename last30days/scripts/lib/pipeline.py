@@ -15,7 +15,6 @@ from . import (
     dedupe,
     entity_extract,
     env,
-    github,
     grounding,
     hackernews,
     instagram,
@@ -63,7 +62,6 @@ MOCK_AVAILABLE_SOURCES = [
     "polymarket",
     "grounding",
     "xiaohongshu",
-    "github",
 ]
 
 
@@ -93,8 +91,6 @@ def available_sources(config: dict[str, Any], requested_sources: list[str] | Non
     available.append("hackernews")
     if config.get("AISA_API_KEY"):
         available.append("polymarket")
-    if config.get("GITHUB_TOKEN") or config.get("GH_TOKEN"):
-        available.append("github")
     if config.get("AISA_API_KEY"):
         available.append("grounding")
     if requested_sources and "xiaohongshu" in requested_sources and env.is_xiaohongshu_available(config):
@@ -128,7 +124,6 @@ def diagnose(config: dict[str, Any], requested_sources: list[str] | None = None)
         "bird_authenticated": x_status["bird_authenticated"],
         "bird_username": x_status["bird_username"],
         "native_web_backend": native_web_backend,
-        "has_github": bool(config.get("GITHUB_TOKEN") or config.get("GH_TOKEN")),
         "available_sources": available_sources(config, requested_sources),
     }
 
@@ -149,8 +144,6 @@ def run(
     tiktok_creators: list[str] | None = None,
     ig_creators: list[str] | None = None,
     lookback_days: int = 30,
-    github_user: str | None = None,
-    github_repos: list[str] | None = None,
 ) -> schema.Report:
     started_at = time.time()
 
@@ -211,50 +204,6 @@ def run(
     _stage_log("bundle init")
     bundle = schema.RetrievalBundle(artifacts={"grounding": []})
 
-    # Project-mode or person-mode GitHub: run once before the main subquery loop
-    _github_custom_done = False
-    _github_enriched_repos: set[str] = set()
-
-    # Project mode takes priority over person mode
-    if github_repos and "github" in available:
-        try:
-            project_items = github.search_github_project(
-                github_repos, from_date, to_date,
-                depth=depth, token=config.get("GITHUB_TOKEN"),
-            )
-            if project_items:
-                normalized = _normalize_score_dedupe(
-                    "github", project_items, from_date, to_date,
-                    freshness_mode=plan.freshness_mode,
-                    ranking_query=f"What are {', '.join(github_repos)} doing on GitHub?",
-                )
-                primary_label = plan.subqueries[0].label if plan.subqueries else "primary"
-                bundle.add_items(primary_label, "github", normalized)
-                _github_custom_done = True
-                _github_enriched_repos = {r.lower() for r in github_repos}
-        except Exception as exc:
-            bundle.errors_by_source["github"] = f"Project-mode failed: {exc}"
-
-    _github_person_done = False
-    if github_user and "github" in available and not _github_custom_done:
-        try:
-            person_items = github.search_github_person(
-                github_user, from_date, to_date,
-                depth=depth, token=config.get("GITHUB_TOKEN"),
-            )
-            if person_items:
-                normalized = _normalize_score_dedupe(
-                    "github", person_items, from_date, to_date,
-                    freshness_mode=plan.freshness_mode,
-                    ranking_query=f"What is @{github_user} doing on GitHub?",
-                )
-                # Use the first subquery's label so RRF can look up the weight
-                primary_label = plan.subqueries[0].label if plan.subqueries else "primary"
-                bundle.add_items(primary_label, "github", normalized)
-                _github_person_done = True
-        except Exception as exc:
-            bundle.errors_by_source["github"] = f"Person-mode failed: {exc}"
-
     # Thread-safe set prevents redundant fetches after a source returns 429
     rate_limited_sources: set[str] = set()
     rate_limit_lock = threading.Lock()
@@ -274,9 +223,6 @@ def run(
         for subquery in plan.subqueries:
             for source in subquery.sources:
                 if source not in available:
-                    continue
-                # Skip GitHub keyword search if person-mode already ran
-                if source == "github" and (_github_person_done or _github_custom_done):
                     continue
                 # Enforce per-source fetch cap
                 cap = MAX_SOURCE_FETCHES.get(source)
@@ -371,10 +317,7 @@ def run(
     )
     _stage_log("supplemental done")
 
-    # Phase 2b: retry thin sources with simplified query
-    # Note: _github_skip_sources tells the retry to not re-run GitHub keyword search
-    # when project-mode or person-mode already provided authoritative data.
-    _github_skip_retry = {"github"} if (_github_person_done or _github_custom_done) else set()
+    # Phase 2b: retry thin sources with simplified query.
     _stage_log("retry thin start")
     _retry_thin_sources(
         topic=topic,
@@ -389,7 +332,6 @@ def run(
         rate_limit_lock=rate_limit_lock,
         settings=settings,
         web_backend=web_backend,
-        skip_sources=_github_skip_retry,
     )
     _stage_log("retry thin done")
 
@@ -423,14 +365,6 @@ def run(
         model=None if mock else runtime.rerank_model,
     )
     _stage_log("fun score done")
-
-    # Phase 3: post-rerank GitHub star enrichment
-    if "github" in available and not mock:
-        github.enrich_candidates_with_stars(
-            ranked_candidates,
-            token=config.get("GITHUB_TOKEN"),
-            already_enriched=_github_enriched_repos,
-        )
 
     _stage_log("cluster start")
     clusters = cluster_candidates(ranked_candidates, plan)
@@ -880,9 +814,6 @@ def _retrieve_stream(
             raise RuntimeError("AISA_API_KEY is required for Polymarket retrieval.")
         result = aisa.search_polymarket(config["AISA_API_KEY"], subquery.search_query)
         return aisa.parse_polymarket_response(result, topic=subquery.search_query), {}
-    if source == "github":
-        result = github.search_github(subquery.search_query, from_date, to_date, depth=depth, token=config.get("GITHUB_TOKEN"))
-        return result, {}
     if source == "pinterest":
         result = pinterest.search_pinterest(
             subquery.search_query, from_date, to_date,

@@ -57,48 +57,6 @@ def _extract_x_handle(items: list[dict]) -> str:
     return max(counts, key=counts.get)
 
 
-def _extract_github_user(items: list[dict]) -> str:
-    """Extract GitHub username from search results."""
-    url_pattern = re.compile(r"github\.com/([A-Za-z0-9_-]{1,39})(?:/|$|\?)")
-    counts: dict[str, int] = {}
-    for item in items:
-        url = item.get("url", "")
-        text = f"{item.get('title', '')} {item.get('snippet', '')}"
-        for match in url_pattern.findall(url):
-            lower = match.lower()
-            counts[lower] = counts.get(lower, 0) + 3
-        for match in url_pattern.findall(text):
-            lower = match.lower()
-            counts[lower] = counts.get(lower, 0) + 1
-    # Filter out org/repo-like names and generic pages
-    skip = {"topics", "explore", "settings", "orgs", "search", "features", "about", "pricing", "enterprise"}
-    counts = {k: v for k, v in counts.items() if k not in skip}
-    if not counts:
-        return ""
-    return max(counts, key=counts.get)
-
-
-def _extract_github_repos(items: list[dict]) -> list[str]:
-    """Extract owner/repo strings from search results."""
-    repo_pattern = re.compile(r"github\.com/([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)")
-    skip_owners = {"topics", "explore", "settings", "orgs", "search", "features", "about", "pricing", "enterprise"}
-    seen: set[str] = set()
-    repos: list[str] = []
-    for item in items:
-        url = item.get("url", "")
-        text = f"{item.get('title', '')} {item.get('snippet', '')}"
-        for source in [url, text]:
-            for match in repo_pattern.findall(source):
-                owner = match.split("/")[0].lower()
-                if owner in skip_owners:
-                    continue
-                lower = match.lower()
-                if lower not in seen:
-                    seen.add(lower)
-                    repos.append(match)
-    return repos[:5]  # cap at 5 repos
-
-
 def _build_context_summary(items: list[dict]) -> str:
     """Build a 1-2 sentence current events summary from news search results."""
     snippets: list[str] = []
@@ -142,7 +100,6 @@ def auto_resolve(topic: str, config: dict) -> dict:
         "subreddit": f"{topic} subreddit reddit",
         "news": f"{topic} news {current_month} {current_year}",
         "x_handle": f"{topic} X twitter handle",
-        "github": f"{topic} github profile site:github.com",
     }
 
     results: dict[str, list[dict]] = {}
@@ -169,17 +126,13 @@ def auto_resolve(topic: str, config: dict) -> dict:
 
     subreddits = _extract_subreddits(results.get("subreddit", []))
     x_handle = _extract_x_handle(results.get("x_handle", []))
-    github_user = _extract_github_user(results.get("github", []))
-    github_repos = _extract_github_repos(results.get("github", []))
     context = _build_context_summary(results.get("news", []))
 
-    _log(f"Resolved {len(subreddits)} subreddits, x_handle={x_handle!r}, github_user={github_user!r}, github_repos={github_repos!r}, context_len={len(context)}")
+    _log(f"Resolved {len(subreddits)} subreddits, x_handle={x_handle!r}, context_len={len(context)}")
 
     return {
         "subreddits": subreddits,
         "x_handle": x_handle,
-        "github_user": github_user,
-        "github_repos": github_repos,
         "context": context,
         "searches_run": searches_run,
     }

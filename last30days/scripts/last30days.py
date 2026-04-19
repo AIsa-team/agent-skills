@@ -27,7 +27,7 @@ def ensure_supported_python(version_info: tuple[int, int, int] | object | None =
     sys.stderr.write(
         "last30days v1 requires Python 3.12+.\n"
         f"Detected Python {major}.{minor}.{micro}.\n"
-        "Use /usr/local/python3.12/bin/python3.12 or another Python 3.12+ interpreter, then rerun this command.\n"
+        "Use python3.12 or another Python 3.12+ interpreter, then rerun this command.\n"
     )
     raise SystemExit(1)
 
@@ -116,29 +116,6 @@ def emit_output(report: schema.Report, emit: str, fun_level: str = "medium") -> 
     raise SystemExit(f"Unsupported emit mode: {emit}")
 
 
-def persist_report(report: schema.Report) -> dict[str, int]:
-    import store
-
-    store.init_db()
-    topic_row = store.add_topic(report.topic)
-    topic_id = topic_row["id"]
-    source_mode = ",".join(sorted(report.items_by_source)) or "v3"
-    run_id = store.record_run(topic_id, source_mode=source_mode, status="running")
-    try:
-        findings = store.findings_from_report(report)
-        counts = store.store_findings(run_id, topic_id, findings)
-        store.update_run(
-            run_id,
-            status="completed",
-            findings_new=counts["new"],
-            findings_updated=counts["updated"],
-        )
-        return counts
-    except Exception as exc:
-        store.update_run(run_id, status="failed", error_message=str(exc)[:500])
-        raise
-
-
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Research a topic across live social, market, and grounded web sources.")
     parser.add_argument("topic", nargs="*", help="Research topic")
@@ -150,7 +127,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--mock", action="store_true", help="Use mock retrieval fixtures")
     parser.add_argument("--diagnose", action="store_true", help="Print provider and source availability")
     parser.add_argument("--save-dir", help="Optional directory for saving the rendered output")
-    parser.add_argument("--store", action="store_true", help="Persist ranked findings to the SQLite research store")
     parser.add_argument("--x-handle", help="X handle for targeted supplemental search")
     parser.add_argument("--x-related", help="Comma-separated related X handles (searched with lower weight)")
     parser.add_argument("--web-backend", default="auto",
@@ -164,11 +140,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--tiktok-hashtags", help="Comma-separated TikTok hashtags without # (e.g., tella,screenrecording)")
     parser.add_argument("--tiktok-creators", help="Comma-separated TikTok creator handles (e.g., TellaHQ,taborplace)")
     parser.add_argument("--ig-creators", help="Comma-separated Instagram creator handles (e.g., tella.tv,laborstories)")
-    parser.add_argument("--lookback-days", type=int, default=30, help="Number of days to look back for research (default: 30, watchlist uses 90)")
+    parser.add_argument("--lookback-days", type=int, default=30, help="Number of days to look back for research (default: 30)")
     parser.add_argument("--auto-resolve", action="store_true",
                         help="Use web search to discover subreddits/handles before planning (for platforms without WebSearch)")
-    parser.add_argument("--github-user", help="GitHub username for person-mode search (e.g., steipete)")
-    parser.add_argument("--github-repo", help="Comma-separated owner/repo for project-mode search (e.g., openclaw/openclaw,paperclipai/paperclip)")
     return parser
 
 
@@ -211,7 +185,7 @@ def _show_runtime_ui(report: schema.Report, progress: ui.ProgressDisplay, diag: 
 
 def main() -> int:
     parser = build_parser()
-    # Use parse_known_args so setup sub-flags (--device-auth, --github,
+    # Use parse_known_args so setup sub-flags (--device-auth,
     # --openclaw) pass through without argparse hard-exiting.
     args, extra_argv = parser.parse_known_args()
     if args.debug:
@@ -225,10 +199,6 @@ def main() -> int:
         from lib import setup_wizard
         if "--openclaw" in extra_argv:
             results = setup_wizard.run_openclaw_setup(config)
-            print(json.dumps(results))
-            return 0
-        if "--github" in extra_argv:
-            results = setup_wizard.run_github_auth()
             print(json.dumps(results))
             return 0
         if "--device-auth" in extra_argv:
@@ -287,12 +257,6 @@ def main() -> int:
             if resolution.get("x_handle") and not args.x_handle:
                 args.x_handle = resolution["x_handle"]
                 sys.stderr.write(f"[AutoResolve] X handle: @{args.x_handle}\n")
-            if resolution.get("github_user") and not args.github_user:
-                args.github_user = resolution["github_user"]
-                sys.stderr.write(f"[AutoResolve] GitHub user: @{args.github_user}\n")
-            if resolution.get("github_repos") and not args.github_repo:
-                args.github_repo = ",".join(resolution["github_repos"])
-                sys.stderr.write(f"[AutoResolve] GitHub repos: {args.github_repo}\n")
             if resolution.get("context"):
                 # Inject context into external_plan metadata for the planner to use
                 if not external_plan:
@@ -300,9 +264,6 @@ def main() -> int:
                 # Store context for the planner prompt injection
                 config["_auto_resolve_context"] = resolution["context"]
                 sys.stderr.write(f"[AutoResolve] Context: {resolution['context'][:80]}...\n")
-
-        github_user = args.github_user.lstrip("@").lower() if args.github_user else None
-        github_repos = [r.strip() for r in args.github_repo.split(",") if r.strip() and "/" in r.strip()] if args.github_repo else None
 
         # --deep-research: keep grounded research on the hosted AISA path
         if args.deep_research:
@@ -332,8 +293,6 @@ def main() -> int:
             tiktok_creators=tiktok_creators,
             ig_creators=ig_creators,
             lookback_days=args.lookback_days,
-            github_user=github_user,
-            github_repos=github_repos,
         )
         sys.stderr.write(
             f"[last30days] pipeline done in {time.time() - stage_start:.2f}s "
@@ -345,13 +304,6 @@ def main() -> int:
         progress.show_error(str(exc))
         raise
     _show_runtime_ui(report, progress, diag)
-    if args.store:
-        counts = persist_report(report)
-        sys.stderr.write(
-            f"[last30days] Stored {counts['new']} new, {counts['updated']} updated findings\n"
-        )
-        sys.stderr.flush()
-
     # Show quality nudge if applicable
     try:
         from lib import quality_nudge

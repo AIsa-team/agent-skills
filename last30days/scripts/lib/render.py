@@ -11,7 +11,6 @@ SOURCE_LABELS = {
     "hackernews": "Hacker News",
     "xiaohongshu": "Xiaohongshu",
     "x": "X",
-    "github": "GitHub",
 }
 
 
@@ -133,7 +132,7 @@ def render_full(report: schema.Report) -> str:
     lines.append("## All Items by Source")
     lines.append("")
     source_order = ["reddit", "x", "youtube", "tiktok", "instagram", "threads", "pinterest",
-                    "hackernews", "polymarket", "grounding", "xiaohongshu", "github"]
+                    "hackernews", "polymarket", "grounding", "xiaohongshu"]
     for source in source_order:
         items = report.items_by_source.get(source, [])
         if not items:
@@ -455,7 +454,6 @@ ENGAGEMENT_DISPLAY: dict[str, list[tuple[str, str]]] = {
     "pinterest":    [("saves", "saves"), ("comments", "cmt")],
     "hackernews":   [("points", "pts"), ("comments", "cmt")],
     "polymarket":   [],
-    "github":       [("reactions", "react"), ("comments", "cmt")],
 }
 
 

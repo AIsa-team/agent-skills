@@ -49,7 +49,6 @@ def normalize_source_items(
         "polymarket": _normalize_polymarket,
         "grounding": _normalize_grounding,
         "xiaohongshu": _normalize_grounding,
-        "github": _normalize_github,
     }
     normalizer = normalizers.get(source)
     if normalizer is None:
@@ -368,47 +367,6 @@ def _normalize_polymarket(
             "end_date": item.get("end_date"),
             "outcome_prices": item.get("outcome_prices") or [],
             "outcomes_remaining": item.get("outcomes_remaining"),
-        },
-    )
-
-
-
-def _normalize_github(
-    source: str,
-    item: dict[str, Any],
-    index: int,
-    from_date: str,
-    to_date: str,
-) -> schema.SourceItem:
-    title = str(item.get("title") or "").strip()
-    snippet_text = str(item.get("snippet") or "").strip()
-    top_comments = item.get("metadata", {}).get("top_comments") or []
-    comment_text = " ".join(
-        str(comment.get("excerpt") or "").strip()
-        for comment in top_comments[:3]
-        if isinstance(comment, dict)
-    )
-    body = "\n".join(part for part in [title, snippet_text, comment_text] if part)
-    metadata = item.get("metadata") or {}
-    return _source_item(
-        item_id=str(item.get("id") or f"GH{index + 1}"),
-        source=source,
-        title=title or f"GitHub item {index + 1}",
-        body=body,
-        url=str(item.get("url") or ""),
-        author=str(item.get("author") or ""),
-        container=str(item.get("container") or ""),
-        published_at=item.get("date"),
-        date_confidence=_date_confidence(item, from_date, to_date, default="high"),
-        engagement=item.get("engagement") or {},
-        relevance_hint=item.get("relevance", 0.5),
-        why_relevant=str(item.get("why_relevant") or ""),
-        snippet=comment_text or snippet_text[:400],
-        metadata={
-            "top_comments": top_comments,
-            "labels": metadata.get("labels") or [],
-            "state": metadata.get("state", ""),
-            "is_pr": metadata.get("is_pr", False),
         },
     )
 

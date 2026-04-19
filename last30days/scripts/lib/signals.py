@@ -40,10 +40,6 @@ def local_relevance(item: schema.SourceItem, ranking_query: str) -> float:
     if item.source == "youtube" and item.engagement.get("views", 0) > 100_000:
         score = max(score, 0.3)
 
-    # Project-mode GitHub floor: items fetched via --github-repo are explicitly
-    # requested by the user and relevant by construction. Without this floor,
-    # repos with low token diversity (e.g., "openclaw/openclaw" -> 1 unique token)
-    # get pruned despite being the primary search target.
     labels = item.metadata.get("labels", []) if isinstance(item.metadata, dict) else []
     if "project-mode" in labels:
         score = max(score, 0.8)

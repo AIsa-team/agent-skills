@@ -12,11 +12,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed, wait as futures
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Set
 
-try:
-    import requests as _requests
-except ImportError:
-    _requests = None
-
 
 def _first_of(*values, default=None):
     """Return first value that is not None."""

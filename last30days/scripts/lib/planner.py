@@ -66,7 +66,6 @@ SOURCE_CAPABILITIES = {
     "hackernews": {"discussion", "link"},
     "polymarket": {"market"},
     "xiaohongshu": {"video", "video_shortform", "social"},
-    "github": {"discussion", "link"},
     "grounding": {"web", "reference", "link"},
 }
 DEFAULT_INTENT_CAPABILITIES = {
@@ -165,7 +164,6 @@ Rules:
 - NEVER include temporal phrases in search_query: no 'last 30 days', 'recent', month names, year numbers
 - NEVER include meta-research phrases: no 'news', 'updates', 'public appearances', 'latest developments'
 - search_query should match how content is TITLED on platforms
-- GitHub (Issues/PRs) is best for engineering, developer tools, and open source topics: 'kanye west bully' not 'kanye west album news March 2026'
 """.strip()
 
 

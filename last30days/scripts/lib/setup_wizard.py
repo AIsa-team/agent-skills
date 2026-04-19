@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -66,7 +67,8 @@ def get_setup_status_text(results: dict[str, Any]) -> str:
 
 def _has_python312_plus() -> bool:
     candidates = [
-        "/usr/local/python3.12/bin/python3.12",
+        shutil.which("python"),
+        sys.executable,
         shutil.which("python3.14"),
         shutil.which("python3.13"),
         shutil.which("python3.12"),
@@ -98,11 +100,6 @@ def run_openclaw_setup(config: dict[str, Any]) -> dict[str, Any]:
         "aisa_configured": bool(config.get("AISA_API_KEY")),
         "x_method": "aisa" if config.get("AISA_API_KEY") else None,
     }
-
-
-def run_github_auth() -> dict[str, Any]:
-    """GitHub auth is no longer brokered by this skill."""
-    return {"supported": False, "reason": "GitHub auth is handled by GH_TOKEN/GITHUB_TOKEN."}
 
 
 def run_full_device_auth() -> dict[str, Any]:

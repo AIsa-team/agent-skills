@@ -4,22 +4,20 @@ English ClawHub publish bundle for `last30days`.
 
 Included:
 
-- runtime scripts
+- stateless runtime scripts for live research and synthesis
 - `SKILL.md`
-- `.codex-plugin/plugin.json`
 - license and package metadata
 
 Excluded on purpose:
 
-- tests
-- historical docs
-- hooks
-- fixtures
-- Gemini-specific extension metadata
+- tests and verification harnesses
+- historical docs, hooks, fixtures, and other dev-only assets
+- SQLite accumulation, watchlist automation, and briefing generation
+- GitHub-specific retrieval paths that are not part of the AISA-first publish runtime
 
 Runtime summary:
 
 - `AISA_API_KEY` powers hosted planning, reranking, synthesis, X/Twitter, YouTube, Polymarket, and grounded web search.
 - Reddit and Hacker News use public paths.
-- GitHub stays on the official GitHub API path and may need `GH_TOKEN` or `GITHUB_TOKEN`.
+- This publish bundle is intentionally stateless: it keeps the `last30days.py` research CLI only.
 

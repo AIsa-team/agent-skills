@@ -11,6 +11,7 @@ from typing import Any
 # Set LAST30DAYS_CONFIG_DIR="" for clean/no-config mode
 # Set LAST30DAYS_CONFIG_DIR="/path/to/dir" for custom config location
 _config_override = os.environ.get('LAST30DAYS_CONFIG_DIR')
+_default_config_dir = Path(__file__).resolve().parents[2] / ".last30days-config"
 if _config_override == "":
     # Empty string = no config file (clean mode)
     CONFIG_DIR = None
@@ -19,7 +20,7 @@ elif _config_override:
     CONFIG_DIR = Path(_config_override)
     CONFIG_FILE = CONFIG_DIR / ".env"
 else:
-    CONFIG_DIR = Path.home() / ".config" / "last30days"
+    CONFIG_DIR = _default_config_dir
     CONFIG_FILE = CONFIG_DIR / ".env"
 
 def _check_file_permissions(path: Path) -> None:
@@ -84,7 +85,7 @@ def get_config() -> dict[str, Any]:
     Priority (highest wins):
       1. Environment variables (os.environ)
       2. .claude/last30days.env (per-project config)
-      3. ~/.config/last30days/.env (global config)
+      3. ./.last30days-config/.env (bundle-local config)
     """
     # Load from global config file
     file_env = load_env_file(CONFIG_FILE) if CONFIG_FILE else {}
@@ -100,12 +101,6 @@ def get_config() -> dict[str, Any]:
     config = {
         'AISA_API_KEY': os.environ.get('AISA_API_KEY') or merged_env.get('AISA_API_KEY'),
         'AISA_BASE_URL': os.environ.get('AISA_BASE_URL') or merged_env.get('AISA_BASE_URL', 'https://api.aisa.one'),
-        'GITHUB_TOKEN': (
-            os.environ.get('GITHUB_TOKEN')
-            or os.environ.get('GH_TOKEN')
-            or merged_env.get('GITHUB_TOKEN')
-            or merged_env.get('GH_TOKEN')
-        ),
     }
 
     keys = [

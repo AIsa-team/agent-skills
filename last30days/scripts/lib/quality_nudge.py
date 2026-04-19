@@ -156,9 +156,8 @@ def _build_nudge_text(core_missing: List[str], core_errored: List[str], active_s
         lines.append("")
 
     lines.append(
-        "Bonus: Reddit and Hacker News already work on public paths. GitHub still uses its official API path "
-        "and may need GH_TOKEN/GITHUB_TOKEN. Optional social extras such as Threads and Pinterest "
-        "need AISA plus INCLUDE_SOURCES to be enabled."
+        "Bonus: Reddit and Hacker News already work on public paths. Optional social extras such as "
+        "Threads and Pinterest need AISA plus INCLUDE_SOURCES to be enabled."
     )
 
     return "\n".join(lines)
