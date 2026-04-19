@@ -1,0 +1,17 @@
+# Ignore Mac system files
+.DS_Store
+
+# Ignore Python bytecode files
+*.pyc
+*.pyo
+
+# Ignore Python virtual environments
+venv/
+.env/
+.venv/
+
+# Ignore IDE configuration
+.idea/
+
+# Git specific
+/.git
