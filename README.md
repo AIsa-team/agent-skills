@@ -111,7 +111,18 @@ the authoritative source for the `SKILL.md` format.
 
 ## License
 
-Apache 2.0 — see [LICENSE](LICENSE).
+This repo uses a **dual-license arrangement**:
+
+- **Source / contributions** — Apache-2.0 (see [LICENSE](LICENSE)). Governs
+  this repo's contributor bargain: explicit patent grant, attribution,
+  notice preservation.
+- **Per-skill distribution** — MIT, declared in each skill's `SKILL.md`
+  `license:` frontmatter. This is what the packaged skill ships under
+  when it's redistributed via [clawhub.ai](https://clawhub.ai).
+
+Both are intentional and mutually compatible. See
+[`SKILL_AUTHORING.md`](./SKILL_AUTHORING.md#dual-license-arrangement)
+for details.
 
 ---
 
