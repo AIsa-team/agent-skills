@@ -16,11 +16,6 @@ See [SKILL.md](SKILL.md) for the full agent-facing instructions.
 
 ## API Reference
 
-This skill calls four Perplexity Sonar endpoints through AIsa:
+See the [AIsa API Reference](https://aisa.one/docs/api-reference) for the
+complete catalog of endpoints this skill can call.
 
-- [Sonar](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar) — fast lightweight answers with citations
-- [Sonar Pro](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-pro) — stronger synthesis and comparison
-- [Sonar Reasoning Pro](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-reasoning-pro) — analytical multi-step reasoning
-- [Sonar Deep Research](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-deep-research) — exhaustive long-form reports
-
-Full catalog: [aisa.one/docs/api-reference](https://aisa.one/docs/api-reference).

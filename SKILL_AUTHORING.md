@@ -137,6 +137,19 @@ bash "${SKILL_ROOT}/scripts/run-<skill>.sh" "<input>"
 - `AISA_API_KEY` — required, get one at [aisa.one](https://aisa.one)
 - <optional creds>
 
+## API Reference
+
+<One-sentence description of the endpoint family this skill calls, then
+a bulleted list of each specific endpoint with a link to its reference
+page. Example:>
+
+This skill calls the following AIsa endpoints directly:
+
+- [<Endpoint name>](https://aisa.one/docs/api-reference/<category>/<slug>) — <what it's used for>
+- [<Endpoint name>](https://aisa.one/docs/api-reference/<category>/<slug>) — <what it's used for>
+
+See the [full AIsa API Reference](https://aisa.one/docs/api-reference) for the complete catalog.
+
 ## License
 
 MIT — see [LICENSE](../LICENSE) at the repo root.
@@ -145,6 +158,27 @@ MIT — see [LICENSE](../LICENSE) at the repo root.
 Keep `SKILL.md` under 500 lines. Move long reference material into
 `references/*.md` and link to it — agents load those on demand, saving
 context.
+
+## Where API Reference information goes
+
+**SKILL.md gets the detailed per-endpoint list.** Agents need to know
+exactly which endpoints they can call; that's part of the skill's
+machine-readable contract.
+
+**README.md gets only a one-paragraph pointer to the catalog.** Humans
+landing on the folder on GitHub want orientation, not an endpoint table.
+Duplicating the list creates drift — when AIsa adds a new endpoint we'd
+have to update two places per skill.
+
+Every README in this repo uses the identical block below — copy it
+verbatim, don't customize:
+
+```markdown
+## API Reference
+
+See the [AIsa API Reference](https://aisa.one/docs/api-reference) for the
+complete catalog of endpoints this skill can call.
+```
 
 ## `README.md` body
 
@@ -189,10 +223,12 @@ Common targets:
 6. README.md has a `## Compatibility` section
 7. If the skill uses an env var, `metadata.primaryEnv` points at it
 8. All doc links use `aisa.one/docs/...` (never `docs.aisa.one` or `aisa.mintlify.app`)
-9. Spec conformance via the reference validator (optional but recommended):
-   ```bash
-   skills-ref validate ./<skill-name>
-   ```
+9. `SKILL.md` has a detailed `## API Reference` section listing each endpoint the skill calls, with links to the per-endpoint docs
+10. `README.md` has the **identical one-paragraph `## API Reference` block** (copied verbatim from the SOP) — do not list specific endpoints in README
+11. Spec conformance via the reference validator (optional but recommended):
+    ```bash
+    skills-ref validate ./<skill-name>
+    ```
 
 ## Updating this SOP
 

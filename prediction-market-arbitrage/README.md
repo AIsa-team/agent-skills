@@ -92,6 +92,8 @@ Most endpoints require IDs fetched from a markets endpoint first:
 |---------------|------|
 | Prediction market read query | $0.01 |
 
-## Documentation
+## API Reference
 
-For complete endpoint documentation, see the AIsa API Reference: https://aisa.one/docs/api-reference/
+See the [AIsa API Reference](https://aisa.one/docs/api-reference) for the
+complete catalog of endpoints this skill can call.
+

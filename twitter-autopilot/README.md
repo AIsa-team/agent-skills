@@ -67,3 +67,8 @@ Sign up at [aisa.one](https://aisa.one)
 
 - [AIsa](https://aisa.one)
 - [API Reference](https://aisa.one/docs/api-reference/)
+
+## API Reference
+
+See the [AIsa API Reference](https://aisa.one/docs/api-reference) for the
+complete catalog of endpoints this skill can call.

@@ -44,9 +44,6 @@ See [SKILL.md](SKILL.md) for full usage and examples.
 
 ## API Reference
 
-Specific endpoints this skill hits:
+See the [AIsa API Reference](https://aisa.one/docs/api-reference) for the
+complete catalog of endpoints this skill can call.
 
-- [Tavily Search](https://aisa.one/docs/api-reference/search/post_tavily-search), [Extract](https://aisa.one/docs/api-reference/search/post_tavily-extract), [Map](https://aisa.one/docs/api-reference/search/post_tavily-map), [Crawl](https://aisa.one/docs/api-reference/search/post_tavily-crawl)
-- Perplexity Sonar: [Sonar](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar) / [Sonar Pro](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-pro) / [Sonar Reasoning Pro](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-reasoning-pro) / [Sonar Deep Research](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-deep-research)
-
-Full catalog: [aisa.one/docs/api-reference](https://aisa.one/docs/api-reference).

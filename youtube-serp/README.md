@@ -51,6 +51,6 @@ See [SKILL.md](SKILL.md) for complete API documentation.
 
 ## API Reference
 
-Primary endpoint: [YouTube Search](https://aisa.one/docs/api-reference/search/get_youtube-search).
+See the [AIsa API Reference](https://aisa.one/docs/api-reference) for the
+complete catalog of endpoints this skill can call.
 
-Full catalog: [aisa.one/docs/api-reference](https://aisa.one/docs/api-reference).

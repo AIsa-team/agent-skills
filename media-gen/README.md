@@ -15,8 +15,6 @@ Generate images and videos using the AIsa API:
 - **Gemini Image**: `gemini-3-pro-image-preview` (`/v1/models/{model}:generateContent`)
 - **Wan 2.6 Video**: `wan2.6-t2v` (`/apis/v1/services/aigc/...` async task + polling)
 
-API documentation index: [`https://aisa.one/docs/api-reference/`](https://aisa.one/docs/api-reference/)
-
 ### Quick Start
 
 ```bash
@@ -53,3 +51,8 @@ python scripts/media_gen_client.py video-wait \
   --download \
   --out out.mp4
 ```
+
+## API Reference
+
+See the [AIsa API Reference](https://aisa.one/docs/api-reference) for the
+complete catalog of endpoints this skill can call.
