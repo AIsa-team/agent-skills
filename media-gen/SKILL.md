@@ -12,7 +12,7 @@ Generate **images** and **videos** with a single AIsa API key:
 - **Image**: `gemini-3-pro-image-preview` (Gemini GenerateContent)
 - **Video**: `wan2.6-t2v` (Qwen Wan 2.6, async task)
 
-API documentation index: [AIsa API Reference](https://docs.aisa.one/reference/) (all pages can be found at `https://docs.aisa.one/llms.txt`).
+API documentation index: [AIsa API Reference](https://aisa.one/docs/api-reference/) (all pages can be found at `https://aisa.one/docs/llms.txt`).
 
 ## Compatibility
 
@@ -57,7 +57,7 @@ export AISA_API_KEY="your-key"
 - Base URL: `https://api.aisa.one/v1`
 - `POST /models/{model}:generateContent`
 
-Documentation: `google-gemini-chat` (GenerateContent) at `https://docs.aisa.one/reference/generatecontent`.
+Documentation: `google-gemini-chat` (GenerateContent) at `https://aisa.one/docs/api-reference/chat/generatecontent`.
 
 ### curl Example (response contains inline_data for images)
 
@@ -84,7 +84,7 @@ curl -X POST "https://api.aisa.one/v1/models/gemini-3-pro-image-preview:generate
 - `POST /services/aigc/video-generation/video-synthesis`
 - Header: `X-DashScope-Async: enable` (required, async)
 
-Documentation: `video-generation` at `https://docs.aisa.one/reference/post_services-aigc-video-generation-video-synthesis`.
+Documentation: `video-generation` at `https://aisa.one/docs/api-reference/video/post_services-aigc-video-generation-video-synthesis`.
 
 ```bash
 curl -X POST "https://api.aisa.one/apis/v1/services/aigc/video-generation/video-synthesis" \
@@ -110,7 +110,7 @@ curl -X POST "https://api.aisa.one/apis/v1/services/aigc/video-generation/video-
 
 - `GET /services/aigc/tasks/{task_id}` — `task_id` is a **path parameter**. The query-string form `?task_id=...` returns HTTP 500 `unsupported uri`.
 
-Documentation: [Get video generation task result](https://aisa.mintlify.app/api-reference/video/get_services-aigc-tasks).
+Documentation: [Get video generation task result](https://aisa.one/docs/api-reference/video/get_services-aigc-tasks).
 
 ```bash
 curl "https://api.aisa.one/apis/v1/services/aigc/tasks/YOUR_TASK_ID" \

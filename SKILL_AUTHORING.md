@@ -160,6 +160,25 @@ harness: Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI,
 OpenClaw, Hermes, Goose, and others.
 ```
 
+## Documentation links
+
+Always link to the canonical docs host: **`https://aisa.one/docs/...`**
+
+Do **not** use:
+
+- `https://docs.aisa.one/...` (legacy subdomain; redirects today, may not later)
+- `https://aisa.mintlify.app/...` (preview/staging host; not a stable URL)
+
+Common targets:
+
+| You want to link to | Use |
+|---|---|
+| Docs landing | `https://aisa.one/docs` |
+| API reference index | `https://aisa.one/docs/api-reference` |
+| A specific endpoint | `https://aisa.one/docs/api-reference/<category>/<slug>` |
+| Model catalog | `https://aisa.one/docs/guides/models` |
+| Docs index for LLMs | `https://aisa.one/docs/llms.txt` |
+
 ## Validation before submitting a PR
 
 1. `name` matches directory name
@@ -169,7 +188,8 @@ OpenClaw, Hermes, Goose, and others.
 5. `compatibility` present and mentions specific harnesses
 6. README.md has a `## Compatibility` section
 7. If the skill uses an env var, `metadata.primaryEnv` points at it
-8. Spec conformance via the reference validator (optional but recommended):
+8. All doc links use `aisa.one/docs/...` (never `docs.aisa.one` or `aisa.mintlify.app`)
+9. Spec conformance via the reference validator (optional but recommended):
    ```bash
    skills-ref validate ./<skill-name>
    ```

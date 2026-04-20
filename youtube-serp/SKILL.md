@@ -283,4 +283,4 @@ Every response includes `usage.cost` and `usage.credits_remaining`.
 
 ## Full API Reference
 
-See [API Reference](https://docs.aisa.one/reference/) for complete endpoint documentation.
+See [API Reference](https://aisa.one/docs/api-reference/) for complete endpoint documentation.

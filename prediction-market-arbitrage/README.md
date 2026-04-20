@@ -96,4 +96,4 @@ Every response includes `usage.cost` and `usage.credits_remaining`.
 
 ## Documentation
 
-For complete endpoint documentation, see the AIsa API Reference: https://docs.aisa.one/reference/
+For complete endpoint documentation, see the AIsa API Reference: https://aisa.one/docs/api-reference/

@@ -100,10 +100,10 @@ The replacement flow is the Perplexity API family:
 | `/perplexity/sonar-deep-research` | Exhaustive research and long-form reports |
 
 These descriptions are based on the AIsa docs:
-- [Sonar](https://docs.aisa.one/reference/post_perplexity-sonar)
-- [Sonar Pro](https://docs.aisa.one/reference/post_perplexity-sonar-pro)
-- [Sonar Reasoning Pro](https://docs.aisa.one/reference/post_perplexity-sonar-reasoning-pro)
-- [Sonar Deep Research](https://docs.aisa.one/reference/post_perplexity-sonar-deep-research)
+- [Sonar](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar)
+- [Sonar Pro](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-pro)
+- [Sonar Reasoning Pro](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-reasoning-pro)
+- [Sonar Deep Research](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-deep-research)
 
 ### Sonar
 
@@ -264,9 +264,9 @@ Use `messages` because the AIsa Perplexity endpoints are presented as "Ask AI" e
 
 ## Full API Reference
 
-See [API Reference](https://docs.aisa.one/reference/) for complete endpoint documentation.
+See [API Reference](https://aisa.one/docs/api-reference/) for complete endpoint documentation.
 
 ## Resources
 
 - [AIsa Verity](https://github.com/AIsa-team/verity) - Reference implementation of confidence-scored search agent
-- [AIsa Documentation](https://docs.aisa.one) - Complete API documentation
+- [AIsa Documentation](https://aisa.one/docs) - Complete API documentation

@@ -126,7 +126,7 @@ curl -X POST "https://api.aisa.one/apis/v1/perplexity/sonar-deep-research" \
 
 ## References
 
-- [Sonar](https://docs.aisa.one/reference/post_perplexity-sonar)
-- [Sonar Pro](https://docs.aisa.one/reference/post_perplexity-sonar-pro)
-- [Sonar Reasoning Pro](https://docs.aisa.one/reference/post_perplexity-sonar-reasoning-pro)
-- [Sonar Deep Research](https://docs.aisa.one/reference/post_perplexity-sonar-deep-research)
+- [Sonar](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar)
+- [Sonar Pro](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-pro)
+- [Sonar Reasoning Pro](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-reasoning-pro)
+- [Sonar Deep Research](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-deep-research)

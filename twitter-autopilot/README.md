@@ -66,4 +66,4 @@ Sign up at [aisa.one](https://aisa.one)
 ## Links
 
 - [AIsa](https://aisa.one)
-- [API Reference](https://docs.aisa.one/reference/)
+- [API Reference](https://aisa.one/docs/api-reference/)

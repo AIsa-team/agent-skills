@@ -15,7 +15,7 @@ Generate images and videos using the AIsa API:
 - **Gemini Image**: `gemini-3-pro-image-preview` (`/v1/models/{model}:generateContent`)
 - **Wan 2.6 Video**: `wan2.6-t2v` (`/apis/v1/services/aigc/...` async task + polling)
 
-API documentation index: [`https://docs.aisa.one/reference/`](https://docs.aisa.one/reference/)
+API documentation index: [`https://aisa.one/docs/api-reference/`](https://aisa.one/docs/api-reference/)
 
 ### Quick Start
 
