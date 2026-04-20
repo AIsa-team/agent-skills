@@ -41,3 +41,12 @@ python scripts/search_client.py verity --query "Is quantum computing enterprise-
 ## Documentation
 
 See [SKILL.md](SKILL.md) for full usage and examples.
+
+## API Reference
+
+Specific endpoints this skill hits:
+
+- [Tavily Search](https://aisa.one/docs/api-reference/search/post_tavily-search), [Extract](https://aisa.one/docs/api-reference/search/post_tavily-extract), [Map](https://aisa.one/docs/api-reference/search/post_tavily-map), [Crawl](https://aisa.one/docs/api-reference/search/post_tavily-crawl)
+- Perplexity Sonar: [Sonar](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar) / [Sonar Pro](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-pro) / [Sonar Reasoning Pro](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-reasoning-pro) / [Sonar Deep Research](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-deep-research)
+
+Full catalog: [aisa.one/docs/api-reference](https://aisa.one/docs/api-reference).

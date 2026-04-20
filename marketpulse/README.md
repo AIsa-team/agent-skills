@@ -42,3 +42,7 @@ python scripts/market_client.py stock earnings --ticker AAPL
 ## Documentation
 
 See [SKILL.md](SKILL.md) for complete API documentation.
+
+## API Reference
+
+See the full [AIsa API Reference](https://aisa.one/docs/api-reference) for every endpoint this skill can call — equities prices, financial statements, analyst estimates, SEC filings, insider and institutional activity, earnings press releases, stock screeners, and macro interest rates.

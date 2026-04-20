@@ -138,6 +138,21 @@ Or set `AISA_MODEL=...` for a single model across all three roles. Run
 `last30days setup` to pick interactively — the picker fetches the live
 catalog from [aisa.one/docs/guides/models](https://aisa.one/docs/guides/models).
 
+## API Reference
+
+last30days calls the following AIsa endpoints directly. See the
+[full API Reference](https://aisa.one/docs/api-reference) for the
+complete catalog.
+
+- [OpenAI Chat / `createChatCompletion`](https://aisa.one/docs/api-reference/chat/createchatcompletion) — planner, reranker, fun-scorer
+- [Twitter Advanced Search](https://aisa.one/docs/api-reference/twitter/get_twitter-tweet-advanced-search) — X retrieval
+- [YouTube Search](https://aisa.one/docs/api-reference/search/get_youtube-search) — YouTube retrieval
+- [Tavily Search](https://aisa.one/docs/api-reference/search/post_tavily-search) — grounded web
+- [Polymarket Markets](https://aisa.one/docs/api-reference/prediction-market/get_polymarket-markets) — prediction-market retrieval
+
+Reddit and Hacker News use their respective public APIs directly (no
+AISA proxy required).
+
 ## Requirements
 
 - **Python 3.12+**

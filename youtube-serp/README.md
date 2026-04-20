@@ -48,3 +48,9 @@ python scripts/youtube_client.py competitor --name "OpenAI" --topic "tutorial"
 ## Documentation
 
 See [SKILL.md](SKILL.md) for complete API documentation.
+
+## API Reference
+
+Primary endpoint: [YouTube Search](https://aisa.one/docs/api-reference/search/get_youtube-search).
+
+Full catalog: [aisa.one/docs/api-reference](https://aisa.one/docs/api-reference).

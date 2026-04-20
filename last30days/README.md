@@ -94,6 +94,18 @@ interactive `setup` flow walks you through picking from the live
 
 Run `last30days --help` for the full list.
 
+## API Reference
+
+The skill calls the following AIsa endpoints directly:
+
+- [Chat completions](https://aisa.one/docs/api-reference/chat/createchatcompletion) — planner, reranker, fun-scorer
+- [Twitter Advanced Search](https://aisa.one/docs/api-reference/twitter/get_twitter-tweet-advanced-search)
+- [YouTube Search](https://aisa.one/docs/api-reference/search/get_youtube-search)
+- [Tavily Search](https://aisa.one/docs/api-reference/search/post_tavily-search)
+- [Polymarket Markets](https://aisa.one/docs/api-reference/prediction-market/get_polymarket-markets)
+
+Full catalog: [aisa.one/docs/api-reference](https://aisa.one/docs/api-reference).
+
 ## License
 
 MIT — see [LICENSE](../LICENSE) at the repo root.

@@ -38,3 +38,14 @@ python scripts/prediction_market_client.py kalshi price <market_ticker>
 # Find matching NBA markets across platforms
 python scripts/prediction_market_client.py sports by-date nba --date 2025-03-01
 ```
+
+## API Reference
+
+Specific endpoints this skill hits:
+
+- [Polymarket Markets](https://aisa.one/docs/api-reference/prediction-market/get_polymarket-markets), [Events](https://aisa.one/docs/api-reference/prediction-market/get_polymarket-events), [Market Price](https://aisa.one/docs/api-reference/prediction-market/get_polymarket-market-price), [Candlesticks](https://aisa.one/docs/api-reference/prediction-market/get_polymarket-candlesticks)
+- [Polymarket Activity](https://aisa.one/docs/api-reference/prediction-market/get_polymarket-activity), [Orderbook History](https://aisa.one/docs/api-reference/prediction-market/get_polymarket-orderbooks), [Trade History](https://aisa.one/docs/api-reference/prediction-market/get_polymarket-orders)
+- [Kalshi Markets](https://aisa.one/docs/api-reference/prediction-market/get_kalshi-markets)
+- [Matching Markets — Sports](https://aisa.one/docs/api-reference/prediction-market/get_matching-markets-sports), [Sports by Date](https://aisa.one/docs/api-reference/prediction-market/get_matching-markets-sports-by-sport)
+
+Full catalog: [aisa.one/docs/api-reference](https://aisa.one/docs/api-reference).
