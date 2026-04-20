@@ -1,11 +1,19 @@
+## Compatibility
+
+Works with any [agentskills.io](https://agentskills.io)-compatible
+harness: **Claude Code**, **Claude**, **OpenAI Codex**, **Cursor**,
+**Gemini CLI**, **OpenCode**, **Goose**, **OpenClaw**, **Hermes**, and
+others that implement the
+[Agent Skills specification](https://agentskills.io/specification).
+
+Requires Python 3, a POSIX shell, and `AISA_API_KEY`.
+
 ## Media Gen
 
 Generate images and videos using the AIsa API:
 
 - **Gemini Image**: `gemini-3-pro-image-preview` (`/v1/models/{model}:generateContent`)
 - **Wan 2.6 Video**: `wan2.6-t2v` (`/apis/v1/services/aigc/...` async task + polling)
-
-API documentation index: [`https://docs.aisa.one/reference/`](https://docs.aisa.one/reference/)
 
 ### Quick Start
 
@@ -43,3 +51,8 @@ python scripts/media_gen_client.py video-wait \
   --download \
   --out out.mp4
 ```
+
+## API Reference
+
+See the [AIsa API Reference](https://aisa.one/docs/api-reference) for the
+complete catalog of endpoints this skill can call.

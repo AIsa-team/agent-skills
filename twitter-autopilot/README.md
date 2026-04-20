@@ -4,6 +4,16 @@ Twitter/X intelligence and automation for autonomous agents. Powered by AIsa.
 
 This skill provides comprehensive capabilities to **read, search, engage, write, and post (text & media)** on Twitter/X.
 
+## Compatibility
+
+Works with any [agentskills.io](https://agentskills.io)-compatible
+harness: **Claude Code**, **Claude**, **OpenAI Codex**, **Cursor**,
+**Gemini CLI**, **OpenCode**, **Goose**, **OpenClaw**, **Hermes**, and
+others that implement the
+[Agent Skills specification](https://agentskills.io/specification).
+
+Requires Python 3, a POSIX shell, and `AISA_API_KEY`.
+
 ## Features
 
 - **Read & Search**: Access user info, tweets, advanced search, trends, followers, lists, communities, and Spaces without requiring user login.
@@ -56,4 +66,9 @@ Sign up at [aisa.one](https://aisa.one)
 ## Links
 
 - [AIsa](https://aisa.one)
-- [API Reference](https://docs.aisa.one/reference/)
+- [API Reference](https://aisa.one/docs/api-reference/)
+
+## API Reference
+
+See the [AIsa API Reference](https://aisa.one/docs/api-reference) for the
+complete catalog of endpoints this skill can call.

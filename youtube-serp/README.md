@@ -2,6 +2,16 @@
 
 YouTube SERP for autonomous agents. Search top-ranking videos, channels, and trends.
 
+## Compatibility
+
+Works with any [agentskills.io](https://agentskills.io)-compatible
+harness: **Claude Code**, **Claude**, **OpenAI Codex**, **Cursor**,
+**Gemini CLI**, **OpenCode**, **Goose**, **OpenClaw**, **Hermes**, and
+others that implement the
+[Agent Skills specification](https://agentskills.io/specification).
+
+Requires Python 3, a POSIX shell, and `AISA_API_KEY`.
+
 ## Features
 
 - **SERP Search**: Find top-ranking videos for any query
@@ -38,3 +48,9 @@ python scripts/youtube_client.py competitor --name "OpenAI" --topic "tutorial"
 ## Documentation
 
 See [SKILL.md](SKILL.md) for complete API documentation.
+
+## API Reference
+
+See the [AIsa API Reference](https://aisa.one/docs/api-reference) for the
+complete catalog of endpoints this skill can call.
+

@@ -1,15 +1,31 @@
 ---
 name: last30days
 description: "Research the last 30 days across Reddit, X, YouTube, TikTok, Instagram, Hacker News, Polymarket, GitHub, and grounded web search. Returns a ranked, clustered brief with citations. Use when the task needs recent social evidence, competitor comparisons, launch reactions, trend scans, or person/company profiles."
-homepage: https://aisa.one
-metadata: {"aisa":{"emoji":"📰","requires":{"bins":["python3","bash"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
+license: MIT
+compatibility: "Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY."
+metadata: {"aisa": {"emoji": "📰", "homepage": "https://aisa.one", "requires": {"bins": ["python3", "bash"], "env": ["AISA_API_KEY"]}, "primaryEnv": "AISA_API_KEY", "harnesses": ["claude-code", "claude", "opencode", "cursor", "codex", "gemini-cli", "openclaw", "hermes", "goose"]}}
 ---
-
 # last30days 📰
 
 **30-day multi-source research brief for autonomous agents. Powered by AIsa.**
 
 One API key. Reddit, X, YouTube, TikTok, Instagram, Hacker News, Polymarket, GitHub, and grounded web — merged into a single ranked brief.
+
+## Compatibility
+
+Works with any [agentskills.io](https://agentskills.io)-compatible
+harness, including:
+
+- **Claude Code** and **Claude** (Anthropic)
+- **OpenAI Codex**
+- **Cursor**
+- **Gemini CLI** (Google)
+- **OpenCode**, **Goose**, **OpenClaw**, **Hermes**
+- and any other harness that implements the [Agent Skills
+  specification](https://agentskills.io/specification)
+
+Requires Python 3, a POSIX shell, and `AISA_API_KEY` (get one at
+[aisa.one](https://aisa.one)).
 
 ## What Can You Do?
 
@@ -45,29 +61,29 @@ One API key. Reddit, X, YouTube, TikTok, Instagram, Hacker News, Polymarket, Git
 export AISA_API_KEY=sk-...
 
 # 2. First-run setup (interactive — picks planner / rerank / fun-scorer models)
-bash "${SKILL_ROOT}/scripts/run-last30days.sh" setup
+bash {baseDir}/scripts/run-last30days.sh setup
 
 # 3. Research a topic
-bash "${SKILL_ROOT}/scripts/run-last30days.sh" "OpenAI Agents SDK"
+bash {baseDir}/scripts/run-last30days.sh "OpenAI Agents SDK"
 ```
 
 ## Common Flags
 
 ```bash
 # Low-latency profile (fewer candidates per source)
-bash "${SKILL_ROOT}/scripts/run-last30days.sh" "$ARGUMENTS" --quick
+bash {baseDir}/scripts/run-last30days.sh "$ARGUMENTS" --quick
 
 # Higher-recall profile
-bash "${SKILL_ROOT}/scripts/run-last30days.sh" "$ARGUMENTS" --deep
+bash {baseDir}/scripts/run-last30days.sh "$ARGUMENTS" --deep
 
 # Machine-readable output (full plan + candidates + clusters)
-bash "${SKILL_ROOT}/scripts/run-last30days.sh" "$ARGUMENTS" --emit=json
+bash {baseDir}/scripts/run-last30days.sh "$ARGUMENTS" --emit=json
 
 # Restrict to specific sources
-bash "${SKILL_ROOT}/scripts/run-last30days.sh" "$ARGUMENTS" --search=reddit,x,grounding
+bash {baseDir}/scripts/run-last30days.sh "$ARGUMENTS" --search=reddit,x,grounding
 
 # Check provider / source availability
-bash "${SKILL_ROOT}/scripts/run-last30days.sh" --diagnose
+bash {baseDir}/scripts/run-last30days.sh --diagnose
 ```
 
 ## Inputs and Outputs
@@ -121,6 +137,21 @@ LAST30DAYS_FUN_MODEL=qwen-flash               # cheap vibes
 Or set `AISA_MODEL=...` for a single model across all three roles. Run
 `last30days setup` to pick interactively — the picker fetches the live
 catalog from [aisa.one/docs/guides/models](https://aisa.one/docs/guides/models).
+
+## API Reference
+
+last30days calls the following AIsa endpoints directly. See the
+[full API Reference](https://aisa.one/docs/api-reference) for the
+complete catalog.
+
+- [OpenAI Chat / `createChatCompletion`](https://aisa.one/docs/api-reference/chat/createchatcompletion) — planner, reranker, fun-scorer
+- [Twitter Advanced Search](https://aisa.one/docs/api-reference/twitter/get_twitter-tweet-advanced-search) — X retrieval
+- [YouTube Search](https://aisa.one/docs/api-reference/search/get_youtube-search) — YouTube retrieval
+- [Tavily Search](https://aisa.one/docs/api-reference/search/post_tavily-search) — grounded web
+- [Polymarket Markets](https://aisa.one/docs/api-reference/prediction-market/get_polymarket-markets) — prediction-market retrieval
+
+Reddit and Hacker News use their respective public APIs directly (no
+AISA proxy required).
 
 ## Requirements
 

@@ -65,7 +65,7 @@ See existing skills in this repository for reference.
 ## Links
 
 - ⚡ [AIsa](https://aisa.one) - Unified API backend
-- 📖 [Documentation](https://docs.aisa.one) - API reference
+- 📖 [Documentation](https://aisa.one/docs) - API reference
 
 ---
 
