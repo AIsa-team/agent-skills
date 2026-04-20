@@ -61,29 +61,29 @@ Requires Python 3, a POSIX shell, and `AISA_API_KEY` (get one at
 export AISA_API_KEY=sk-...
 
 # 2. First-run setup (interactive — picks planner / rerank / fun-scorer models)
-bash "${SKILL_ROOT}/scripts/run-last30days.sh" setup
+bash {baseDir}/scripts/run-last30days.sh setup
 
 # 3. Research a topic
-bash "${SKILL_ROOT}/scripts/run-last30days.sh" "OpenAI Agents SDK"
+bash {baseDir}/scripts/run-last30days.sh "OpenAI Agents SDK"
 ```
 
 ## Common Flags
 
 ```bash
 # Low-latency profile (fewer candidates per source)
-bash "${SKILL_ROOT}/scripts/run-last30days.sh" "$ARGUMENTS" --quick
+bash {baseDir}/scripts/run-last30days.sh "$ARGUMENTS" --quick
 
 # Higher-recall profile
-bash "${SKILL_ROOT}/scripts/run-last30days.sh" "$ARGUMENTS" --deep
+bash {baseDir}/scripts/run-last30days.sh "$ARGUMENTS" --deep
 
 # Machine-readable output (full plan + candidates + clusters)
-bash "${SKILL_ROOT}/scripts/run-last30days.sh" "$ARGUMENTS" --emit=json
+bash {baseDir}/scripts/run-last30days.sh "$ARGUMENTS" --emit=json
 
 # Restrict to specific sources
-bash "${SKILL_ROOT}/scripts/run-last30days.sh" "$ARGUMENTS" --search=reddit,x,grounding
+bash {baseDir}/scripts/run-last30days.sh "$ARGUMENTS" --search=reddit,x,grounding
 
 # Check provider / source availability
-bash "${SKILL_ROOT}/scripts/run-last30days.sh" --diagnose
+bash {baseDir}/scripts/run-last30days.sh --diagnose
 ```
 
 ## Inputs and Outputs

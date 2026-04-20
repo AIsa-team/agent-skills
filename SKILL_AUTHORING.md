@@ -118,8 +118,13 @@ Requires `python3`, `bash`, and `AISA_API_KEY`.
 
 ```bash
 export AISA_API_KEY=sk-...
-bash "${SKILL_ROOT}/scripts/run-<skill>.sh" "<input>"
+python3 {baseDir}/scripts/<client>.py <subcommand> [--flags]
 ```
+
+Use the literal token `{baseDir}` in SKILL.md script paths — the harness
+substitutes it at load time. Do **not** use `${SKILL_ROOT}`, absolute
+paths, or `./scripts/...`; `{baseDir}` is the repo convention (see
+`CLAUDE.md` at the repo root).
 
 ## Inputs and Outputs
 
@@ -183,8 +188,9 @@ complete catalog of endpoints this skill can call.
 ## `README.md` body
 
 The README is for humans landing on the skill's folder on GitHub. It
-should mirror the SKILL.md body but drop the `${SKILL_ROOT}` and
-skills-harness-specific language. Mandatory section:
+should mirror the SKILL.md body but drop the `{baseDir}` substitution
+token (replace with concrete `scripts/...` paths) and any
+harness-specific language. Mandatory section:
 
 ```markdown
 ## Compatibility
