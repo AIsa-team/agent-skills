@@ -43,7 +43,7 @@ Directory name rules (enforced by the spec):
 |-----------------|----------|-------|
 | `name`          | **Yes**  | Matches directory name. See rules above. |
 | `description`   | **Yes**  | 1–1024 chars. Describe **what the skill does and when to use it**. Include specific keywords that help an agent pick it. |
-| `license`       | **Yes in this repo** | `MIT` unless the skill has a different license. Spec treats this as optional, but we require it. |
+| `license`       | **Yes in this repo** | `MIT` — this is the **distribution license** for the packaged skill (used when it ships via [clawhub.ai](https://clawhub.ai)). The **contribution license** for this source repo is Apache-2.0 (see [LICENSE](./LICENSE)). Both are intentional; see "Dual-license arrangement" below. |
 | `compatibility` | **Yes in this repo** | 1–500 chars. Must list the harnesses the skill works with. Spec treats this as optional; we require it. |
 | `metadata`      | Recommended | Vendor metadata — `homepage`, `emoji`, `requires`, `primaryEnv`, etc. Use reasonably unique keys. |
 | `allowed-tools` | Optional | Space-separated list. Experimental, support varies. |
@@ -66,6 +66,17 @@ metadata:
   harnesses: [claude-code, claude, opencode, cursor, codex, gemini-cli, openclaw, hermes, goose]
 ---
 ```
+
+### Dual-license arrangement
+
+This repo has two licenses, serving two different purposes:
+
+| What | License | Where |
+|---|---|---|
+| **Contribution / source-repo license** | Apache-2.0 | [`LICENSE`](./LICENSE) at the repo root. Covers the umbrella contributor bargain — explicit patent grant, attribution, notice preservation. This is what governs pull requests and source-tree redistribution. |
+| **Per-skill distribution license** | MIT | Declared in each `SKILL.md`'s `license:` frontmatter. This is what packaged skills ship under when they're pulled from this repo and redistributed via [clawhub.ai](https://clawhub.ai) — simpler, fewer obligations for redistribution consumers. |
+
+The two are mutually compatible: Apache-2.0 is strictly more permissive-with-obligations than MIT, so the umbrella can host MIT-licensed distribution artifacts without friction. New skills should keep `license: MIT` in their frontmatter unless there's a deliberate reason to differ.
 
 ### Why both `compatibility:` (top-level) and `metadata.harnesses`?
 
