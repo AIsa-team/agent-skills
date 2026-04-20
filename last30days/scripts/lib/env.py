@@ -317,16 +317,3 @@ def is_pinterest_available(config: dict[str, Any]) -> bool:
 def get_pinterest_token(config: dict[str, Any]) -> str:
     """Get the AISA token for Pinterest discovery."""
     return config.get('AISA_API_KEY') or ''
-
-
-# Xquik
-def is_xquik_available(config: dict[str, Any]) -> bool:
-    """Xquik is no longer exposed in the AISA-only runtime."""
-    del config
-    return False
-
-
-def get_xquik_token(config: dict[str, Any]) -> str:
-    """Xquik is retired from the default runtime surface."""
-    del config
-    return ''

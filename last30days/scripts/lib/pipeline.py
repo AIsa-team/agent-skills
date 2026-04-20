@@ -48,7 +48,6 @@ SEARCH_ALIAS = {
     "hn": "hackernews",
     "web": "grounding",
     "xhs": "xiaohongshu",
-    "xquik": "x",
 }
 
 MAX_SOURCE_FETCHES: dict[str, int] = {"x": 2}
