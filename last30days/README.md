@@ -5,6 +5,29 @@ ranked, clustered brief on any topic across eight sources: Reddit, X,
 YouTube, TikTok, Instagram, Hacker News, Polymarket, and grounded web
 search — in ~40 seconds.
 
+## Quick start
+
+```bash
+# 1. Set your AIsa key
+export AISA_API_KEY=sk-...
+
+# 2. First-run setup (interactive model picker)
+bash scripts/run-last30days.sh setup
+
+# 3. Research a topic
+bash scripts/run-last30days.sh "OpenAI Agents SDK"
+```
+
+## Examples
+
+```bash
+last30days "OpenAI Agents SDK"
+last30days "Claude Code vs Codex"
+last30days "Peter Steinberger"
+last30days "bitcoin price" --quick
+last30days "Perplexity" --emit=json
+```
+
 ## Compatibility
 
 Works with any [agentskills.io](https://agentskills.io)-compatible
