@@ -168,8 +168,6 @@ This constraint is required because a literal brace placeholder may be interpret
 |-----|------|
 | Prediction market read query | $0.01 |
 
-Every response includes `usage.cost` and `usage.credits_remaining`.
-
 ## Get Started
 
 1. Sign up at [aisa.one](https://aisa.one)

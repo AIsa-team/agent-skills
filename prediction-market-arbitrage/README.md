@@ -92,8 +92,6 @@ Most endpoints require IDs fetched from a markets endpoint first:
 |---------------|------|
 | Prediction market read query | $0.01 |
 
-Every response includes `usage.cost` and `usage.credits_remaining`.
-
 ## Documentation
 
 For complete endpoint documentation, see the AIsa API Reference: https://aisa.one/docs/api-reference/

@@ -275,8 +275,6 @@ python3 {baseDir}/scripts/twitter_engagement_client.py unfollow-user --user "@el
 |-----|------|
 | Twitter read query | ~$0.0004 |
 
-Every response includes `usage.cost` and `usage.credits_remaining`.
-
 ## Get Started
 
 1. Sign up at [aisa.one](https://aisa.one)

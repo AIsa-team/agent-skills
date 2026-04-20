@@ -270,8 +270,6 @@ for kw in keywords:
 |-----|------|
 | YouTube search | ~$0.002 |
 
-Every response includes `usage.cost` and `usage.credits_remaining`.
-
 ---
 
 ## Get Started

@@ -315,8 +315,6 @@ python3 {baseDir}/scripts/market_client.py stock rates --historical --bank fed
 | Line items / screener | ~$0.002 |
 | Interest rates | ~$0.0005 |
 
-Every response includes `usage.cost` and `usage.credits_remaining`.
-
 ---
 
 ## Get Started
