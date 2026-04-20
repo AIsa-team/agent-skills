@@ -91,14 +91,24 @@ def _parse_repo_from_url(html_url: str) -> str:
     return ""
 
 
+_DATE_YMD_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
 def _parse_date(iso_str: Optional[str]) -> Optional[str]:
-    """Extract YYYY-MM-DD from ISO 8601 datetime string."""
-    if not iso_str:
+    """Extract YYYY-MM-DD from an ISO 8601 datetime string.
+
+    Returns None if the input isn't a valid ISO-8601 prefix. The old
+    implementation did `iso_str[:10]` wrapped in try/except for
+    (IndexError, TypeError) — but string slicing never raises either,
+    so garbage like "bad" or "2026" would pass through unchanged and
+    then fall out of the date-range filter via lexicographic quirks.
+    """
+    if not isinstance(iso_str, str) or len(iso_str) < 10:
         return None
-    try:
-        return iso_str[:10]
-    except (IndexError, TypeError):
+    candidate = iso_str[:10]
+    if not _DATE_YMD_RE.match(candidate):
         return None
+    return candidate
 
 
 def _compute_relevance(

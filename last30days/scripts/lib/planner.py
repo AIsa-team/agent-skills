@@ -185,11 +185,17 @@ def _sanitize_plan(
         source for source in available_sources
         if (not requested or source in requested)
     ]
-    source_weights = {
-        source: float(weight)
-        for source, weight in (raw.get("source_weights") or {}).items()
-        if source in available
-    }
+    # Coerce weights per-entry. A single bad value (non-numeric string,
+    # None, etc.) from the LLM should not tank the whole plan — skip
+    # the malformed entry and keep the good ones.
+    source_weights: dict[str, float] = {}
+    for source, weight in (raw.get("source_weights") or {}).items():
+        if source not in available:
+            continue
+        try:
+            source_weights[source] = float(weight)
+        except (TypeError, ValueError):
+            continue
     if requested:
         source_weights = {source: weight for source, weight in source_weights.items() if source in requested}
     if not source_weights:
@@ -218,13 +224,18 @@ def _sanitize_plan(
         ranking_query = str(subquery.get("ranking_query") or "").strip()
         if not search_query or not ranking_query:
             continue
+        # A bad weight on this one subquery shouldn't drop the whole plan.
+        try:
+            weight = max(0.05, float(subquery.get("weight") or 1.0))
+        except (TypeError, ValueError):
+            weight = 1.0
         subqueries.append(
             schema.SubQuery(
                 label=str(subquery.get("label") or f"q{index}").strip() or f"q{index}",
                 search_query=search_query,
                 ranking_query=ranking_query,
                 sources=sources,
-                weight=max(0.05, float(subquery.get("weight") or 1.0)),
+                weight=weight,
             )
         )
     if depth == "quick" and subqueries:
