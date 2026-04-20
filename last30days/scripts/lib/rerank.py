@@ -158,8 +158,15 @@ def _apply_llm_scores(candidates: list[schema.Candidate], payload: dict) -> None
         candidate_id = str(row.get("candidate_id") or "").strip()
         if not candidate_id:
             continue
+        # One malformed row (e.g. `relevance: "high"` from a loose LLM)
+        # should not abort the whole batch. Skip this row; the candidate
+        # will fall back to its local score via `scores.get(…, …)` below.
+        try:
+            relevance = max(0.0, min(100.0, float(row.get("relevance") or 0.0)))
+        except (TypeError, ValueError):
+            continue
         scores[candidate_id] = (
-            max(0.0, min(100.0, float(row.get("relevance") or 0.0))),
+            relevance,
             str(row.get("reason") or "").strip() or None,
         )
     for candidate in candidates:
@@ -276,8 +283,15 @@ def _apply_fun_scores(candidates: list[schema.Candidate], payload: dict) -> None
         cid = str(row.get("candidate_id") or "").strip()
         if not cid:
             continue
+        # Per-row try/except: one malformed fun value shouldn't kill the
+        # whole batch. Affected candidate falls back to its heuristic
+        # score via `_apply_single_fun_fallback` in the loop below.
+        try:
+            fun = max(0.0, min(100.0, float(row.get("fun") or 0.0)))
+        except (TypeError, ValueError):
+            continue
         scores[cid] = (
-            max(0.0, min(100.0, float(row.get("fun") or 0.0))),
+            fun,
             str(row.get("reason") or "").strip() or None,
         )
     for c in candidates:

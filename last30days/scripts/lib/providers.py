@@ -109,7 +109,15 @@ def _resolve_model_pins(config: dict[str, Any], depth: str, provider_name: str) 
 
 
 def mock_runtime(config: dict[str, Any], depth: str) -> schema.ProviderRuntime:
-    """Resolve model pins for mock mode without requiring live credentials."""
+    """Build a ProviderRuntime for mock mode — no live credentials required.
+
+    Mock mode bypasses the model-pin requirement: it exists precisely for
+    running the pipeline offline with deterministic fixtures, so demanding
+    a real model pin would defeat the purpose. Env-var pins are still
+    honored if the installer has them set (useful for tests that want
+    to exercise per-role fallbacks), but their absence is fine.
+    """
+    del depth
     provider_name = (config.get("LAST30DAYS_REASONING_PROVIDER") or "aisa").lower()
     warn_if_legacy_provider_alias(provider_name)
     if provider_name == "auto":
@@ -117,7 +125,14 @@ def mock_runtime(config: dict[str, Any], depth: str) -> schema.ProviderRuntime:
     provider_name = _normalize_provider_name(provider_name)
     if provider_name != "aisa":
         raise RuntimeError(f"Unsupported reasoning provider: {provider_name}")
-    planner_model, rerank_model, fun_model = _resolve_model_pins(config, depth, provider_name)
+
+    # Synthesize model names for the mock runtime. Real models aren't
+    # called in mock mode; these strings are only surfaced in the
+    # provider_runtime block of the rendered report.
+    shared = config.get("AISA_MODEL")
+    planner_model = config.get("LAST30DAYS_PLANNER_MODEL") or shared or "mock-planner"
+    rerank_model = config.get("LAST30DAYS_RERANK_MODEL") or shared or "mock-rerank"
+    fun_model = config.get("LAST30DAYS_FUN_MODEL") or rerank_model or "mock-fun"
     return schema.ProviderRuntime(
         reasoning_provider=provider_name,
         planner_model=planner_model,
