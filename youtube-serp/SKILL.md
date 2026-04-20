@@ -1,15 +1,31 @@
 ---
 name: youtube-serp
 description: "YouTube SERP for agents. Search top-ranking videos, channels, and trends for content research and competitor tracking."
-homepage: https://aisa.one
-metadata: {"aisa":{"emoji":"📺","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
+license: MIT
+compatibility: "Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY."
+metadata: {"aisa": {"emoji": "📺", "homepage": "https://aisa.one", "requires": {"bins": ["curl", "python3"], "env": ["AISA_API_KEY"]}, "primaryEnv": "AISA_API_KEY", "harnesses": ["claude-code", "claude", "opencode", "cursor", "codex", "gemini-cli", "openclaw", "hermes", "goose"]}}
 ---
-
 # YouTube SERP 📺
 
 **YouTube SERP for autonomous agents. Powered by AIsa.**
 
 One API key. Rank discovery. Content research. Competitor tracking.
+
+## Compatibility
+
+Works with any [agentskills.io](https://agentskills.io)-compatible
+harness, including:
+
+- **Claude Code** and **Claude** (Anthropic)
+- **OpenAI Codex**
+- **Cursor**
+- **Gemini CLI** (Google)
+- **OpenCode**, **Goose**, **OpenClaw**, **Hermes**
+- and any other harness that implements the [Agent Skills
+  specification](https://agentskills.io/specification)
+
+Requires Python 3, a POSIX shell, and `AISA_API_KEY` (get one at
+[aisa.one](https://aisa.one)).
 
 ## 🔥 What Can You Do?
 

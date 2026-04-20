@@ -5,6 +5,16 @@ ranked, clustered brief on any topic across eight sources: Reddit, X,
 YouTube, TikTok, Instagram, Hacker News, Polymarket, and grounded web
 search — in ~40 seconds.
 
+## Compatibility
+
+Works with any [agentskills.io](https://agentskills.io)-compatible
+harness: **Claude Code**, **Claude**, **OpenAI Codex**, **Cursor**,
+**Gemini CLI**, **OpenCode**, **Goose**, **OpenClaw**, **Hermes**, and
+others that implement the
+[Agent Skills specification](https://agentskills.io/specification).
+
+Requires Python 3, a POSIX shell, and `AISA_API_KEY`.
+
 ## Quick start
 
 ```bash

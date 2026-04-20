@@ -1,10 +1,10 @@
 ---
 name: multi-source-search
 description: "Multi-source intelligent search for agents. Retrieval across web, scholar, Tavily, and Perplexity Sonar models."
-homepage: https://aisa.one
-metadata: {"aisa":{"emoji":"🔎","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
+license: MIT
+compatibility: "Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY."
+metadata: {"aisa": {"emoji": "🔎", "homepage": "https://aisa.one", "requires": {"bins": ["curl", "python3"], "env": ["AISA_API_KEY"]}, "primaryEnv": "AISA_API_KEY", "harnesses": ["claude-code", "claude", "opencode", "cursor", "codex", "gemini-cli", "openclaw", "hermes", "goose"]}}
 ---
-
 # Multi-source Search
 
 Intelligent search for autonomous agents, powered by AIsa.
@@ -15,6 +15,22 @@ One API key gives you:
 - Hybrid scholar search
 - Tavily search and extraction tools
 - Perplexity Sonar answer-generation endpoints with citations
+
+## Compatibility
+
+Works with any [agentskills.io](https://agentskills.io)-compatible
+harness, including:
+
+- **Claude Code** and **Claude** (Anthropic)
+- **OpenAI Codex**
+- **Cursor**
+- **Gemini CLI** (Google)
+- **OpenCode**, **Goose**, **OpenClaw**, **Hermes**
+- and any other harness that implements the [Agent Skills
+  specification](https://agentskills.io/specification)
+
+Requires Python 3, a POSIX shell, and `AISA_API_KEY` (get one at
+[aisa.one](https://aisa.one)).
 
 ## What This Skill Is Best For
 

@@ -2,6 +2,16 @@
 
 Get current odds, prices, and market data from prediction markets like Polymarket and Kalshi. Access historical orderbook data, candlestick charts, trade history, wallet positions, and more.
 
+## Compatibility
+
+Works with any [agentskills.io](https://agentskills.io)-compatible
+harness: **Claude Code**, **Claude**, **OpenAI Codex**, **Cursor**,
+**Gemini CLI**, **OpenCode**, **Goose**, **OpenClaw**, **Hermes**, and
+others that implement the
+[Agent Skills specification](https://agentskills.io/specification).
+
+Requires Python 3, a POSIX shell, and `AISA_API_KEY`.
+
 ## Features
 
 - **Polymarket**: Search markets, live prices, trade history, orderbooks, candlesticks, wallet positions, P&L

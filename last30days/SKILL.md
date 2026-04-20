@@ -1,15 +1,31 @@
 ---
 name: last30days
 description: "Research the last 30 days across Reddit, X, YouTube, TikTok, Instagram, Hacker News, Polymarket, GitHub, and grounded web search. Returns a ranked, clustered brief with citations. Use when the task needs recent social evidence, competitor comparisons, launch reactions, trend scans, or person/company profiles."
-homepage: https://aisa.one
-metadata: {"aisa":{"emoji":"📰","requires":{"bins":["python3","bash"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
+license: MIT
+compatibility: "Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY."
+metadata: {"aisa": {"emoji": "📰", "homepage": "https://aisa.one", "requires": {"bins": ["python3", "bash"], "env": ["AISA_API_KEY"]}, "primaryEnv": "AISA_API_KEY", "harnesses": ["claude-code", "claude", "opencode", "cursor", "codex", "gemini-cli", "openclaw", "hermes", "goose"]}}
 ---
-
 # last30days 📰
 
 **30-day multi-source research brief for autonomous agents. Powered by AIsa.**
 
 One API key. Reddit, X, YouTube, TikTok, Instagram, Hacker News, Polymarket, GitHub, and grounded web — merged into a single ranked brief.
+
+## Compatibility
+
+Works with any [agentskills.io](https://agentskills.io)-compatible
+harness, including:
+
+- **Claude Code** and **Claude** (Anthropic)
+- **OpenAI Codex**
+- **Cursor**
+- **Gemini CLI** (Google)
+- **OpenCode**, **Goose**, **OpenClaw**, **Hermes**
+- and any other harness that implements the [Agent Skills
+  specification](https://agentskills.io/specification)
+
+Requires Python 3, a POSIX shell, and `AISA_API_KEY` (get one at
+[aisa.one](https://aisa.one)).
 
 ## What Can You Do?
 

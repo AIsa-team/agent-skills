@@ -1,10 +1,10 @@
 ---
-name: aisa-media-gen
+name: media-gen
 description: "Generate images & videos with AIsa. Gemini 3 Pro Image (image) + Qwen Wan 2.6 (video) via one API key."
-homepage: https://aisa.one
-metadata: {"aisa":{"emoji":"🎬","requires":{"bins":["python3","curl"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
+license: MIT
+compatibility: "Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY."
+metadata: {"aisa": {"emoji": "🎬", "homepage": "https://aisa.one", "requires": {"bins": ["python3", "curl"], "env": ["AISA_API_KEY"]}, "primaryEnv": "AISA_API_KEY", "harnesses": ["claude-code", "claude", "opencode", "cursor", "codex", "gemini-cli", "openclaw", "hermes", "goose"]}}
 ---
-
 # Media Gen 🎬
 
 Generate **images** and **videos** with a single AIsa API key:
@@ -13,6 +13,22 @@ Generate **images** and **videos** with a single AIsa API key:
 - **Video**: `wan2.6-t2v` (Qwen Wan 2.6, async task)
 
 API documentation index: [AIsa API Reference](https://docs.aisa.one/reference/) (all pages can be found at `https://docs.aisa.one/llms.txt`).
+
+## Compatibility
+
+Works with any [agentskills.io](https://agentskills.io)-compatible
+harness, including:
+
+- **Claude Code** and **Claude** (Anthropic)
+- **OpenAI Codex**
+- **Cursor**
+- **Gemini CLI** (Google)
+- **OpenCode**, **Goose**, **OpenClaw**, **Hermes**
+- and any other harness that implements the [Agent Skills
+  specification](https://agentskills.io/specification)
+
+Requires Python 3, a POSIX shell, and `AISA_API_KEY` (get one at
+[aisa.one](https://aisa.one)).
 
 ## 🔥 What You Can Do
 
