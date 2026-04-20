@@ -21,8 +21,6 @@ All clients hit `https://api.aisa.one` and authenticate with `Authorization: Bea
 - `/apis/v1/...` — the main AIsa REST surface (financial, twitter, polymarket, kalshi, youtube, search, etc.)
 - `/v1/models/{model}:generateContent` — the Gemini-compatible passthrough used by `media-gen` for images.
 
-Responses include `usage.cost` / `usage.credits_remaining` — surface these when relevant.
-
 ## Conventions to preserve when editing
 
 - Keep `SKILL.md` frontmatter valid YAML with the inline JSON `metadata` object intact — the harness depends on this shape.
