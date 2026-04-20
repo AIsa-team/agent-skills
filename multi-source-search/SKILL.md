@@ -1,10 +1,10 @@
 ---
 name: multi-source-search
 description: "Multi-source intelligent search for agents. Retrieval across web, scholar, Tavily, and Perplexity Sonar models."
-homepage: https://aisa.one
-metadata: {"aisa":{"emoji":"🔎","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
+license: MIT
+compatibility: "Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY."
+metadata: {"aisa": {"emoji": "🔎", "homepage": "https://aisa.one", "requires": {"bins": ["curl", "python3"], "env": ["AISA_API_KEY"]}, "primaryEnv": "AISA_API_KEY", "harnesses": ["claude-code", "claude", "opencode", "cursor", "codex", "gemini-cli", "openclaw", "hermes", "goose"]}}
 ---
-
 # Multi-source Search
 
 Intelligent search for autonomous agents, powered by AIsa.
@@ -15,6 +15,22 @@ One API key gives you:
 - Hybrid scholar search
 - Tavily search and extraction tools
 - Perplexity Sonar answer-generation endpoints with citations
+
+## Compatibility
+
+Works with any [agentskills.io](https://agentskills.io)-compatible
+harness, including:
+
+- **Claude Code** and **Claude** (Anthropic)
+- **OpenAI Codex**
+- **Cursor**
+- **Gemini CLI** (Google)
+- **OpenCode**, **Goose**, **OpenClaw**, **Hermes**
+- and any other harness that implements the [Agent Skills
+  specification](https://agentskills.io/specification)
+
+Requires Python 3, a POSIX shell, and `AISA_API_KEY` (get one at
+[aisa.one](https://aisa.one)).
 
 ## What This Skill Is Best For
 
@@ -84,10 +100,10 @@ The replacement flow is the Perplexity API family:
 | `/perplexity/sonar-deep-research` | Exhaustive research and long-form reports |
 
 These descriptions are based on the AIsa docs:
-- [Sonar](https://docs.aisa.one/reference/post_perplexity-sonar)
-- [Sonar Pro](https://docs.aisa.one/reference/post_perplexity-sonar-pro)
-- [Sonar Reasoning Pro](https://docs.aisa.one/reference/post_perplexity-sonar-reasoning-pro)
-- [Sonar Deep Research](https://docs.aisa.one/reference/post_perplexity-sonar-deep-research)
+- [Sonar](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar)
+- [Sonar Pro](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-pro)
+- [Sonar Reasoning Pro](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-reasoning-pro)
+- [Sonar Deep Research](https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-deep-research)
 
 ### Sonar
 
@@ -248,9 +264,9 @@ Use `messages` because the AIsa Perplexity endpoints are presented as "Ask AI" e
 
 ## Full API Reference
 
-See [API Reference](https://docs.aisa.one/reference/) for complete endpoint documentation.
+See [API Reference](https://aisa.one/docs/api-reference/) for complete endpoint documentation.
 
 ## Resources
 
 - [AIsa Verity](https://github.com/AIsa-team/verity) - Reference implementation of confidence-scored search agent
-- [AIsa Documentation](https://docs.aisa.one) - Complete API documentation
+- [AIsa Documentation](https://aisa.one/docs) - Complete API documentation

@@ -1,15 +1,31 @@
 ---
-name: Prediction Market Arbitrage
+name: prediction-market-arbitrage
 description: "Find and analyze arbitrage opportunities across prediction markets like Polymarket and Kalshi."
-homepage: https://aisa.one
-metadata: {"aisa":{"emoji":"⚖️","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
+license: MIT
+compatibility: "Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY."
+metadata: {"aisa": {"emoji": "⚖️", "homepage": "https://aisa.one", "requires": {"bins": ["curl", "python3"], "env": ["AISA_API_KEY"]}, "primaryEnv": "AISA_API_KEY", "harnesses": ["claude-code", "claude", "opencode", "cursor", "codex", "gemini-cli", "openclaw", "hermes", "goose"]}}
 ---
-
 # Cross-Platform Prediction Market Arbitrage ⚖️
 
 **Find arbitrage opportunities across prediction markets for autonomous agents. Powered by AIsa.**
 
 One API key. Match events across Polymarket and Kalshi to detect price discrepancies and potential risk-free profit opportunities.
+
+## Compatibility
+
+Works with any [agentskills.io](https://agentskills.io)-compatible
+harness, including:
+
+- **Claude Code** and **Claude** (Anthropic)
+- **OpenAI Codex**
+- **Cursor**
+- **Gemini CLI** (Google)
+- **OpenCode**, **Goose**, **OpenClaw**, **Hermes**
+- and any other harness that implements the [Agent Skills
+  specification](https://agentskills.io/specification)
+
+Requires Python 3, a POSIX shell, and `AISA_API_KEY` (get one at
+[aisa.one](https://aisa.one)).
 
 ## What Can You Do?
 
@@ -152,8 +168,6 @@ This constraint is required because a literal brace placeholder may be interpret
 |-----|------|
 | Prediction market read query | $0.01 |
 
-Every response includes `usage.cost` and `usage.credits_remaining`.
-
 ## Get Started
 
 1. Sign up at [aisa.one](https://aisa.one)
@@ -163,4 +177,4 @@ Every response includes `usage.cost` and `usage.credits_remaining`.
 
 ## Full API Reference
 
-See [API Reference](https://docs.aisa.one/reference/) for complete endpoint documentation.
+See [API Reference](https://aisa.one/docs/api-reference/) for complete endpoint documentation.

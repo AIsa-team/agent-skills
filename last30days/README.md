@@ -28,6 +28,39 @@ last30days "bitcoin price" --quick
 last30days "Perplexity" --emit=json
 ```
 
+## Compatibility
+
+Works with any [agentskills.io](https://agentskills.io)-compatible
+harness: **Claude Code**, **Claude**, **OpenAI Codex**, **Cursor**,
+**Gemini CLI**, **OpenCode**, **Goose**, **OpenClaw**, **Hermes**, and
+others that implement the
+[Agent Skills specification](https://agentskills.io/specification).
+
+Requires Python 3, a POSIX shell, and `AISA_API_KEY`.
+
+## Quick start
+
+```bash
+# 1. Set your AIsa key
+export AISA_API_KEY=sk-...
+
+# 2. First-run setup (interactive model picker)
+bash scripts/run-last30days.sh setup
+
+# 3. Research a topic
+bash scripts/run-last30days.sh "OpenAI Agents SDK"
+```
+
+## Examples
+
+```bash
+last30days "OpenAI Agents SDK"
+last30days "Claude Code vs Codex"
+last30days "Peter Steinberger"
+last30days "bitcoin price" --quick
+last30days "Perplexity" --emit=json
+```
+
 ## What it returns
 
 A single markdown (or JSON) brief:
@@ -83,6 +116,11 @@ interactive `setup` flow walks you through picking from the live
 | `--store` | Persist findings to the local SQLite research store |
 
 Run `last30days --help` for the full list.
+
+## API Reference
+
+See the [AIsa API Reference](https://aisa.one/docs/api-reference) for the
+complete catalog of endpoints this skill can call.
 
 ## License
 

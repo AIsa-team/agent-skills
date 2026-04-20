@@ -4,6 +4,16 @@
 
 This repository contains skills and Python clients that allow AI agents and developers to interact with prediction markets like **Polymarket** and **Kalshi** using a single, unified API.
 
+## Compatibility
+
+Works with any [agentskills.io](https://agentskills.io)-compatible
+harness: **Claude Code**, **Claude**, **OpenAI Codex**, **Cursor**,
+**Gemini CLI**, **OpenCode**, **Goose**, **OpenClaw**, **Hermes**, and
+others that implement the
+[Agent Skills specification](https://agentskills.io/specification).
+
+Requires Python 3, a POSIX shell, and `AISA_API_KEY`.
+
 ## 📁 Included Files
 
 ### Skill
@@ -82,8 +92,8 @@ Most endpoints require IDs fetched from a markets endpoint first:
 |---------------|------|
 | Prediction market read query | $0.01 |
 
-Every response includes `usage.cost` and `usage.credits_remaining`.
+## API Reference
 
-## Documentation
+See the [AIsa API Reference](https://aisa.one/docs/api-reference) for the
+complete catalog of endpoints this skill can call.
 
-For complete endpoint documentation, see the AIsa API Reference: https://docs.aisa.one/reference/

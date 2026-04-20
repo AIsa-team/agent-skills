@@ -1,15 +1,31 @@
 ---
 name: marketpulse
 description: "Query real-time and historical financial data for equities—prices, news, financial statements, metrics, analyst estimates, insider and institutional activity, SEC filings, earnings press releases, segmented revenues, stock screening, and macro interest rates."
-homepage: https://aisa.one
-metadata: {"aisa":{"emoji":"📊","requires":{"bins":["curl","python3"],"env":["AISA_API_KEY"]},"primaryEnv":"AISA_API_KEY","compatibility":["openclaw","claude-code","hermes"]}}
+license: MIT
+compatibility: "Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY."
+metadata: {"aisa": {"emoji": "📊", "homepage": "https://aisa.one", "requires": {"bins": ["curl", "python3"], "env": ["AISA_API_KEY"]}, "primaryEnv": "AISA_API_KEY", "harnesses": ["claude-code", "claude", "opencode", "cursor", "codex", "gemini-cli", "openclaw", "hermes", "goose"]}}
 ---
-
 # MarketPulse 📊
 
 **Complete equity market data for autonomous agents. Powered by AIsa.**
 
 One API key. Stocks, financials, filings, and macro data. Everything you need.
+
+## Compatibility
+
+Works with any [agentskills.io](https://agentskills.io)-compatible
+harness, including:
+
+- **Claude Code** and **Claude** (Anthropic)
+- **OpenAI Codex**
+- **Cursor**
+- **Gemini CLI** (Google)
+- **OpenCode**, **Goose**, **OpenClaw**, **Hermes**
+- and any other harness that implements the [Agent Skills
+  specification](https://agentskills.io/specification)
+
+Requires Python 3, a POSIX shell, and `AISA_API_KEY` (get one at
+[aisa.one](https://aisa.one)).
 
 ## 🔥 What Can You Do?
 
@@ -299,8 +315,6 @@ python3 {baseDir}/scripts/market_client.py stock rates --historical --bank fed
 | Line items / screener | ~$0.002 |
 | Interest rates | ~$0.0005 |
 
-Every response includes `usage.cost` and `usage.credits_remaining`.
-
 ---
 
 ## Get Started
@@ -312,4 +326,4 @@ Every response includes `usage.cost` and `usage.credits_remaining`.
 
 ## Full API Reference
 
-See [API Reference](https://docs.aisa.one/reference/) for complete endpoint documentation.
+See [API Reference](https://aisa.one/docs/api-reference/) for complete endpoint documentation.
