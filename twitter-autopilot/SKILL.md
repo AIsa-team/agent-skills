@@ -1,10 +1,21 @@
 ---
 name: twitter-autopilot
-description: "Searches and reads X (Twitter): profiles, timelines, mentions, followers, tweet search, trends, lists, communities, and Spaces. Publishes posts, likes/unlikes tweets, and follows/unfollows users after the user completes OAuth in the browser. Use when the user asks about Twitter/X data, social listening, posting, or interacting with tweets/users without sharing account passwords."
+description: 'Searches and reads X (Twitter): profiles, timelines, mentions, followers, tweet search, trends, lists, communities, and Spaces. Publishes posts, likes/unlikes tweets, and follows/unfollows users after the user completes OAuth in the browser. Use when the user asks about Twitter/X data, social listening, posting, or interacting with tweets/users without sharing account passwords.'
 license: MIT
-compatibility: "Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY."
-metadata: {"aisa": {"emoji": "🐦", "homepage": "https://aisa.one", "requires": {"bins": ["curl", "python3"], "env": ["AISA_API_KEY"]}, "primaryEnv": "AISA_API_KEY", "harnesses": ["claude-code", "claude", "opencode", "cursor", "codex", "gemini-cli", "openclaw", "hermes", "goose"]}}
+compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries curl, python3, environment variables AISA_API_KEY and internet access to api.aisa.one.
+metadata:
+  aisa:
+    emoji: 🐦
+    requires:
+      bins:
+      - curl
+      - python3
+      env:
+      - AISA_API_KEY
+    primaryEnv: AISA_API_KEY
+    compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries curl, python3, environment variables AISA_API_KEY and internet access to api.aisa.one.
 ---
+
 # Twitter Autopilot 🐦
 
 **Twitter/X data access and automation for autonomous agents. Powered by AIsa.**
@@ -196,44 +207,44 @@ curl "https://api.aisa.one/apis/v1/twitter/spaces/detail?space_id=1dRJZlbLkjexB"
 
 ```bash
 # User operations
-python3 {baseDir}/scripts/twitter_client.py user-info --username elonmusk
-python3 {baseDir}/scripts/twitter_client.py user-about --username elonmusk
-python3 {baseDir}/scripts/twitter_client.py tweets --username elonmusk
-python3 {baseDir}/scripts/twitter_client.py mentions --username elonmusk
-python3 {baseDir}/scripts/twitter_client.py followers --username elonmusk
-python3 {baseDir}/scripts/twitter_client.py followings --username elonmusk
-python3 {baseDir}/scripts/twitter_client.py verified-followers --user-id 44196397
-python3 {baseDir}/scripts/twitter_client.py check-follow --source elonmusk --target BillGates
+python3 scripts/twitter_client.py user-info --username elonmusk
+python3 scripts/twitter_client.py user-about --username elonmusk
+python3 scripts/twitter_client.py tweets --username elonmusk
+python3 scripts/twitter_client.py mentions --username elonmusk
+python3 scripts/twitter_client.py followers --username elonmusk
+python3 scripts/twitter_client.py followings --username elonmusk
+python3 scripts/twitter_client.py verified-followers --user-id 44196397
+python3 scripts/twitter_client.py check-follow --source elonmusk --target BillGates
 
 # Search & discovery
-python3 {baseDir}/scripts/twitter_client.py search --query "AI agents"
-python3 {baseDir}/scripts/twitter_client.py search --query "AI agents" --type Top
-python3 {baseDir}/scripts/twitter_client.py user-search --query "AI researcher"
-python3 {baseDir}/scripts/twitter_client.py trends --woeid 1
+python3 scripts/twitter_client.py search --query "AI agents"
+python3 scripts/twitter_client.py search --query "AI agents" --type Top
+python3 scripts/twitter_client.py user-search --query "AI researcher"
+python3 scripts/twitter_client.py trends --woeid 1
 
 # Tweet operations
-python3 {baseDir}/scripts/twitter_client.py detail --tweet-ids 1895096451033985024
-python3 {baseDir}/scripts/twitter_client.py replies --tweet-id 1895096451033985024
-python3 {baseDir}/scripts/twitter_client.py quotes --tweet-id 1895096451033985024
-python3 {baseDir}/scripts/twitter_client.py retweeters --tweet-id 1895096451033985024
-python3 {baseDir}/scripts/twitter_client.py thread --tweet-id 1895096451033985024
+python3 scripts/twitter_client.py detail --tweet-ids 1895096451033985024
+python3 scripts/twitter_client.py replies --tweet-id 1895096451033985024
+python3 scripts/twitter_client.py quotes --tweet-id 1895096451033985024
+python3 scripts/twitter_client.py retweeters --tweet-id 1895096451033985024
+python3 scripts/twitter_client.py thread --tweet-id 1895096451033985024
 
 # List operations
-python3 {baseDir}/scripts/twitter_client.py list-members --list-id 1585430245762441216
-python3 {baseDir}/scripts/twitter_client.py list-followers --list-id 1585430245762441216
+python3 scripts/twitter_client.py list-members --list-id 1585430245762441216
+python3 scripts/twitter_client.py list-followers --list-id 1585430245762441216
 
 # Community operations
-python3 {baseDir}/scripts/twitter_client.py community-info --community-id 1708485837274263614
-python3 {baseDir}/scripts/twitter_client.py community-members --community-id 1708485837274263614
-python3 {baseDir}/scripts/twitter_client.py community-tweets --community-id 1708485837274263614
-python3 {baseDir}/scripts/twitter_client.py community-search --query "AI"
+python3 scripts/twitter_client.py community-info --community-id 1708485837274263614
+python3 scripts/twitter_client.py community-members --community-id 1708485837274263614
+python3 scripts/twitter_client.py community-tweets --community-id 1708485837274263614
+python3 scripts/twitter_client.py community-search --query "AI"
 
 # Engagement operations through the local relay
-python3 {baseDir}/scripts/twitter_engagement_client.py list-tweets --user "@elonmusk" --limit 10
-python3 {baseDir}/scripts/twitter_engagement_client.py like-latest --user "@elonmusk"
-python3 {baseDir}/scripts/twitter_engagement_client.py unlike-latest --user "@elonmusk"
-python3 {baseDir}/scripts/twitter_engagement_client.py follow-user --user "@elonmusk"
-python3 {baseDir}/scripts/twitter_engagement_client.py unfollow-user --user "@elonmusk"
+python3 scripts/twitter_engagement_client.py list-tweets --user "@elonmusk" --limit 10
+python3 scripts/twitter_engagement_client.py like-latest --user "@elonmusk"
+python3 scripts/twitter_engagement_client.py unlike-latest --user "@elonmusk"
+python3 scripts/twitter_engagement_client.py follow-user --user "@elonmusk"
+python3 scripts/twitter_engagement_client.py unfollow-user --user "@elonmusk"
 ```
 
 ## API Endpoints Reference

@@ -1,6 +1,6 @@
-# Multi-source Search
+# Multi-Source Search Verification Engine
 
-Intelligent search for autonomous agents with structured retrieval plus Perplexity Sonar answer endpoints.
+Confidence-scored multi-source retrieval for cross-source verification, consensus checks, and synthesis-ready research.
 
 ## Compatibility
 
@@ -20,6 +20,12 @@ Requires Python 3, a POSIX shell, and `AISA_API_KEY`.
 - Perplexity Sonar, Sonar Pro, Sonar Reasoning Pro, and Sonar Deep Research
 - Tavily integration
 - Verity-style multi-source retrieval
+
+## Best For
+
+- Verifying a claim across multiple search surfaces instead of trusting one provider
+- Producing consensus-style research before making a recommendation
+- Running a narrower growth-variant lane beside the broader `search` flagship
 
 ## Quick Start
 

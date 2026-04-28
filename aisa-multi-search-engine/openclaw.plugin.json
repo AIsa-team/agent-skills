@@ -1,0 +1,67 @@
+{
+  "id": "aisa-multi-search-engine",
+  "name": "AIsa Multi Search Engine",
+  "description": "Multi-source search engine powered by AIsa API. Combines Tavily web search, Scholar academic search, Smart hybrid search, and Perplexity deep research — all through a single AIsa API key.",
+  "version": "1.0.0",
+  "providerAuthEnvVars": {
+    "aisa-multi-search-engine": ["AISA_API_KEY"]
+  },
+  "providerAuthChoices": [
+    {
+      "provider": "aisa-multi-search-engine",
+      "method": "api-key",
+      "choiceId": "aisa-api-key",
+      "choiceLabel": "AIsa API key",
+      "groupId": "aisa",
+      "groupLabel": "AIsa",
+      "optionKey": "aisaApiKey",
+      "cliFlag": "--aisa-api-key",
+      "cliOption": "--aisa-api-key <key>",
+      "cliDescription": "AIsa API key for multi-source search",
+      "onboardingScopes": ["web-search"]
+    }
+  ],
+  "uiHints": {
+    "aisaApiKey": {
+      "label": "AIsa API Key",
+      "help": "Get your API key from https://aisa.one",
+      "placeholder": "aisa-...",
+      "sensitive": true
+    }
+  },
+  "contracts": {
+    "webSearchProviders": ["aisa-multi-search"],
+    "tools": [
+      "aisa_web_search",
+      "aisa_scholar_search",
+      "aisa_smart_search",
+      "aisa_tavily_search",
+      "aisa_tavily_extract",
+      "aisa_perplexity_search",
+      "aisa_multi_search"
+    ]
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "aisaApiKey": {
+        "type": "string",
+        "description": "AIsa API key for authentication"
+      },
+      "defaultMaxResults": {
+        "type": "integer",
+        "description": "Default maximum number of search results (1-100)",
+        "default": 10,
+        "minimum": 1,
+        "maximum": 100
+      },
+      "defaultSearchDepth": {
+        "type": "string",
+        "description": "Default Tavily search depth",
+        "enum": ["basic", "advanced"],
+        "default": "basic"
+      }
+    }
+  }
+}

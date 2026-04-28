@@ -1,10 +1,21 @@
 ---
 name: prediction-market-data
-description: "Prediction markets data - Polymarket, Kalshi markets, prices, positions, and trades"
+description: 'Prediction markets data - Polymarket, Kalshi markets, prices, positions, and trades. Use when: the user needs market data, stock analysis, watchlists, or portfolio workflows.'
 license: MIT
-compatibility: "Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY."
-metadata: {"aisa": {"emoji": "📈", "homepage": "https://aisa.one", "requires": {"bins": ["curl", "python"], "env": ["AISA_API_KEY"]}, "primaryEnv": "AISA_API_KEY", "harnesses": ["claude-code", "claude", "opencode", "cursor", "codex", "gemini-cli", "openclaw", "hermes", "goose"]}}
+compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries curl, python, environment variables AISA_API_KEY and internet access to api.aisa.one.
+metadata:
+  aisa:
+    emoji: 📈
+    requires:
+      bins:
+      - curl
+      - python
+      env:
+      - AISA_API_KEY
+    primaryEnv: AISA_API_KEY
+    compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries curl, python, environment variables AISA_API_KEY and internet access to api.aisa.one.
 ---
+
 # Cross-Platform Prediction Market Data 📈
 
 **Prediction markets data access for autonomous agents. Powered by AIsa.**

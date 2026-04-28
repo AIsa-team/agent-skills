@@ -1,10 +1,21 @@
 ---
 name: youtube-serp
-description: "YouTube SERP for agents. Search top-ranking videos, channels, and trends for content research and competitor tracking."
+description: 'YouTube SERP for agents. Search top-ranking videos, channels, and trends for content research and competitor tracking. Use when: the user needs YouTube search, trend discovery, channel research, or SERP analysis.'
 license: MIT
-compatibility: "Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY."
-metadata: {"aisa": {"emoji": "📺", "homepage": "https://aisa.one", "requires": {"bins": ["curl", "python3"], "env": ["AISA_API_KEY"]}, "primaryEnv": "AISA_API_KEY", "harnesses": ["claude-code", "claude", "opencode", "cursor", "codex", "gemini-cli", "openclaw", "hermes", "goose"]}}
+compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries curl, python3, environment variables AISA_API_KEY and internet access to api.aisa.one.
+metadata:
+  aisa:
+    emoji: 📺
+    requires:
+      bins:
+      - curl
+      - python3
+      env:
+      - AISA_API_KEY
+    primaryEnv: AISA_API_KEY
+    compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries curl, python3, environment variables AISA_API_KEY and internet access to api.aisa.one.
 ---
+
 # YouTube SERP 📺
 
 **YouTube SERP for autonomous agents. Powered by AIsa.**
@@ -110,22 +121,22 @@ curl "https://api.aisa.one/apis/v1/youtube/search?engine=youtube&q=AI&sp=<filter
 
 ```bash
 # Basic search
-python3 {baseDir}/scripts/youtube_client.py search --query "AI agents tutorial"
+python3 scripts/youtube_client.py search --query "AI agents tutorial"
 
 # Search with country
-python3 {baseDir}/scripts/youtube_client.py search --query "machine learning" --country us
+python3 scripts/youtube_client.py search --query "machine learning" --country us
 
 # Search with language
-python3 {baseDir}/scripts/youtube_client.py search --query "python tutorial" --lang en
+python3 scripts/youtube_client.py search --query "python tutorial" --lang en
 
 # Full options
-python3 {baseDir}/scripts/youtube_client.py search --query "GPT-5 news" --country us --lang en
+python3 scripts/youtube_client.py search --query "GPT-5 news" --country us --lang en
 
 # Competitor research
-python3 {baseDir}/scripts/youtube_client.py search --query "OpenAI tutorial"
+python3 scripts/youtube_client.py search --query "OpenAI tutorial"
 
 # Trend discovery
-python3 {baseDir}/scripts/youtube_client.py search --query "AI trends 2025"
+python3 scripts/youtube_client.py search --query "AI trends 2025"
 ```
 
 ---

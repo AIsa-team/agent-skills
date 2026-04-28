@@ -1,10 +1,22 @@
 ---
 name: crypto-market-data
-description: "Query real-time and historical cryptocurrency market data via CoinGecko — simple prices, coin details, historical charts, OHLC candles, token prices by contract address, market-cap rankings, exchange data and tickers, categories, trending searches, and crypto news. Use for crypto research, price tracking, on-chain token lookup, portfolio analysis, and market-cap screening."
+description: 'Query real-time and historical cryptocurrency market data via CoinGecko — simple prices, coin details, historical charts, OHLC candles, token prices by contract address, market-cap rankings, exchange data and tickers, categories, trending searches, and crypto news. Use for crypto research, price tracking, on-chain token lookup, portfolio analysis, and market-cap screening. Use when: the user needs market data, stock analysis, watchlists, or portfolio workflows.'
+version: 1.0.1
 license: MIT
-compatibility: "Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY."
-metadata: {"aisa": {"emoji": "🪙", "homepage": "https://aisa.one", "requires": {"bins": ["curl", "python3"], "env": ["AISA_API_KEY"]}, "primaryEnv": "AISA_API_KEY", "harnesses": ["claude-code", "claude", "opencode", "cursor", "codex", "gemini-cli", "openclaw", "hermes", "goose"]}}
+compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries curl, python3, environment variables AISA_API_KEY and internet access to api.aisa.one.
+metadata:
+  aisa:
+    emoji: 🪙
+    requires:
+      bins:
+      - curl
+      - python3
+      env:
+      - AISA_API_KEY
+    primaryEnv: AISA_API_KEY
+    compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries curl, python3, environment variables AISA_API_KEY and internet access to api.aisa.one.
 ---
+
 # Crypto Market Data 🪙
 
 **Complete cryptocurrency market data for autonomous agents. Powered by AIsa.**
@@ -79,14 +91,14 @@ export AISA_API_KEY="your-key"
 
 ```bash
 # Current price of bitcoin and ethereum in USD + EUR with 24h change
-python3 {baseDir}/scripts/coingecko_client.py simple price \
+python3 scripts/coingecko_client.py simple price \
   --ids bitcoin,ethereum --vs usd,eur --include-24hr-change
 
 # All supported fiat/crypto currencies usable as vs_currency
-python3 {baseDir}/scripts/coingecko_client.py simple supported-currencies
+python3 scripts/coingecko_client.py simple supported-currencies
 
 # Price by on-chain contract address (USDC on Ethereum)
-python3 {baseDir}/scripts/coingecko_client.py simple token-price \
+python3 scripts/coingecko_client.py simple token-price \
   --platform ethereum \
   --addresses 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 \
   --vs usd --include-24hr-vol
@@ -96,41 +108,41 @@ python3 {baseDir}/scripts/coingecko_client.py simple token-price \
 
 ```bash
 # Full coin data for bitcoin
-python3 {baseDir}/scripts/coingecko_client.py coins data --id bitcoin
+python3 scripts/coingecko_client.py coins data --id bitcoin
 
 # Top 25 coins by market cap (USD)
-python3 {baseDir}/scripts/coingecko_client.py coins markets \
+python3 scripts/coingecko_client.py coins markets \
   --vs usd --order market_cap_desc --per-page 25
 
 # Directory of all coins with ids/symbols/names
-python3 {baseDir}/scripts/coingecko_client.py coins list
+python3 scripts/coingecko_client.py coins list
 
 # Historical snapshot for a specific date (dd-mm-yyyy)
-python3 {baseDir}/scripts/coingecko_client.py coins history \
+python3 scripts/coingecko_client.py coins history \
   --id bitcoin --date 01-01-2024
 
 # 30-day daily market chart for BTC in USD
-python3 {baseDir}/scripts/coingecko_client.py coins chart \
+python3 scripts/coingecko_client.py coins chart \
   --id bitcoin --vs usd --days 30
 
 # Explicit UNIX timestamp range
-python3 {baseDir}/scripts/coingecko_client.py coins chart-range \
+python3 scripts/coingecko_client.py coins chart-range \
   --id bitcoin --vs usd --from 1704067200 --to 1706745600
 
 # 7-day OHLC candles
-python3 {baseDir}/scripts/coingecko_client.py coins ohlc \
+python3 scripts/coingecko_client.py coins ohlc \
   --id bitcoin --vs usd --days 7
 
 # Exchange-listed trading pairs for a coin
-python3 {baseDir}/scripts/coingecko_client.py coins tickers \
+python3 scripts/coingecko_client.py coins tickers \
   --id bitcoin --order trust_score_desc
 
 # Full data / chart by contract address
-python3 {baseDir}/scripts/coingecko_client.py coins contract \
+python3 scripts/coingecko_client.py coins contract \
   --platform ethereum \
   --address 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
 
-python3 {baseDir}/scripts/coingecko_client.py coins contract-chart \
+python3 scripts/coingecko_client.py coins contract-chart \
   --platform ethereum \
   --address 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 \
   --vs usd --days 14
@@ -140,10 +152,10 @@ python3 {baseDir}/scripts/coingecko_client.py coins contract-chart \
 
 ```bash
 # All category IDs and names
-python3 {baseDir}/scripts/coingecko_client.py categories list
+python3 scripts/coingecko_client.py categories list
 
 # Category leaderboard (market cap, volume, top-3 coins)
-python3 {baseDir}/scripts/coingecko_client.py categories markets \
+python3 scripts/coingecko_client.py categories markets \
   --order market_cap_desc
 ```
 
@@ -151,24 +163,24 @@ python3 {baseDir}/scripts/coingecko_client.py categories markets \
 
 ```bash
 # Exchanges with current trading volume and metadata
-python3 {baseDir}/scripts/coingecko_client.py exchanges list --per-page 50
+python3 scripts/coingecko_client.py exchanges list --per-page 50
 
 # Just the ID -> name map (useful for resolving user input)
-python3 {baseDir}/scripts/coingecko_client.py exchanges id-map
+python3 scripts/coingecko_client.py exchanges id-map
 
 # Detailed data for a specific exchange
-python3 {baseDir}/scripts/coingecko_client.py exchanges data --id binance
+python3 scripts/coingecko_client.py exchanges data --id binance
 
 # Trading pairs on a specific exchange
-python3 {baseDir}/scripts/coingecko_client.py exchanges tickers \
+python3 scripts/coingecko_client.py exchanges tickers \
   --id binance --order trust_score_desc
 ```
 
 ### News and trending
 
 ```bash
-python3 {baseDir}/scripts/coingecko_client.py news
-python3 {baseDir}/scripts/coingecko_client.py trending
+python3 scripts/coingecko_client.py news
+python3 scripts/coingecko_client.py trending
 ```
 
 ## Inputs and Outputs

@@ -1,10 +1,22 @@
 ---
 name: marketpulse
-description: "Query real-time and historical financial data for equities—prices, news, financial statements, metrics, analyst estimates, insider and institutional activity, SEC filings, earnings press releases, segmented revenues, stock screening, and macro interest rates."
+description: 'Query real-time and historical financial data for equities—prices, news, financial statements, metrics, analyst estimates, insider and institutional activity, SEC filings, earnings press releases, segmented revenues, stock screening, and macro interest rates. Use when: the user needs market data, stock analysis, watchlists, or portfolio workflows.'
+version: 1.0.2
 license: MIT
-compatibility: "Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY."
-metadata: {"aisa": {"emoji": "📊", "homepage": "https://aisa.one", "requires": {"bins": ["curl", "python3"], "env": ["AISA_API_KEY"]}, "primaryEnv": "AISA_API_KEY", "harnesses": ["claude-code", "claude", "opencode", "cursor", "codex", "gemini-cli", "openclaw", "hermes", "goose"]}}
+compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries curl, python3, environment variables AISA_API_KEY and internet access to api.aisa.one.
+metadata:
+  aisa:
+    emoji: 📊
+    requires:
+      bins:
+      - curl
+      - python3
+      env:
+      - AISA_API_KEY
+    primaryEnv: AISA_API_KEY
+    compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries curl, python3, environment variables AISA_API_KEY and internet access to api.aisa.one.
 ---
+
 # MarketPulse 📊
 
 **Complete equity market data for autonomous agents. Powered by AIsa.**
@@ -236,40 +248,40 @@ curl "https://api.aisa.one/apis/v1/financial/macro/interest-rates?bank=fed" \
 ```bash
 # ==================== Stock Data ====================
 # Note: start_date and end_date are REQUIRED for prices
-python3 {baseDir}/scripts/market_client.py stock prices --ticker AAPL --start 2025-01-01 --end 2025-01-31
-python3 {baseDir}/scripts/market_client.py stock prices --ticker AAPL --start 2025-01-01 --end 2025-01-31 --interval week
-python3 {baseDir}/scripts/market_client.py stock news --ticker AAPL --count 10
+python3 scripts/market_client.py stock prices --ticker AAPL --start 2025-01-01 --end 2025-01-31
+python3 scripts/market_client.py stock prices --ticker AAPL --start 2025-01-01 --end 2025-01-31 --interval week
+python3 scripts/market_client.py stock news --ticker AAPL --count 10
 
 # ==================== Financial Statements ====================
-python3 {baseDir}/scripts/market_client.py stock statements --ticker AAPL --type all --period annual
-python3 {baseDir}/scripts/market_client.py stock statements --ticker AAPL --type income --period quarterly
-python3 {baseDir}/scripts/market_client.py stock statements --ticker AAPL --type balance --period annual
-python3 {baseDir}/scripts/market_client.py stock statements --ticker AAPL --type cash --period ttm
+python3 scripts/market_client.py stock statements --ticker AAPL --type all --period annual
+python3 scripts/market_client.py stock statements --ticker AAPL --type income --period quarterly
+python3 scripts/market_client.py stock statements --ticker AAPL --type balance --period annual
+python3 scripts/market_client.py stock statements --ticker AAPL --type cash --period ttm
 
 # ==================== Segmented Revenues ====================
-python3 {baseDir}/scripts/market_client.py stock segments --ticker AAPL --period annual
+python3 scripts/market_client.py stock segments --ticker AAPL --period annual
 
 # ==================== Metrics & Analysis ====================
-python3 {baseDir}/scripts/market_client.py stock metrics --ticker AAPL
-python3 {baseDir}/scripts/market_client.py stock metrics --ticker AAPL --historical --period annual
-python3 {baseDir}/scripts/market_client.py stock analyst --ticker AAPL
-python3 {baseDir}/scripts/market_client.py stock earnings --ticker AAPL
+python3 scripts/market_client.py stock metrics --ticker AAPL
+python3 scripts/market_client.py stock metrics --ticker AAPL --historical --period annual
+python3 scripts/market_client.py stock analyst --ticker AAPL
+python3 scripts/market_client.py stock earnings --ticker AAPL
 
 # ==================== Insider & Institutional ====================
-python3 {baseDir}/scripts/market_client.py stock insider --ticker AAPL
-python3 {baseDir}/scripts/market_client.py stock ownership --ticker AAPL
+python3 scripts/market_client.py stock insider --ticker AAPL
+python3 scripts/market_client.py stock ownership --ticker AAPL
 
 # ==================== SEC Filings ====================
-python3 {baseDir}/scripts/market_client.py stock filings --ticker AAPL
-python3 {baseDir}/scripts/market_client.py stock filings --ticker AAPL --items --filing-type 10-K --year 2024
+python3 scripts/market_client.py stock filings --ticker AAPL
+python3 scripts/market_client.py stock filings --ticker AAPL --items --filing-type 10-K --year 2024
 
 # ==================== Stock Screener / Line Items ====================
-python3 {baseDir}/scripts/market_client.py stock screen --pe-max 15 --growth-min 0.2
-python3 {baseDir}/scripts/market_client.py stock line-items --tickers AAPL,MSFT --items revenue,net_income --period annual
+python3 scripts/market_client.py stock screen --pe-max 15 --growth-min 0.2
+python3 scripts/market_client.py stock line-items --tickers AAPL,MSFT --items revenue,net_income --period annual
 
 # ==================== Interest Rates ====================
-python3 {baseDir}/scripts/market_client.py stock rates
-python3 {baseDir}/scripts/market_client.py stock rates --historical --bank fed
+python3 scripts/market_client.py stock rates
+python3 scripts/market_client.py stock rates --historical --bank fed
 ```
 
 ---

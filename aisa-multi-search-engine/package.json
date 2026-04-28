@@ -1,0 +1,32 @@
+{
+  "name": "aisa-multi-search-engine",
+  "version": "1.0.0",
+  "description": "Multi-source search engine powered by AIsa API. Combines Tavily, Scholar, Smart search, and Perplexity — all through a single AIsa API key.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "openclaw",
+    "plugin",
+    "search",
+    "aisa",
+    "tavily",
+    "scholar",
+    "perplexity",
+    "web-search",
+    "multi-search"
+  ],
+  "openclaw": {
+    "extensions": ["./index.ts"],
+    "compat": {
+      "pluginApi": ">=2026.3.24",
+      "minGatewayVersion": "2026.3.24"
+    },
+    "build": {
+      "openclawVersion": "2026.3.28",
+      "pluginSdkVersion": "2026.3.28"
+    }
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.32.0"
+  }
+}

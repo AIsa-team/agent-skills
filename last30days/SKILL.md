@@ -1,11 +1,21 @@
 ---
 name: last30days
-description: "Research the last 30 days across Reddit, X, YouTube, TikTok, Instagram, Hacker News, Polymarket, GitHub, and grounded web search. Returns a ranked, clustered brief with citations. Use when the task needs recent social evidence, competitor comparisons, launch reactions, trend scans, or person/company profiles."
-homepage: https://aisa.one
+description: Research the last 30 days across Reddit, X, YouTube, TikTok, Instagram, Hacker News, Polymarket, GitHub, and grounded web search. Returns a ranked, clustered brief with citations. Use when the task needs recent social evidence, competitor comparisons, launch reactions, trend scans, or person/company profiles.
 license: MIT
-compatibility: "Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY."
-metadata: {"aisa": {"emoji": "📰", "homepage": "https://aisa.one", "requires": {"bins": ["python3", "bash"], "env": ["AISA_API_KEY"]}, "primaryEnv": "AISA_API_KEY", "harnesses": ["claude-code", "claude", "opencode", "cursor", "codex", "gemini-cli", "openclaw", "hermes", "goose"]}}
+compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries python3, bash, environment variables AISA_API_KEY and internet access to api.aisa.one.
+metadata:
+  aisa:
+    emoji: 📰
+    requires:
+      bins:
+      - python3
+      - bash
+      env:
+      - AISA_API_KEY
+    primaryEnv: AISA_API_KEY
+    compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries python3, bash, environment variables AISA_API_KEY and internet access to api.aisa.one.
 ---
+
 # last30days 📰
 
 **30-day multi-source research brief for autonomous agents. Powered by AIsa.**
@@ -62,29 +72,29 @@ Requires Python 3, a POSIX shell, and `AISA_API_KEY` (get one at
 export AISA_API_KEY=sk-...
 
 # 2. First-run setup (interactive — picks planner / rerank / fun-scorer models)
-bash {baseDir}/scripts/run-last30days.sh setup
+bash scripts/run-last30days.sh setup
 
 # 3. Research a topic
-bash {baseDir}/scripts/run-last30days.sh "OpenAI Agents SDK"
+bash scripts/run-last30days.sh "OpenAI Agents SDK"
 ```
 
 ## Common Flags
 
 ```bash
 # Low-latency profile (fewer candidates per source)
-bash {baseDir}/scripts/run-last30days.sh "$ARGUMENTS" --quick
+bash scripts/run-last30days.sh "$ARGUMENTS" --quick
 
 # Higher-recall profile
-bash {baseDir}/scripts/run-last30days.sh "$ARGUMENTS" --deep
+bash scripts/run-last30days.sh "$ARGUMENTS" --deep
 
 # Machine-readable output (full plan + candidates + clusters)
-bash {baseDir}/scripts/run-last30days.sh "$ARGUMENTS" --emit=json
+bash scripts/run-last30days.sh "$ARGUMENTS" --emit=json
 
 # Restrict to specific sources
-bash {baseDir}/scripts/run-last30days.sh "$ARGUMENTS" --search=reddit,x,grounding
+bash scripts/run-last30days.sh "$ARGUMENTS" --search=reddit,x,grounding
 
 # Check provider / source availability
-bash {baseDir}/scripts/run-last30days.sh --diagnose
+bash scripts/run-last30days.sh --diagnose
 ```
 
 ## Inputs and Outputs

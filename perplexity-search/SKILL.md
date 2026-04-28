@@ -1,10 +1,21 @@
 ---
 name: perplexity-search
-description: "Perplexity Sonar search and answer generation through AIsa. Use when the task is specifically to call Perplexity Sonar, Sonar Pro, Sonar Reasoning Pro, or Sonar Deep Research for citation-backed web answers, analytical reasoning, or long-form research reports."
+description: Perplexity Sonar search and answer generation through AIsa. Use when the task is specifically to call Perplexity Sonar, Sonar Pro, Sonar Reasoning Pro, or Sonar Deep Research for citation-backed web answers, analytical reasoning, or long-form research reports.
 license: MIT
-compatibility: "Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY."
-metadata: {"aisa": {"emoji": "🔎", "homepage": "https://aisa.one", "requires": {"bins": ["curl", "python3"], "env": ["AISA_API_KEY"]}, "primaryEnv": "AISA_API_KEY", "harnesses": ["claude-code", "claude", "opencode", "cursor", "codex", "gemini-cli", "openclaw", "hermes", "goose"]}}
+compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries curl, python3, environment variables AISA_API_KEY and internet access to api.aisa.one.
+metadata:
+  aisa:
+    emoji: 🔎
+    requires:
+      bins:
+      - curl
+      - python3
+      env:
+      - AISA_API_KEY
+    primaryEnv: AISA_API_KEY
+    compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries curl, python3, environment variables AISA_API_KEY and internet access to api.aisa.one.
 ---
+
 # Perplexity-Search
 
 Use this skill when the user specifically wants Perplexity-powered search answers instead of structured scholar/web retrieval.
@@ -34,7 +45,7 @@ Requires Python 3, a POSIX shell, and `AISA_API_KEY` (get one at
 ## Requirements
 
 - Set `AISA_API_KEY`
-- Use the bundled client at `{baseDir}/scripts/perplexity_search_client.py`
+- Use the bundled client at `scripts/perplexity_search_client.py`
 
 ## Model Selection
 
@@ -46,16 +57,16 @@ Requires Python 3, a POSIX shell, and `AISA_API_KEY` (get one at
 ## Python Client
 
 ```bash
-python3 {baseDir}/scripts/perplexity_search_client.py sonar --query "What changed in AI this week?"
-python3 {baseDir}/scripts/perplexity_search_client.py sonar-pro --query "Compare coding agents with citations"
-python3 {baseDir}/scripts/perplexity_search_client.py sonar-reasoning-pro --query "Analyze whether vertical AI agents can defend against general copilots"
-python3 {baseDir}/scripts/perplexity_search_client.py sonar-deep-research --query "Create a deep research report on AI coding agents in 2026"
+python3 scripts/perplexity_search_client.py sonar --query "What changed in AI this week?"
+python3 scripts/perplexity_search_client.py sonar-pro --query "Compare coding agents with citations"
+python3 scripts/perplexity_search_client.py sonar-reasoning-pro --query "Analyze whether vertical AI agents can defend against general copilots"
+python3 scripts/perplexity_search_client.py sonar-deep-research --query "Create a deep research report on AI coding agents in 2026"
 ```
 
 Add a system message when you want a more specific output format:
 
 ```bash
-python3 {baseDir}/scripts/perplexity_search_client.py sonar-pro \
+python3 scripts/perplexity_search_client.py sonar-pro \
   --query "Map the top coding agent products" \
   --system "Respond in markdown with an executive summary first."
 ```

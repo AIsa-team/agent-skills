@@ -1,10 +1,21 @@
 ---
 name: media-gen
-description: "Generate images and videos with AIsa. Four image models (Google Gemini 3 Pro Image, Alibaba Wan 2.7 image + image-pro, ByteDance Seedream) and four Wan video variants (wan2.6/2.7 × t2v/i2v). One API key; the client routes each model to the correct endpoint automatically."
+description: 'Generate images and videos with AIsa. Four image models (Google Gemini 3 Pro Image, Alibaba Wan 2.7 image + image-pro, ByteDance Seedream) and four Wan video variants (wan2.6/2.7 × t2v/i2v). One API key; the client routes each model to the correct endpoint automatically. Use when: the user needs AI image or video generation workflows.'
 license: MIT
-compatibility: "Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY."
-metadata: {"aisa": {"emoji": "🎬", "homepage": "https://aisa.one", "requires": {"bins": ["python3", "curl"], "env": ["AISA_API_KEY"]}, "primaryEnv": "AISA_API_KEY", "harnesses": ["claude-code", "claude", "opencode", "cursor", "codex", "gemini-cli", "openclaw", "hermes", "goose"]}}
+compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries python3, curl, environment variables AISA_API_KEY and internet access to api.aisa.one.
+metadata:
+  aisa:
+    emoji: 🎬
+    requires:
+      bins:
+      - python3
+      - curl
+      env:
+      - AISA_API_KEY
+    primaryEnv: AISA_API_KEY
+    compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries python3, curl, environment variables AISA_API_KEY and internet access to api.aisa.one.
 ---
+
 # Media Gen 🎬
 
 **Generate images and videos with a single AIsa API key.** Full support
@@ -87,36 +98,36 @@ Requires Python 3, a POSIX shell, and `AISA_API_KEY` (get one at
 export AISA_API_KEY="your-key"
 
 # Any image model — client routes to the right endpoint
-python3 {baseDir}/scripts/media_gen_client.py image \
+python3 scripts/media_gen_client.py image \
   --model gemini-3-pro-image-preview \
   --prompt "A cute red panda, cinematic lighting" \
   --out out.png
 
-python3 {baseDir}/scripts/media_gen_client.py image \
+python3 scripts/media_gen_client.py image \
   --model wan2.7-image-pro \
   --prompt "Ultra-detailed product shot of a red panda" \
   --out out.png
 
-python3 {baseDir}/scripts/media_gen_client.py image \
+python3 scripts/media_gen_client.py image \
   --model seedream-4-5-251128 \
   --prompt "Neo-noir detective portrait, film grain" \
   --size 2048x2048 \
   --out out.png
 
 # Video — text-to-video (no image needed)
-python3 {baseDir}/scripts/media_gen_client.py video-create \
+python3 scripts/media_gen_client.py video-create \
   --model wan2.7-t2v \
   --prompt "Sweeping shot of a neon cyberpunk skyline"
 
 # Video — image-to-video on wan2.7-i2v (client routes to input.media[])
-python3 {baseDir}/scripts/media_gen_client.py video-create \
+python3 scripts/media_gen_client.py video-create \
   --model wan2.7-i2v \
   --prompt "gentle zoom with parallax" \
   --img-url "https://example.com/reference.jpg" \
   --duration 5
 
 # Wait and download
-python3 {baseDir}/scripts/media_gen_client.py video-wait \
+python3 scripts/media_gen_client.py video-wait \
   --task-id <task_id> --download --out out.mp4
 ```
 
@@ -245,13 +256,13 @@ saved file.
 
 ```bash
 # Image — model picks the endpoint
-python3 {baseDir}/scripts/media_gen_client.py image \
+python3 scripts/media_gen_client.py image \
   --model <gemini-3-pro-image-preview | wan2.7-image | wan2.7-image-pro | seedream-4-5-251128> \
   --prompt "..." \
   --out out.png
 
 # Video — create task
-python3 {baseDir}/scripts/media_gen_client.py video-create \
+python3 scripts/media_gen_client.py video-create \
   --model <wan2.6-t2v | wan2.6-i2v | wan2.7-t2v | wan2.7-i2v> \
   --prompt "..." \
   [--img-url https://... (required for -i2v models)] \
@@ -259,9 +270,9 @@ python3 {baseDir}/scripts/media_gen_client.py video-create \
   [--resolution 720P|1080P]
 
 # Video — poll / wait / download
-python3 {baseDir}/scripts/media_gen_client.py video-status --task-id <id>
-python3 {baseDir}/scripts/media_gen_client.py video-wait --task-id <id> --poll 10 --timeout 600
-python3 {baseDir}/scripts/media_gen_client.py video-wait --task-id <id> --download --out out.mp4
+python3 scripts/media_gen_client.py video-status --task-id <id>
+python3 scripts/media_gen_client.py video-wait --task-id <id> --poll 10 --timeout 600
+python3 scripts/media_gen_client.py video-wait --task-id <id> --download --out out.mp4
 ```
 
 ## API Reference
