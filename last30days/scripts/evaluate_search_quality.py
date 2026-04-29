@@ -46,7 +46,7 @@ def _load_default_topics() -> list[tuple[str, str]]:
 
 DEFAULT_TOPICS = _load_default_topics()
 DEFAULT_SEARCH = ""
-DEFAULT_JUDGE_MODEL = ""
+DEFAULT_JUDGE_MODEL = providers.AISA_DEFAULT
 
 
 def stable_item_key(item: dict[str, Any]) -> str:
@@ -182,15 +182,6 @@ def resolve_judge_api_key(config: dict[str, Any]) -> str | None:
     return os.environ.get("AISA_API_KEY") or config.get("AISA_API_KEY")
 
 
-def resolve_judge_model(config: dict[str, Any], requested_model: str) -> str:
-    return (
-        requested_model
-        or str(config.get("LAST30DAYS_RERANK_MODEL") or "")
-        or str(config.get("AISA_MODEL") or "")
-        or str(config.get("LAST30DAYS_PLANNER_MODEL") or "")
-    )
-
-
 def extract_judge_text(payload: dict[str, Any]) -> str:
     text = providers.extract_openai_text(payload)
     if text:
@@ -262,7 +253,7 @@ def get_judgments(
     if cache_file.exists():
         payload = json.loads(cache_file.read_text())
         return {row["id"]: int(row["grade"]) for row in payload.get("judgments") or []}
-    if not judge_api_key or not judge_model or not items:
+    if not judge_api_key or not items:
         return {}
     payload = call_aisa_judge(judge_api_key, judge_model, build_judge_prompt(topic, query_type, items))
     cache_file.write_text(json.dumps(payload, indent=2))
@@ -470,7 +461,6 @@ def main() -> int:
     output_dir = Path(args.output_dir).resolve()
     config = envlib.get_config()
     judge_api_key = resolve_judge_api_key(config)
-    judge_model = resolve_judge_model(config, args.judge_model)
     run_env = create_eval_env()
 
     baseline_dir, baseline_temp = resolve_repo_dir(args.baseline)
@@ -509,7 +499,7 @@ def main() -> int:
                     topic=topic,
                     query_type=query_type,
                     items=judged_pool,
-                    judge_model=judge_model,
+                    judge_model=args.judge_model,
                     judge_api_key=judge_api_key,
                 )
                 summaries.append(summarize_topic(topic, query_type, baseline_report, candidate_report, judgments, judged_pool, args.limit))
