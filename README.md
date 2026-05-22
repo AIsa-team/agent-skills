@@ -11,7 +11,7 @@ One `AISA_API_KEY` covers AIsa-powered skills.
 
 ## Review Note
 
-This PR expands the catalog to 42 top-level skills after removing only same-function aliases and repackages. Subset skills are intentionally retained as separate discovery and entry points. The merge analysis is in [SKILL_DEDUP_ANALYSIS.md](./SKILL_DEDUP_ANALYSIS.md).
+This PR expands the catalog to 43 top-level skills after removing only same-function aliases and repackages. Subset skills are intentionally retained as separate discovery and entry points. The merge analysis is in [SKILL_DEDUP_ANALYSIS.md](./SKILL_DEDUP_ANALYSIS.md).
 
 ## Skills
 
@@ -52,6 +52,7 @@ This PR expands the catalog to 42 top-level skills after removing only same-func
 | [stock-watchlist](./stock-watchlist/) | Manage a stock/crypto watchlist with price target and stop-loss alerts via AIsa API. Add, remove, list, and check tickers with live price alerts. Use when the user wants to track stocks, set price alerts, manage a wat... |
 | [tavily-extract](./tavily-extract/) | Extract clean, readable content from one or more URLs using Tavily Extract via AIsa API. Useful for reading full articles without visiting the page. Use when: the user needs web search, research, source discovery, or ... |
 | [tavily-search](./tavily-search/) | Advanced web search via Tavily through AIsa API. Supports search depth, topic filtering (general/news/finance), time ranges, domain inclusion/exclusion, and LLM-generated answers. Use when: the user needs web search, ... |
+| [trend-forecast](./trend-forecast/) | Multi-signal trend forecasting for autonomous agents. Combines prediction market odds, Twitter/X social sentiment, news velocity, and stock market data into a unified trend analysis with confidence scoring. Powered by AIsa. |
 | [twitter-autopilot](./twitter-autopilot/) | Searches and reads X (Twitter): profiles, timelines, mentions, followers, tweet search, trends, lists, communities, and Spaces. Publishes posts, likes/unlikes tweets, and follows/unfollows users after the user complet... |
 | [twitter-command-center-search-post](./twitter-command-center-search-post/) | Searches and reads X (Twitter): profiles, timelines, mentions, followers, tweet search, trends, lists, communities, and Spaces. Publishes posts after the user completes OAuth in the browser. Use when the user asks abo... |
 | [us-stock-analyst](./us-stock-analyst/) | Professional US stock analysis with financial data, news, social sentiment, and multi-model AI. Comprehensive reports at $0.02-0.10 per analysis. Use when: the user needs market data, stock analysis, watchlists, or po... |
