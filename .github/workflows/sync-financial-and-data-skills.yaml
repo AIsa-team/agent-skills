@@ -1,4 +1,4 @@
-name: Sync Market Pulse Skills
+name: Sync Financial And Data Skills
 
 on:
   push:
