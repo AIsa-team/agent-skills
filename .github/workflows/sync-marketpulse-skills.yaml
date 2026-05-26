@@ -22,13 +22,13 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@aisa.one"
 
-      - name: Split marketpulse subtree
+      - name: Split Financial And Data folder
         run: |
-          git subtree split --prefix=marketpulse -b split-marketpulse       
           ls -la
           
           find . -mindepth 1 -maxdepth 1 \
             ! -name "marketpulse" \
+            ! -name "trend-forecast" \
             ! -name ".git" \
             ! -name ".gitignore" \
             ! -name "LICENSE" \
@@ -56,21 +56,20 @@ jobs:
 #          ls -la target-repo/marketpulse
 #          find marketpulse -type f
 #
-#      - name: Commit and push to Financial And Data Repo
-#        env:
-#          TOKEN: ${{ secrets.SYNC_AISAS_KILLS_TOKEN  }}
-#        run: |
-#          cd target-repo
-#          ls -la
-#
-#          git status
-#          git add -A marketpulse
-#          git status
-#
-#          if git diff --cached --quiet; then
-#            echo "No changes to commit"
-#          else
-#            git commit -m "Sync marketpulse folder"
-#            git remote set-url origin https://github.com/AISA-skills/financial-data-skills.git
-#            git push origin main
-#          fi
+      - name: Commit and push to Financial And Data Repo
+        env:
+          TOKEN: ${{ secrets.SYNC_AISAS_KILLS_TOKEN  }}
+        run: |
+
+          ls -la
+
+          git status -s
+          git add .
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Sync Financial And Data folder"
+            git remote set-url origin https://github.com/AISA-skills/financial-data-skills.git
+            git push origin main --force
+          fi
