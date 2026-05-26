@@ -11,7 +11,7 @@ One `AISA_API_KEY` covers AIsa-powered skills.
 
 ## Review Note
 
-This PR expands the catalog to 43 top-level skills after removing only same-function aliases and repackages. Subset skills are intentionally retained as separate discovery and entry points. The merge analysis is in [SKILL_DEDUP_ANALYSIS.md](./SKILL_DEDUP_ANALYSIS.md).
+This PR expands the catalog to 40 top-level skills after removing only same-function aliases and repackages. Subset skills are intentionally retained as separate discovery and entry points. The merge analysis is in [SKILL_DEDUP_ANALYSIS.md](./SKILL_DEDUP_ANALYSIS.md).
 
 ## Skills
 
@@ -25,9 +25,6 @@ This PR expands the catalog to 43 top-level skills after removing only same-func
 | [aisa-youtube-search](./aisa-youtube-search/) | Search YouTube videos, channels, and playlists through the AIsa YouTube relay with one API key. Use when the user asks for YouTube discovery, query expansion, or pagination without managing Google credentials. |
 | [cn-llm](./cn-llm/) | China LLM Gateway - Unified interface for Chinese LLMs including Qwen, DeepSeek, GLM, Baichuan. OpenAI compatible, one API Key for all models. Use when: the user needs model routing, provider setup, or Chinese LLM acc... |
 | [crypto-market-data](./crypto-market-data/) | Query real-time and historical cryptocurrency market data via CoinGecko — simple prices, coin details, historical charts, OHLC candles, token prices by contract address, market-cap rankings, exchange data and tickers,... |
-| [saas-gateway](./saas-gateway/) | Unified SaaS integration gateway via api.aisa.one (AISA gateway, v3.1): manage OAuth auth for third-party SaaS apps (Gmail/Slack/GitHub/Notion etc.), tool execution, tool-router sessions, triggers, webhooks, MCP servers, and usage stats. Use when connecting third-party SaaS accounts, running cross-SaaS tools... |
-| [gmail-lead-desk](./gmail-lead-desk/) | Gmail Lead Desk — standalone sales/CS Gmail skill via the AISA gateway: OAuth connect, scan unread leads, summarize threads, draft template replies (default draft-only), archive with labels. Use when the user needs Gmail lead triage, thread summaries, or draft replies... |
-| [notion-workspace](./notion-workspace/) | Manage Notion workspace: search pages and databases, read markdown, create pages, insert rows, triggers, MCP. Powered by AISA gateway (Notion toolkit). Use when the user needs Notion pages, databases, or workspace automation... |
 | [last30days](./last30days/) | Research the last 30 days across Reddit, X, YouTube, TikTok, Instagram, Hacker News, Polymarket, GitHub, and grounded web search. Returns a ranked, clustered brief with citations. Use when the task needs recent social... |
 | [last30days-zh](./last30days-zh/) | 聚合最近 30 天的 Reddit、X/Twitter、YouTube、TikTok、Instagram、Hacker News、Polymarket 和 web search 结果. Use when: the user needs recent multi-source research across the last 30 days. |
 | [llm-router](./llm-router/) | Unified LLM Gateway - One API for 70+ AI models. Route to GPT, Claude, Gemini, Qwen, Deepseek, Grok and more with a single API key. Use when: the user needs model routing, provider setup, or Chinese LLM access guidance. |
