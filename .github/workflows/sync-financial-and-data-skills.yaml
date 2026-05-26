@@ -7,7 +7,7 @@ on:
 
 jobs:
 
-  sync-marketpulse:
+  sync-financial-and-data:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,6 +29,19 @@ jobs:
           find . -mindepth 1 -maxdepth 1 \
             ! -name "marketpulse" \
             ! -name "trend-forecast" \
+            ! -name "crypto-market-data" \
+            ! -name "prediction-market-data" \
+            ! -name "prediction-market-arbitrage" \
+            ! -name "market" \
+            ! -name "prediction-market-arbitrage-zh" \
+            ! -name "prediction-market-data-zh" \
+            ! -name "stock-analysis" \
+            ! -name "stock-dividend" \
+            ! -name "stock-hot" \
+            ! -name "stock-portfolio" \
+            ! -name "stock-rumors" \
+            ! -name "stock-watchlist" \
+            ! -name "us-stock-analyst" \
             ! -name ".git" \
             ! -name ".gitignore" \
             ! -name "LICENSE" \
@@ -43,7 +56,6 @@ jobs:
         env:
           TOKEN: ${{ secrets.SYNC_AISAS_KILLS_TOKEN  }}
         run: |
-
           ls -la
 
           git status -s
