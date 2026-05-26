@@ -1,4 +1,4 @@
-name: Sync Financial And Data Skills
+name: Sync Market Pulse Skills
 
 on:
   push:
@@ -25,39 +25,40 @@ jobs:
       - name: Split marketpulse subtree
         run: |
           git subtree split --prefix=marketpulse -b split-marketpulse       
-
-      - name: Clone marketpulse
-        env:
-          TOKEN: ${{ secrets.SYNC_AISAS_KILLS_TOKEN  }}
-        run: |
-          git clone https://x-access-token:${TOKEN}@github.com/AIsa-team/agent-skills.git target-repo
-
-      - name: Sync marketpulse into Financial And Data Repo
-        run: |
-          rm -rf target-repo/marketpulse
-          mkdir -p target-repo/marketpulse
-
-          cp -a marketpulse/. target-repo/marketpulse/
-
-          echo "Target marketpulse:"
-          ls -la target-repo/marketpulse
-          find marketpulse -type f
-
-      - name: Commit and push to Financial And Data Repo
-        env:
-          TOKEN: ${{ secrets.SYNC_AISAS_KILLS_TOKEN  }}
-        run: |
-          cd target-repo
           ls -la
 
-          git status
-          git add -A marketpulse
-          git status
-
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Sync marketpulse folder"
-            git remote set-url origin https://github.com/AISA-skills/financial-data-skills.git
-            git push origin main
-          fi
+#      - name: Clone marketpulse
+#        env:
+#          TOKEN: ${{ secrets.SYNC_AISAS_KILLS_TOKEN  }}
+#        run: |
+#          git clone https://x-access-token:${TOKEN}@github.com/AIsa-team/agent-skills.git target-repo
+#
+#      - name: Sync marketpulse into Financial And Data Repo
+#        run: |
+#          rm -rf target-repo/marketpulse
+#          mkdir -p target-repo/marketpulse
+#
+#          cp -a marketpulse/. target-repo/marketpulse/
+#
+#          echo "Target marketpulse:"
+#          ls -la target-repo/marketpulse
+#          find marketpulse -type f
+#
+#      - name: Commit and push to Financial And Data Repo
+#        env:
+#          TOKEN: ${{ secrets.SYNC_AISAS_KILLS_TOKEN  }}
+#        run: |
+#          cd target-repo
+#          ls -la
+#
+#          git status
+#          git add -A marketpulse
+#          git status
+#
+#          if git diff --cached --quiet; then
+#            echo "No changes to commit"
+#          else
+#            git commit -m "Sync marketpulse folder"
+#            git remote set-url origin https://github.com/AISA-skills/financial-data-skills.git
+#            git push origin main
+#          fi
