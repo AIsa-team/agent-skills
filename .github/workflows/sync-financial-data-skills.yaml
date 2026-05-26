@@ -43,6 +43,7 @@ jobs:
           TOKEN: ${{ secrets.SYNC_AISAS_KILLS_TOKEN  }}
         run: |
           cd target-repo
+          ls -l
 
           git status
           git add -A trend-forecast
