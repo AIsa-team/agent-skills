@@ -11,7 +11,7 @@ One `AISA_API_KEY` covers AIsa-powered skills.
 
 ## Review Note
 
-This PR expands the catalog to 40 top-level skills after removing only same-function aliases and repackages. Subset skills are intentionally retained as separate discovery and entry points. The merge analysis is in [SKILL_DEDUP_ANALYSIS.md](./SKILL_DEDUP_ANALYSIS.md).
+This PR expands the catalog to 41 top-level skills after removing only same-function aliases and repackages. Subset skills are intentionally retained as separate discovery and entry points. The merge analysis is in [SKILL_DEDUP_ANALYSIS.md](./SKILL_DEDUP_ANALYSIS.md).
 
 ## Skills
 
@@ -40,6 +40,7 @@ This PR expands the catalog to 40 top-level skills after removing only same-func
 | [prediction-market-data](./prediction-market-data/) | Prediction markets data - Polymarket, Kalshi markets, prices, positions, and trades |
 | [prediction-market-data-zh](./prediction-market-data-zh/) | 通过 AIsa API 查询跨平台预测市场数据。支持 Polymarket 和 Kalshi 的市场行情、价格、订单簿、K线、持仓和交易记录。适用场景：查询预测市场赔率、选举博彩、事件概率、市场情绪、Polymarket 价格、Kalshi 价格、体育博彩赔率、钱包盈亏、跨平台市场对比。 Use when: the user needs market data, stock analysis, watchlists, or por... |
 | [scholar-search](./scholar-search/) | Search academic papers and scholarly articles via AIsa Scholar endpoint. Supports year range filtering for targeted research. Use when: the user needs web search, research, source discovery, or content extraction. |
+| [seo-keyword-research](./seo-keyword-research/) | Crawl a site first, infer product and business direction, validate keywords with AIsa DataForSEO endpoints, cluster opportunities by intent, and produce a SERP-aware keyword strategy. |
 | [smart-search](./smart-search/) | Intelligent hybrid search combining web and academic sources via AIsa Smart Search endpoint. Best when you need both web and scholarly results. Use when: the user needs web search, research, source discovery, or conte... |
 | [stock-analysis](./stock-analysis/) | Analyze stocks and cryptocurrencies with 8-dimension scoring via AIsa API. Provides BUY/HOLD/SELL signals with confidence levels, entry/target/stop prices, and risk flags. Supports single or multi-ticker analysis with... |
 | [stock-dividend](./stock-dividend/) | Analyze read-only dividend metrics for stocks via AIsa API. Provides yield, payout ratio, growth CAGR, safety score, income rating, and Dividend Aristocrat/King status without placing trades, making purchases, or mana... |
