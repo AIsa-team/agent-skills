@@ -1,0 +1,70 @@
+name: Sync Search And Research Skills
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  sync-search-and-research:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout  repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@aisa.one"
+
+      - name: Split Search And Research folder
+        run: |
+          ls -la
+          
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name "multi-source-search" \
+            ! -name "perplexity-search" \
+            ! -name "youtube-serp" \
+            ! -name "last30days" \
+            ! -name "aisa-tavily" \
+            ! -name "aisa-youtube-search" \
+            ! -name "last30days-zh" \
+            ! -name "multi-search" \
+            ! -name "perplexity-research" \
+            ! -name "scholar-search" \
+            ! -name "smart-search" \
+            ! -name "tavily-extract" \
+            ! -name "tavily-search" \
+            ! -name "web-search" \
+            ! -name "youtube-search" \
+            ! -name ".git" \
+            ! -name ".gitignore" \
+            ! -name "LICENSE" \
+            ! -name "README.md" \
+            ! -name "SKILL_AUTHORING.md" \
+            ! -name "SKILL_DEDUP_ANALYSIS.md" \
+            -exec rm -rf {} +
+          
+          ls -a
+
+      - name: Commit and push to Search And Research Repo
+        env:
+          TOKEN: ${{ secrets.SYNC_AISAS_KILLS_TOKEN  }}
+        run: |
+          ls -la
+
+          git status -s
+          git add .
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Sync Search And Research folder"
+            git remote set-url origin "https://x-access-token:${TOKEN}@github.com/AISA-skills/search-research-skills.git"
+            git push origin main --force
+          fi
