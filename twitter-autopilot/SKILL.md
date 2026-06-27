@@ -148,6 +148,8 @@ curl "https://api.aisa.one/apis/v1/twitter/tweet/thread_context?tweetId=18950964
   -H "Authorization: Bearer $AISA_API_KEY"
 
 # Get article by tweet ID
+# NOTE: This endpoint uses `tweet_id` (snake_case), unlike other tweet
+# endpoints which use `tweetId` (camelCase).
 curl "https://api.aisa.one/apis/v1/twitter/article?tweet_id=1895096451033985024" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
@@ -188,6 +190,8 @@ curl "https://api.aisa.one/apis/v1/twitter/community/get_tweets_from_all_communi
   -H "Authorization: Bearer $AISA_API_KEY"
 
 # Get Space detail
+# NOTE: Space IDs are ephemeral — once a Space ends and is removed, its ID
+# returns 404. Always use a currently active Space ID.
 curl "https://api.aisa.one/apis/v1/twitter/spaces/detail?space_id=1dRJZlbLkjexB" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
@@ -268,6 +272,18 @@ python3 {baseDir}/scripts/twitter_engagement_client.py unfollow-user --user "@el
 | `/twitter/community/tweets` | Get community tweets | `community_id`, `cursor` |
 | `/twitter/community/get_tweets_from_all_community` | Search all community tweets | `query`, `cursor` |
 | `/twitter/spaces/detail` | Get Space detail | `space_id` |
+
+> **Parameter naming note:** The `/twitter/article` endpoint uses `tweet_id`
+> (snake\_case), while other tweet endpoints use `tweetId` (camelCase).
+> The Python client handles this automatically.
+
+## Known Issues
+
+| Issue | Endpoint | Workaround |
+|-------|----------|------------|
+| HTTP 500 for some communities | `/twitter/community/moderators` | The Python client returns an empty moderator list gracefully. Deleted or private communities may trigger this. |
+| Stale Space IDs return 404 | `/twitter/spaces/detail` | Twitter Spaces are ephemeral. Always use a currently active Space ID. |
+| Parameter naming inconsistency | `/twitter/article` | Uses `tweet_id` (snake\_case) instead of `tweetId` (camelCase). The Python client handles both formats with automatic fallback. |
 
 ## Pricing
 
