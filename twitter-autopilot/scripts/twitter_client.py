@@ -9,6 +9,11 @@ Usage (read):
     python twitter_client.py user-info --username <username>
     python twitter_client.py search --query <query> [--type Latest|Top]
     ...
+
+Changelog:
+    - Added defensive error handling for community endpoints (HTTP 500)
+    - Added tweetId fallback for /twitter/article endpoint
+    - Added ephemeral Space ID note in CLI help text
 """
 
 import argparse
@@ -79,9 +84,12 @@ class TwitterClient:
         except urllib.error.HTTPError as e:
             error_body = e.read().decode("utf-8")
             try:
-                return json.loads(error_body)
+                error_json = json.loads(error_body)
             except json.JSONDecodeError:
-                return {"success": False, "error": {"code": str(e.code), "message": error_body}}
+                error_json = {"success": False, "error": {"code": str(e.code), "message": error_body}}
+            # Attach HTTP status code for downstream error handling
+            error_json["_http_status"] = e.code
+            return error_json
         except urllib.error.URLError as e:
             return {"success": False, "error": {"code": "NETWORK_ERROR", "message": str(e.reason)}}
 
@@ -162,8 +170,18 @@ class TwitterClient:
         return self._request("GET", "/twitter/tweet/thread_context", params={"tweetId": tweet_id, "cursor": cursor})
 
     def article(self, tweet_id: str) -> Dict[str, Any]:
-        """Get article content by tweet ID."""
-        return self._request("GET", "/twitter/article", params={"tweet_id": tweet_id})
+        """Get article content by tweet ID.
+
+        Note: This endpoint uses `tweet_id` (snake_case), unlike other tweet
+        endpoints which use `tweetId` (camelCase). If the primary request fails
+        with a 400, a fallback request using `tweetId` is attempted for
+        forward-compatibility in case the API is updated.
+        """
+        result = self._request("GET", "/twitter/article", params={"tweet_id": tweet_id})
+        # Fallback: if the server rejects tweet_id, retry with tweetId (camelCase)
+        if result.get("_http_status") == 400:
+            result = self._request("GET", "/twitter/article", params={"tweetId": tweet_id})
+        return result
 
     # ==================== Trends, Lists, Communities, Spaces ====================
 
@@ -190,10 +208,28 @@ class TwitterClient:
         )
 
     def community_moderators(self, community_id: str, cursor: str = None) -> Dict[str, Any]:
-        """Get community moderators."""
-        return self._request(
+        """Get community moderators.
+
+        Note: This endpoint may return HTTP 500 for deleted, private, or
+        otherwise inaccessible communities. When that happens, a graceful
+        empty response is returned instead of propagating the error.
+        """
+        result = self._request(
             "GET", "/twitter/community/moderators", params={"community_id": community_id, "cursor": cursor}
         )
+        # Graceful degradation: if the server returns 500, return an empty
+        # moderator list instead of an opaque error — matching the pattern
+        # used by /community/members and /community/tweets.
+        if result.get("_http_status") == 500:
+            return {
+                "moderators": [],
+                "has_next_page": False,
+                "next_cursor": None,
+                "status": "success",
+                "msg": "moderator data unavailable for this community",
+                "_note": "Server returned HTTP 500; this community may be deleted or private.",
+            }
+        return result
 
     def community_tweets(self, community_id: str, cursor: str = None) -> Dict[str, Any]:
         """Get community tweets."""
@@ -210,7 +246,12 @@ class TwitterClient:
         )
 
     def space_detail(self, space_id: str) -> Dict[str, Any]:
-        """Get Space detail by ID."""
+        """Get Space detail by ID.
+
+        Note: Twitter Spaces are ephemeral. Once a Space ends and is removed,
+        its ID becomes invalid and this endpoint will return HTTP 404.
+        Use a currently active Space ID.
+        """
         return self._request("GET", "/twitter/spaces/detail", params={"space_id": space_id})
 
 
@@ -330,8 +371,8 @@ def main():
 
     # ---- Spaces ----
 
-    p = subparsers.add_parser("space-detail", help="Get Space detail")
-    p.add_argument("--space-id", required=True)
+    p = subparsers.add_parser("space-detail", help="Get Space detail (Space IDs are ephemeral — use an active Space)")
+    p.add_argument("--space-id", required=True, help="Space ID (ephemeral — expired Spaces return 404)")
 
     args = parser.parse_args()
 
