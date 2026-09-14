@@ -14,7 +14,7 @@ The generic AIsa Skill is the platform entry at [`platform/aisa/`](./platform/ai
 
 | Category | Skills | Description |
 |---|---:|---|
-| [Platform](./platform/) | 1 | Generic AIsa CLI and MCP entry for published tools. |
+| [Platform](./platform/) | 1 | Generic AIsa CLI and MCP entry for published tools. Local agents prefer CLI; Grok Bot and other cloud sandboxes prefer native remote MCP. |
 | [Financial & Markets](./financial/) | 15 | Market data, stock research, portfolio tracking, prediction markets, and financial forecasting. |
 | [Search & Research](./search-research/) | 12 | Web, academic, Tavily, Perplexity, and recent multi-source research workflows. |
 | [Social Media](./social-media/) | 9 | Twitter/X intelligence and engagement plus YouTube discovery and SERP research. |
