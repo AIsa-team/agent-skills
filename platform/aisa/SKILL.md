@@ -14,7 +14,7 @@ First-time install and connect: https://aisa.one/docs/agent-quickstart.md
 
 ## Reuse
 
-Reuse a working official `aisa` skill, `@aisa-one/cli` **0.5.0 or later**, stored CLI credentials, or a unified MCP session. Prefer the CLI on a user-local machine (PowerShell counts); prefer MCP on Grok Bot or another cloud sandbox even when a terminal exists. `AISA_API_KEY` overrides the stored key; if they conflict, explain the sources and leave custom setup alone. Never print credentials. `aisa whoami` is local only. Search and schema may be anonymous — they are not auth proof.
+Reuse a working official `aisa` skill, `@aisa-one/cli` **0.5.0 or later**, stored CLI credentials, or a unified MCP session. An explicit user transport choice or a still-authorized connection wins. Otherwise prefer the CLI on a user-local machine (PowerShell counts); prefer MCP on Grok Bot or another cloud sandbox even when a terminal exists. `AISA_API_KEY` overrides the stored key; if they conflict, explain the sources and leave custom setup alone. Never print credentials. `aisa whoami` is local only. Search and schema may be anonymous — they are not auth proof.
 
 ## Sign-in
 
@@ -33,7 +33,7 @@ Quote does not execute and is not approval to execute. A missing, failed, or par
 
 ## MCP
 
-Use native remote Streamable HTTP MCP with OAuth at `https://tools.aisa.one/mcp`. This path needs no CLI, npm, npx, or this Skill. The client owns browser sign-in and tokens. Do not treat domain MCP or `aisa connect`’s default web-search server as this router. Discovery or a 401 is not a protected call. If a connector cannot be added, give the user that endpoint and one next action; do not claim connected.
+Use native remote Streamable HTTP MCP with OAuth at `https://tools.aisa.one/mcp`. No CLI, npm, npx, or Skill installation is required; already-installed guidance may be used. The client owns browser sign-in and tokens. Do not treat domain MCP or `aisa connect`’s default web-search server as this router. Discovery or a 401 is not a protected call. If a connector cannot be added, give the user that endpoint and one next action; do not claim connected.
 
 | MCP tool | CLI command |
 | --- | --- |
