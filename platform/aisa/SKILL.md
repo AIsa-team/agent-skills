@@ -14,7 +14,7 @@ First-time install and connect: https://aisa.one/docs/agent-quickstart.md
 
 ## Reuse
 
-Reuse a working official `aisa` skill, `@aisa-one/cli` **0.5.0 or later**, stored CLI credentials, or a unified MCP session. Prefer the CLI in any working terminal (PowerShell counts; Bash is not required). `AISA_API_KEY` overrides the stored key; if they conflict, explain the sources and leave custom setup alone. Never print credentials. `aisa whoami` is local only. Search and schema may be anonymous — they are not auth proof.
+Reuse a working official `aisa` skill, `@aisa-one/cli` **0.5.0 or later**, stored CLI credentials, or a unified MCP session. Prefer the CLI on a user-local machine (PowerShell counts); prefer MCP on Grok Bot or another cloud sandbox even when a terminal exists. `AISA_API_KEY` overrides the stored key; if they conflict, explain the sources and leave custom setup alone. Never print credentials. `aisa whoami` is local only. Search and schema may be anonymous — they are not auth proof.
 
 ## Sign-in
 
@@ -31,9 +31,9 @@ aisa quote --input '{"calls":[{"call_id":"c1","tool":"<name from search>","argum
 
 Quote does not execute and is not approval to execute. A missing, failed, or partial quote is not free and is not a full-batch total or cap. Estimated cost is not a cap. Setup is not paid execution permission. Reuse a still-valid explicit authorization; do not invent confirmation loops for search, schema, or install. Re-quote if tools, arguments, or scope change. Do not silently retry or expand the batch.
 
-## MCP fallback
+## MCP
 
-If you cannot run commands, or the user explicitly prefers MCP, use native remote Streamable HTTP MCP with OAuth at `https://tools.aisa.one/mcp`. The client owns browser sign-in and tokens. Do not require `npx`. Do not treat domain MCP or `aisa connect`’s default web-search server as this router. Discovery or a 401 is not a protected call.
+Use native remote Streamable HTTP MCP with OAuth at `https://tools.aisa.one/mcp`. This path needs no CLI, npm, npx, or this Skill. The client owns browser sign-in and tokens. Do not treat domain MCP or `aisa connect`’s default web-search server as this router. Discovery or a 401 is not a protected call. If a connector cannot be added, give the user that endpoint and one next action; do not claim connected.
 
 | MCP tool | CLI command |
 | --- | --- |

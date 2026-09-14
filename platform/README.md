@@ -1,6 +1,6 @@
 # Platform Skills
 
-Generic AIsa CLI and MCP entry for published tools.
+Generic AIsa CLI and MCP entry for published tools. Local agents prefer the CLI plus `aisa`. Grok Bot and other cloud sandboxes prefer native remote MCP at `https://tools.aisa.one/mcp` even when a terminal exists.
 
 This category contains 1 self-contained Agent Skill.
 
