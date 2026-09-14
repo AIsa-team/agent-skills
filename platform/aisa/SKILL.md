@@ -14,7 +14,7 @@ First-time install and connect: https://aisa.one/docs/agent-quickstart.md
 
 ## Reuse
 
-Reuse a working official `aisa` skill, `@aisa-one/cli` **0.5.0 or later**, stored CLI credentials, or a unified MCP session. An explicit user transport choice or a still-authorized connection wins. Otherwise prefer the CLI on a user-local machine (PowerShell counts); prefer MCP on Grok Bot or another cloud sandbox even when a terminal exists. `AISA_API_KEY` overrides the stored key; if they conflict, explain the sources and leave custom setup alone. Never print credentials. `aisa whoami` is local only. Search and schema may be anonymous — they are not auth proof.
+Reuse a working official `aisa` skill, `@aisa-one/cli` **0.5.0 or later**, stored CLI credentials, or a unified MCP session. An explicit user transport choice or a still-authorized connection wins. Otherwise prefer the CLI on a user-local machine (PowerShell counts); prefer MCP on Grok Bot or another cloud sandbox even when a terminal exists. `AISA_API_KEY` overrides stored CLI credentials and never refreshes. If they conflict, explain the sources and leave custom setup alone. Never print credentials. Do not read or refresh token or compatibility key files. `aisa whoami` may refresh stored tokens and is not protected auth proof. Search and schema may be anonymous — they are not auth proof.
 
 ## Sign-in
 
