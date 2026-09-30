@@ -1,6 +1,6 @@
 ---
 name: aisa
-description: "Discover and invoke published AIsa tools with the AIsa CLI (search, schema, quote, call) or unified MCP. Use when the user wants AIsa tools or sign-in, or needs current web, company, or social data AIsa tools can fetch—even if they do not name AIsa. Do not use for OpenClaw Chinese model provider setup (aisa-provider), installing other catalog skills, or work that does not need live AIsa data."
+description: "Discover and invoke published AIsa tools with unified MCP or the AIsa CLI (search, schema, quote, call). Use when the user wants AIsa tools or sign-in, or needs current web, company, or social data AIsa tools can fetch—even if they do not name AIsa. Do not use for OpenClaw Chinese model provider setup (aisa-provider), installing other catalog skills, or work that does not need live AIsa data."
 license: MIT
 ---
 
@@ -14,11 +14,11 @@ First-time install and connect: https://aisa.one/docs/agent-quickstart.md
 
 ## Reuse
 
-Reuse a working official `aisa` skill, `@aisa-one/cli` **0.5.0 or later**, stored CLI credentials, or a unified MCP session. An explicit user transport choice or a still-authorized connection wins. Otherwise prefer the CLI on a user-local machine (PowerShell counts); prefer MCP on Grok Bot or another cloud sandbox even when a terminal exists. `AISA_API_KEY` overrides the stored key; if they conflict, explain the sources and leave custom setup alone. Never print credentials. `aisa whoami` is local only. Search and schema may be anonymous — they are not auth proof.
+Reuse a working official `aisa` skill, `@aisa-one/cli` **0.5.0 or later**, stored CLI credentials, or a unified MCP session. An explicit user transport choice or a still-authorized connection wins. Otherwise default to MCP at `https://tools.aisa.one/mcp` wherever this client can add the connector — user-local or cloud, with or without a terminal. Use the CLI only when this client has no MCP mechanism, for non-interactive automation with an existing key, or by explicit user choice; Node.js must already be installed, and do not install Node, build a private runtime, or redirect `HOME` to reach the CLI — use MCP or ask the user instead. `AISA_API_KEY` overrides the stored key; if they conflict, explain the sources and leave custom setup alone. Never print credentials. `aisa whoami` is local only. Search and schema may be anonymous — they are not auth proof.
 
 ## Sign-in
 
-Prove CLI auth with `aisa balance`. Before replying to a sign-in message or writing to its terminal, read `aisa login --help`. Follow it to interpret the CLI prompt and relay only the requested authorization result through the existing process. No credit → top up, not “missing key”.
+Prove CLI auth with `aisa balance`; an MCP session is proven by completed OAuth plus the four tools instead. Before replying to a sign-in message or writing to its terminal, read `aisa login --help`. Follow it to interpret the CLI prompt and relay only the requested authorization result through the existing process. No credit → top up, not “missing key”.
 
 ## Workflow
 
