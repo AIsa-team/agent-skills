@@ -4,6 +4,7 @@ description: Generate images and videos with AIsa. Four image models (Google Gem
 license: MIT
 compatibility: Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY.
 metadata:
+  version: "1.0.0"
   aisa:
     emoji: 🎬
     homepage: https://aisa.one

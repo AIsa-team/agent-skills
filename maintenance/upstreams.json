@@ -1,0 +1,245 @@
+{
+  "aisa-cli": {
+    "type": "npm",
+    "url": "https://registry.npmjs.org/@aisa-one%2Fcli/latest"
+  },
+  "aisa-mcp": {
+    "type": "mcp",
+    "url": "https://tools.aisa.one/mcp",
+    "token_env": "AISA_MONITOR_MCP_TOKEN"
+  },
+  "aisa-mcp-catalog": {
+    "type": "json",
+    "url": "https://mcp.aisa.one/servers"
+  },
+  "aisa-agent-quickstart": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/agent-quickstart.md"
+  },
+  "aisa-authentication": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/guides/authentication.md"
+  },
+  "aisa-api-financial": {
+    "type": "openapi",
+    "url": "https://aisa.one/openapi.yaml",
+    "paths": [
+      "financial|polymarket|kalshi|coingecko|prediction"
+    ]
+  },
+  "aisa-api-search-research": {
+    "type": "openapi",
+    "url": "https://aisa.one/openapi.yaml",
+    "paths": [
+      "search|scholar|tavily|perplexity"
+    ]
+  },
+  "aisa-api-social-media": {
+    "type": "openapi",
+    "url": "https://aisa.one/openapi.yaml",
+    "paths": [
+      "twitter|youtube"
+    ]
+  },
+  "aisa-api-ai-models": {
+    "type": "openapi",
+    "url": "https://aisa.one/openapi.yaml",
+    "paths": [
+      "chat|models|completions"
+    ]
+  },
+  "aisa-api-marketing": {
+    "type": "openapi",
+    "url": "https://aisa.one/openapi.yaml",
+    "paths": [
+      "dataforseo|semrush|similarweb|influencer|creator|tool-router|search"
+    ]
+  },
+  "aisa-api-creative": {
+    "type": "openapi",
+    "url": "https://aisa.one/openapi.yaml",
+    "paths": [
+      "image|video|generateContent|media|wan|gemini"
+    ]
+  },
+  "doc-e4638a7a5d8b": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference.md"
+  },
+  "doc-1d12b83de7eb": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/chat/generatecontent.md"
+  },
+  "doc-0431f1a1e28e": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/chat/image-generation.md"
+  },
+  "doc-26de5a27f807": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/chat/openai-image-generations.md"
+  },
+  "doc-f697a7378919": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/video/get_services-aigc-tasks.md"
+  },
+  "doc-6a92ff29b53e": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/video/post_services-aigc-video-generation-video-synthesis.md"
+  },
+  "doc-1d06eb23d884": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/categories-list.md"
+  },
+  "doc-1d7142073b80": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/categories-with-market-data.md"
+  },
+  "doc-12dff3c1a4d9": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/coin-data-by-id.md"
+  },
+  "doc-30ee15ebfe5c": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/coin-data-by-token-address.md"
+  },
+  "doc-41e832f910ce": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/coin-historical-chart-by-contract.md"
+  },
+  "doc-1a3b65277e30": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/coin-historical-chart.md"
+  },
+  "doc-500332518613": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/coin-historical-data.md"
+  },
+  "doc-07c7c43f2753": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/coin-market-chart-range.md"
+  },
+  "doc-93ae421ec015": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/coin-ohlc.md"
+  },
+  "doc-93a21c3a06e6": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/coin-price-by-token-address.md"
+  },
+  "doc-bc9f803c615e": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/coin-tickers.md"
+  },
+  "doc-263cc1f5b965": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/coins-list.md"
+  },
+  "doc-0383e341a0cd": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/coins-markets.md"
+  },
+  "doc-eaaa4c72a1b7": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/crypto-news.md"
+  },
+  "doc-571ef234d9b4": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/exchange-data-by-id.md"
+  },
+  "doc-e302e413b682": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/exchange-tickers.md"
+  },
+  "doc-d0af2d751dc9": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/exchanges-list-id-map.md"
+  },
+  "doc-e2d981c9e006": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/exchanges-list.md"
+  },
+  "doc-a26176407ce1": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/simple-price.md"
+  },
+  "doc-616307c7391b": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/supported-currencies.md"
+  },
+  "doc-964e2886206e": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/coingecko/trending-search.md"
+  },
+  "doc-128752d84419": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/guides/pricing.md"
+  },
+  "doc-3a2e9f558130": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/chat/post_chat-completions.md"
+  },
+  "doc-1b009da4568c": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/search/post_oxylabs-ai-search.md"
+  },
+  "doc-6f956086f479": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/waveinflu/post_waveinflu-email-lookup.md"
+  },
+  "doc-83e0cf0008f7": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/waveinflu/post_waveinflu-similar.md"
+  },
+  "doc-fa4b239d3f9e": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/similarweb/get_similarweb-website-traffic-engagement.md"
+  },
+  "doc-2dd0e1856974": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/openapi/similarweb.json.md"
+  },
+  "doc-13b1056e5acd": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/agent-quickstart.md"
+  },
+  "doc-69cf34076850": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/chat/createchatcompletion.md"
+  },
+  "doc-cd8920a9145f": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/prediction-market/get_polymarket-markets.md"
+  },
+  "doc-dcf13d520881": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/search/get_youtube-search.md"
+  },
+  "doc-9d06e8e0638b": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/search/post_tavily-search.md"
+  },
+  "doc-d779cca5b3fd": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/twitter/get_twitter-tweet-advanced-search.md"
+  },
+  "doc-14a02dd5df8a": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/guides/models.md"
+  },
+  "doc-0216bffca4ea": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-deep-research.md"
+  },
+  "doc-5a6c98d79cb9": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-pro.md"
+  },
+  "doc-467059f41128": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-reasoning-pro.md"
+  },
+  "doc-88a6c019a244": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar.md"
+  }
+}

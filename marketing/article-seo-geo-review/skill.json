@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "owner": "@aisa-barry",
+  "languages": [
+    "python"
+  ],
+  "runtime": {
+    "python": "3.11"
+  },
+  "entrypoints": [
+    "scripts/review_article.py"
+  ],
+  "checks": {
+    "lint": [],
+    "typecheck": [],
+    "build": [],
+    "test": []
+  },
+  "upstreams": [
+    "aisa-authentication",
+    "aisa-api-marketing",
+    "doc-e4638a7a5d8b",
+    "doc-3a2e9f558130",
+    "doc-1b009da4568c"
+  ]
+}

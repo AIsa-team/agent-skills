@@ -92,7 +92,7 @@ run_version() {
     local start_time
     start_time=$(date +%s)
 
-    if /usr/local/python3.12/bin/python3.12 "$script_path" \
+    if python3 "$script_path" \
       "$query" --emit=json --quick \
       > "$outfile" 2>"$errfile"; then
       local end_time

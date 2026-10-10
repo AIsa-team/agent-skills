@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "owner": "@aisa-barry",
+  "languages": [
+    "python"
+  ],
+  "runtime": {
+    "python": "3.11"
+  },
+  "entrypoints": [
+    "scripts/perplexity_search_client.py"
+  ],
+  "checks": {
+    "lint": [],
+    "typecheck": [],
+    "build": [],
+    "test": []
+  },
+  "upstreams": [
+    "aisa-authentication",
+    "aisa-api-search-research",
+    "doc-0216bffca4ea",
+    "doc-5a6c98d79cb9",
+    "doc-467059f41128",
+    "doc-88a6c019a244"
+  ]
+}

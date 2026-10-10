@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "owner": "@aisa-barry",
+  "languages": [],
+  "runtime": {},
+  "entrypoints": [],
+  "checks": {
+    "lint": [],
+    "typecheck": [],
+    "build": [],
+    "test": []
+  },
+  "upstreams": [
+    "aisa-authentication",
+    "aisa-api-social-media"
+  ]
+}

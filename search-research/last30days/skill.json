@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "owner": "@aisa-barry",
+  "languages": [
+    "python",
+    "shell"
+  ],
+  "runtime": {
+    "python": "3.11"
+  },
+  "entrypoints": [
+    "scripts/briefing.py",
+    "scripts/compare.sh",
+    "scripts/dev-python.sh",
+    "scripts/evaluate_search_quality.py",
+    "scripts/generate-synthesis-inputs.py",
+    "scripts/last30days.py",
+    "scripts/run-briefing.sh",
+    "scripts/run-evaluate.sh",
+    "scripts/run-last30days.sh",
+    "scripts/run-tests.sh",
+    "scripts/run-watchlist.sh",
+    "scripts/store.py",
+    "scripts/sync.sh",
+    "scripts/test-v1-vs-v2.sh",
+    "scripts/watchlist.py"
+  ],
+  "checks": {
+    "lint": [],
+    "typecheck": [],
+    "build": [],
+    "test": []
+  },
+  "upstreams": [
+    "aisa-authentication",
+    "aisa-api-search-research",
+    "doc-e4638a7a5d8b",
+    "doc-69cf34076850",
+    "doc-cd8920a9145f",
+    "doc-dcf13d520881",
+    "doc-9d06e8e0638b",
+    "doc-d779cca5b3fd",
+    "doc-14a02dd5df8a"
+  ]
+}

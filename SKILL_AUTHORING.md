@@ -18,6 +18,9 @@ with a few house-level requirements on top.
 4. A `README.md` and consistent body sections are recommended for humans
    browsing the repository, but they are not required by the Agent Skills
    specification and are not validity gates.
+5. Each Skill has semantic `metadata.version`, `CHANGELOG.md`, and `skill.json`
+   with ownership, runtime checks, and upstream dependencies. See
+   [SKILL_MAINTENANCE.md](SKILL_MAINTENANCE.md) for the repository lifecycle policy.
 
 ## Directory layout
 
@@ -28,6 +31,8 @@ with a few house-level requirements on top.
 └── <skill-name>/
     ├── SKILL.md      # required — metadata + agent-facing instructions
     ├── README.md     # optional — human-facing overview
+    ├── CHANGELOG.md  # repository release history
+    ├── skill.json    # owner, runtime checks, upstream dependencies
     ├── scripts/      # optional — runnable code
     ├── references/   # optional — long-form docs the agent loads on demand
     ├── assets/       # optional — static resources (templates, data, images)
@@ -37,7 +42,9 @@ with a few house-level requirements on top.
 Use the narrowest matching category. Adding a new top-level category requires
 updating the root README, `CATEGORY_NAMES`, and the exporter allowlist. Add a
 sync workflow only when a separate category distribution is intended;
-`platform` currently has none. Do not create placeholder publisher workflows.
+`platform` has no category destination but has individual releases. Configure
+destinations in `.github/skill-catalog.json`; do not create duplicate publishers.
+Regenerate counts with `skill_lifecycle.py catalog`.
 
 Directory name rules (enforced by the spec):
 
@@ -255,9 +262,12 @@ Blocking checks are limited to objective, reproducible conditions:
 3. Frontmatter passes the pinned `skills-ref==0.1.1` validator.
 4. Local Markdown references resolve inside the repository.
 5. Referenced scripts and `{baseDir}` targets exist.
-6. Python, shell, and JavaScript entry points parse successfully.
+6. Python, shell, and JavaScript entry points parse successfully. TypeScript
+   skills pass declared typecheck/build/test commands in standalone exports.
 7. No plaintext credentials or repository symlinks are introduced.
 8. Every category export is byte-for-byte identical to its source directory.
+   Changed managed bundles require a version bump and changelog entry;
+   published versions are immutable.
 9. Run the repository quality gate with its locked dependencies:
    ```bash
    uv --no-config venv --python python3.11 .venv
@@ -272,6 +282,14 @@ Blocking checks are limited to objective, reproducible conditions:
    If `.github/quality-gate-requirements.in` changes, regenerate and commit the
    hashed lock using the exact command recorded at the top of
    `.github/quality-gate-requirements.txt`.
+
+Also run lifecycle validation, generated-count checks, and isolated runtime checks:
+
+```bash
+.venv/bin/python .github/scripts/skill_lifecycle.py validate --changed-from origin/main
+.venv/bin/python .github/scripts/skill_lifecycle.py catalog --check
+.venv/bin/python .github/scripts/skill_lifecycle.py checks
+```
 
 README files, fixed body headings, `license`, `compatibility`, canonical Docs
 URLs, and a consistent presentation style remain useful review guidance, but

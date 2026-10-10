@@ -4,3 +4,6 @@
 /.github/quality-gate-requirements.in @aisa-barry
 /.github/quality-gate-requirements.txt @aisa-barry
 /.github/workflows/ @aisa-barry
+/.github/skill-catalog.json @aisa-barry
+/maintenance/ @aisa-barry
+/SKILL_MAINTENANCE.md @aisa-barry

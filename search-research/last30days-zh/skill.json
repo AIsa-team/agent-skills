@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "owner": "@aisa-barry",
+  "languages": [
+    "python",
+    "shell"
+  ],
+  "runtime": {
+    "python": "3.11"
+  },
+  "entrypoints": [
+    "scripts/dev-python.sh",
+    "scripts/evaluate_search_quality.py",
+    "scripts/last30days.py",
+    "scripts/run-evaluate.sh",
+    "scripts/run-last30days.sh"
+  ],
+  "checks": {
+    "lint": [],
+    "typecheck": [],
+    "build": [],
+    "test": []
+  },
+  "upstreams": [
+    "aisa-authentication",
+    "aisa-api-search-research"
+  ]
+}

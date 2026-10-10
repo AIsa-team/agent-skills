@@ -4,6 +4,7 @@ description: Search YouTube videos, channels, and playlists through the AIsa You
 license: MIT-0
 compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries curl, environment variables AISA_API_KEY and internet access to api.aisa.one.
 metadata:
+  version: "1.0.1"
   aisa:
     emoji: 🎬
     requires:

@@ -1,12 +1,16 @@
 # Platform Skills
 
-Generic AIsa CLI and MCP entry for published tools. Local agents prefer the CLI plus `aisa`. Grok Bot and other cloud sandboxes prefer native remote MCP at `https://tools.aisa.one/mcp` even when a terminal exists.
+Generic AIsa CLI and MCP entry for published tools. Prefer native remote MCP at `https://tools.aisa.one/mcp` wherever supported. Use CLI for an explicit choice, non-interactive automation with an existing key, or when the client has no MCP mechanism.
 
-This category contains 1 self-contained Agent Skill.
+<!-- category:start -->
 
-| Skill | Description |
-|---|---|
-| [aisa](./aisa/) | Discover and invoke published AIsa tools with the AIsa CLI (search, schema, quote, call) or unified MCP. Use when the user wants AIsa tools or sign-in, or needs current web, company, or social data AIsa tools can fetch—even if they do not name AIsa. |
+This category contains 1 self-contained Agent Skills.
+
+| Skill | Version | Description |
+|---|---|---|
+| [aisa](./aisa/) | 1.0.0 | Discover and invoke published AIsa tools with unified MCP or the AIsa CLI (search, schema, quote, call). Use when the user wants AIsa tools or sign-in, or needs current web, company, or social data AIsa tools can fetch—even if they do not name AIsa. Do not use for OpenClaw Chinese model provider setup (aisa-provider), installing other catalog skills, or work that does not need live AIsa data. |
+
+<!-- category:end -->
 
 ## Repository
 

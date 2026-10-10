@@ -7,12 +7,12 @@ import unittest
 from unittest.mock import patch
 import urllib.error
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def modules():
     for category, name in (('marketing', 'creator-marketing'),):
-        path = ROOT / category / name / 'scripts/request.py'
+        path = ROOT / 'scripts/request.py'
         spec = importlib.util.spec_from_file_location(name, path)
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)

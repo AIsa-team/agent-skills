@@ -288,6 +288,17 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn("persist-credentials: false", workflow)
         self.assertIn("permissions:\n  contents: read", workflow)
         self.assertIn("--require-hashes", workflow)
+        self.assertIn('needs: [validate-catalog, publish-releases]', workflow)
+        self.assertIn("github.event_name == 'push' && github.ref == 'refs/heads/main'", workflow)
+        self.assertNotIn('--force', workflow)
+        self.assertIn('check_typescript_fixture.py', workflow)
+
+    def test_monitor_state_writes_cannot_trigger_releases(self) -> None:
+        workflow = (MODULE_PATH.parents[2] / '.github/workflows/maintain-skill-catalog.yaml').read_text()
+        self.assertIn("cron: '0 1 * * *'", workflow)
+        self.assertIn('repository_dispatch:', workflow)
+        self.assertNotIn('  push:', workflow)
+        self.assertIn('skill-maintenance-state', workflow)
 
 
 if __name__ == "__main__":

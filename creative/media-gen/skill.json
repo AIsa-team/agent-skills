@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "owner": "@aisa-barry",
+  "languages": [
+    "python"
+  ],
+  "runtime": {
+    "python": "3.11"
+  },
+  "entrypoints": [
+    "scripts/media_gen_client.py"
+  ],
+  "checks": {
+    "lint": [],
+    "typecheck": [],
+    "build": [],
+    "test": []
+  },
+  "upstreams": [
+    "aisa-authentication",
+    "aisa-api-creative",
+    "doc-e4638a7a5d8b",
+    "doc-1d12b83de7eb",
+    "doc-0431f1a1e28e",
+    "doc-26de5a27f807",
+    "doc-f697a7378919",
+    "doc-6a92ff29b53e"
+  ]
+}

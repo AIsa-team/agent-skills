@@ -204,4 +204,4 @@ Website: https://aisa.one
 
 ## License
 
-See [LICENSE](LICENSE) for details.
+See [LICENSE](../LICENSE) for details.

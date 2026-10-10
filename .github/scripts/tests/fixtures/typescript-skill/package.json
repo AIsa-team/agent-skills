@@ -1,0 +1,13 @@
+{
+  "name": "aisa-typescript-skill-fixture",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=22"},
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "test": "node --test tests/client.test.mjs"
+  },
+  "devDependencies": {"typescript": "5.9.3"}
+}

@@ -26,14 +26,14 @@ CATEGORY_NAMES = (
     "search-research",
     "social-media",
 )
-IGNORED_DIRECTORIES = {".git", ".github", ".hermes", ".venv", "__pycache__"}
-CREDENTIAL_IGNORED_DIRECTORIES = {".git", ".hermes", ".venv", "__pycache__"}
+IGNORED_DIRECTORIES = {".git", ".github", ".hermes", ".venv", "__pycache__", "build", "node_modules"}
+CREDENTIAL_IGNORED_DIRECTORIES = {".git", ".hermes", ".venv", "__pycache__", "build", "node_modules"}
 MARKDOWN_LINK_RE = re.compile(
     r"!?\[[^\]]*\]\(\s*(<[^>]+>|[^)\s]+)(?:\s+[^)]*)?\)"
 )
 MARKDOWN_REFERENCE_RE = re.compile(r"^\s*\[[^\]]+\]:\s*(<[^>]+>|\S+)", re.MULTILINE)
 SCRIPT_REFERENCE_RE = re.compile(
-    r"(?<![\w/{])(?:python3?|bash|sh|node)\s+[\"']?"
+    r"(?<![\w/{])(?:python3?|bash|sh|node|tsx|ts-node|npx\s+tsx)\s+[\"']?"
     r"((?:\./)?scripts/[^\s`\"'<>),]+)"
 )
 
@@ -232,7 +232,7 @@ def check_script_syntax(root: Path, files: Iterable[Path]) -> set[str]:
             issues.add(f"scripts:shell-syntax:{_relative(path, root)}")
 
     for path in (
-        candidate for candidate in candidates if candidate.suffix in {".js", ".mjs"}
+        candidate for candidate in candidates if candidate.suffix in {".js", ".mjs", ".cjs"}
     ):
         try:
             result = subprocess.run(

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "owner": "@aisa-barry",
+  "languages": [
+    "python"
+  ],
+  "runtime": {
+    "python": "3.11"
+  },
+  "entrypoints": [
+    "scripts/kol_creator_discovery.py"
+  ],
+  "checks": {
+    "lint": [],
+    "typecheck": [],
+    "build": [],
+    "test": []
+  },
+  "upstreams": [
+    "aisa-authentication",
+    "aisa-api-marketing",
+    "doc-e4638a7a5d8b",
+    "doc-6f956086f479",
+    "doc-83e0cf0008f7"
+  ]
+}

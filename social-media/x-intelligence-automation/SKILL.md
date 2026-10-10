@@ -4,6 +4,7 @@ description: Search X/Twitter profiles, tweets, trends, and approved engagement 
 license: Apache-2.0
 compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries python3, environment variables AISA_API_KEY and internet access to api.aisa.one.
 metadata:
+  version: "1.0.0"
   aisa:
     emoji: 🐦
     requires:

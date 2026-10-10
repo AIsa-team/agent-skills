@@ -1,2 +1,3 @@
 pyright==1.1.411
 skills-ref==0.1.1
+PyYAML==6.0.3
