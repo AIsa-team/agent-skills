@@ -271,7 +271,7 @@ def run_checks(root: Path, reference: str | None = None) -> None:
                 target.chmod(0o755 if data.startswith(b'#!') else 0o644)
             directory = stage / skill.name
             environment = {k: v for k, v in os.environ.items()
-                           if k not in {"AISA_API_KEY", "GITHUB_TOKEN", "GH_TOKEN", "SYNC_AISAS_KILLS_TOKEN", "PYTHONPATH", "NODE_PATH"}}
+                           if k not in {"AISA_API_KEY", "GITHUB_TOKEN", "GH_TOKEN", "SYNC_AISA_SKILLS_TOKEN", "PYTHONPATH", "NODE_PATH"}}
             if (directory / "package.json").is_file():
                 subprocess.run(["npm", "ci", "--ignore-scripts", "--engine-strict", "--no-audit", "--no-fund"],
                                cwd=directory, env=environment, check=True, timeout=300)

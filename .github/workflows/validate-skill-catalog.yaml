@@ -159,6 +159,6 @@ jobs:
           persist-credentials: false
       - name: Publish category only when exported content differs
         env:
-          SYNC_AISAS_KILLS_TOKEN: ${{ secrets.SYNC_AISAS_KILLS_TOKEN }}
+          SYNC_AISA_SKILLS_TOKEN: ${{ secrets.SYNC_AISA_SKILLS_TOKEN }}
           CATEGORY: ${{ matrix.category }}
         run: python3 .github/scripts/publish_skills.py category --category "$CATEGORY"

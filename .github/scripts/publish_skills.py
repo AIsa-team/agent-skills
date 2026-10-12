@@ -146,7 +146,7 @@ def main() -> int:
             stage = Path(temporary) / "export"
             subprocess.run(["bash", ".github/scripts/prepare-category-repo.sh", args.category, "--output", str(stage)],
                            cwd=args.root, check=True)
-            publish_directory(stage, repository, "main", os.environ.get("SYNC_AISAS_KILLS_TOKEN", ""),
+            publish_directory(stage, repository, "main", os.environ.get("SYNC_AISA_SKILLS_TOKEN", ""),
                               f"Sync {args.category} from {git(args.root, 'rev-parse', 'HEAD')}",
                               {"source_commit": git(args.root, "rev-parse", "HEAD"), "category": args.category})
     else:

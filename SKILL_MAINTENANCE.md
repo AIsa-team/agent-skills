@@ -164,7 +164,7 @@ or document skill-local installation. Tests should exercise shipped entrypoints.
 
 ## Workflow setup
 
-The existing `SYNC_AISAS_KILLS_TOKEN` must push to configured category repos.
+The `SYNC_AISA_SKILLS_TOKEN` must push to configured category repos.
 GitHub's workflow token needs contents write for releases/state and issues write
 for maintenance issues. Enable repository Issues. When MCP requires credentials,
 configure a supported discovery credential as `AISA_MONITOR_MCP_TOKEN`; missing
