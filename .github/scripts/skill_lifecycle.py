@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SEMVER = re.compile(r"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
 IGNORED = {".git", ".venv", "node_modules", "__pycache__"}
 PUBLISH_REPOSITORY = 'AIsa-team/agent-skills'
+UNASSIGNED_OWNER = 'unassigned'
 
 
 def check_publish_repository(repository: str) -> None:
@@ -152,8 +153,10 @@ def validate(root: Path, reference: str | None = None) -> list[str]:
             manifest = read_json(skill / "skill.json")
             if manifest.get("schema_version") != 1:
                 raise ValueError("unsupported manifest schema_version")
-            if not re.fullmatch(r"@[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)?", manifest.get("owner", "")):
-                raise ValueError("owner must be a GitHub user or team")
+            owner = manifest.get("owner")
+            if not isinstance(owner, str) or (owner != UNASSIGNED_OWNER and
+                    not re.fullmatch(r"@[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)?", owner)):
+                raise ValueError("owner must be a GitHub user, team, or 'unassigned'")
             if not manifest.get("upstreams") or any(s not in upstreams for s in manifest["upstreams"]):
                 raise ValueError("declare known upstream dependencies")
             languages = manifest.get("languages")

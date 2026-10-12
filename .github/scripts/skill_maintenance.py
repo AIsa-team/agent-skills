@@ -19,7 +19,7 @@ from typing import Any
 
 import yaml
 
-from skill_lifecycle import ROOT, check_publish_repository, digest, files, git, historic_files, payload, read_json, skill_dirs, substantive_content, version, write_json
+from skill_lifecycle import ROOT, UNASSIGNED_OWNER, check_publish_repository, digest, files, git, historic_files, payload, read_json, skill_dirs, substantive_content, version, write_json
 
 MAX_RESPONSE = 16 * 1024 * 1024
 
@@ -203,6 +203,8 @@ def report(root: Path, state: dict[str, Any], now: str, days: int = 14) -> list[
                 unreviewed.append(source_id)
         review_matches = reviewed.get("payload_sha256") == digest(payload(skill))
         warnings = []
+        if manifest["owner"] == UNASSIGNED_OWNER:
+            warnings.append("owner unassigned")
         if age >= days:
             warnings.append("no update in 14 days")
         if review_age is None or review_age >= days or not review_matches or unreviewed:

@@ -32,6 +32,25 @@ def repository(root: Path) -> Path:
 
 
 class VersionPolicyTests(unittest.TestCase):
+    def test_ownership_requires_a_github_identity_or_explicit_unassigned_value(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            skill = repository(root)
+            manifest = lifecycle.read_json(skill / 'skill.json')
+            for owner in ('@maintainer', '@AIsa-team/skill-maintainers', lifecycle.UNASSIGNED_OWNER):
+                with self.subTest(owner=owner):
+                    manifest['owner'] = owner
+                    lifecycle.write_json(skill / 'skill.json', manifest)
+                    self.assertEqual(lifecycle.validate(root), [])
+            for owner in ('', None, 'Barry', '@org/team/extra'):
+                with self.subTest(owner=owner):
+                    manifest['owner'] = owner
+                    lifecycle.write_json(skill / 'skill.json', manifest)
+                    self.assertIn('owner must be', '\n'.join(lifecycle.validate(root)))
+            del manifest['owner']
+            lifecycle.write_json(skill / 'skill.json', manifest)
+            self.assertIn('owner must be', '\n'.join(lifecycle.validate(root)))
+
     def test_catalog_rejects_category_publication_settings(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

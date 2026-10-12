@@ -17,6 +17,28 @@ from test_skill_lifecycle import repository
 
 
 class FreshnessTests(unittest.TestCase):
+    def test_unassigned_ownership_warns_even_after_a_current_review(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            skill = repository(root)
+            now = datetime.now(timezone.utc).isoformat()
+            manifest = lifecycle.read_json(skill / 'skill.json')
+            manifest['owner'] = lifecycle.UNASSIGNED_OWNER
+            lifecycle.write_json(skill / 'skill.json', manifest)
+            state = {'sources': {'docs': {'status': 'ok', 'digest': 'a', 'baseline_digest': 'a', 'observed_at': now}}}
+            maintenance.record_review(root, 'financial/example', state, 'Verified contract', now)
+            row = maintenance.report(root, state, now)[0]
+            self.assertEqual(row['owner'], 'unassigned')
+            self.assertEqual(row['warnings'], ['owner unassigned'])
+            self.assertIn('owner unassigned', maintenance.markdown([row], now))
+            manifest['owner'] = '@maintainer'
+            lifecycle.write_json(skill / 'skill.json', manifest)
+            maintenance.record_review(root, 'financial/example', state, 'Verified after assignment', now)
+            assigned = maintenance.report(root, state, now)[0]
+            self.assertEqual(assigned['owner'], '@maintainer')
+            self.assertEqual(assigned['warnings'], [])
+            self.assertNotEqual(row['notification_digest'], assigned['notification_digest'])
+
     def test_fourteen_day_boundary_and_no_change_review_are_independent(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

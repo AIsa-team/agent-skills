@@ -5,6 +5,21 @@ Each skill has an independent `metadata.version` in `SKILL.md`, a
 preserved; previously unversioned skills start at `1.0.0`. Baselines do not
 claim recent verification: `maintenance/reviews.json` starts empty.
 
+## Maintenance ownership
+
+`skill.json`'s `owner` is the maintenance contact, not author attribution. Use a
+GitHub user or team, or the literal `unassigned` when responsibility is unknown.
+Unassigned skills remain valid and distributable, but the daily monitor raises an
+`owner unassigned` warning until an owner is assigned. A successful content review
+does not resolve missing ownership.
+
+The initial assignments use the contributor mapping reviewed for this PR. They
+cover 21 skills; the other 25 came through a bulk catalog import and remain
+unassigned. The history does not establish each imported skill's original author
+or current maintainer. See [SKILL_OWNERSHIP.md](SKILL_OWNERSHIP.md) for assignments
+and evidence. Update the manifest and that record when responsibility changes.
+CODEOWNERS review responsibility for CI tooling does not imply ownership of skills.
+
 ## Editing and releasing
 
 Use patch bumps for compatible fixes to code, instructions, or examples;
@@ -101,6 +116,7 @@ verification age, and pending/unavailable sources.
   or missing coverage of declared sources.
 - Flag relevant upstream changes immediately, regardless of update age.
 - Report unavailable monitoring separately; a successful poll is not verification.
+- Warn when maintenance ownership is explicitly unassigned.
 
 Update dates come from committed Git content changes. Pure version, changelog,
 or maintenance-manifest changes do not reset them. A no-change review can produce
@@ -143,7 +159,7 @@ resolves to the gate's Python interpreter.
 ```json
 {
   "schema_version": 1,
-  "owner": "@aisa-barry",
+  "owner": "@your-org/skill-maintainers",
   "languages": ["typescript", "javascript"],
   "runtime": {"node": "22"},
   "entrypoints": ["dist/client.mjs"],

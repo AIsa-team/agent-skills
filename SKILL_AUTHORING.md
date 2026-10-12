@@ -21,6 +21,9 @@ with a few house-level requirements on top.
 5. Each Skill has semantic `metadata.version`, `CHANGELOG.md`, and `skill.json`
    with ownership, runtime checks, and upstream dependencies. See
    [SKILL_MAINTENANCE.md](SKILL_MAINTENANCE.md) for the repository lifecycle policy.
+   The owner is the maintenance contact, not the author. Declare a GitHub user or
+   team, or `unassigned` until responsibility is established; unassigned ownership
+   creates an advisory maintenance warning.
 
 ## Directory layout
 
