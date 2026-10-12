@@ -13,7 +13,27 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from skill_lifecycle import ROOT, files, git, read_json, write_json
+from skill_lifecycle import ROOT, check_publish_repository, files, git, read_json, write_json
+
+
+def check_remote_publish_repository(repository: str, token: str) -> None:
+    check_publish_repository(repository)
+    if not token:
+        raise ValueError(f'a publishing token is required to verify {repository}')
+    result = subprocess.run(['gh', 'api', f'repos/{repository}'], capture_output=True, text=True,
+                            env={**os.environ, 'GH_TOKEN': token})
+    if result.returncode:
+        raise ValueError(f'cannot access {repository}; verify repository existence and token access')
+    owner = json.loads(result.stdout)['owner']['login']
+    if owner.lower() != 'aisa-team':
+        raise ValueError(f'{repository} resolves outside AIsa-team; refusing to publish')
+
+
+def check_category_destinations(root: Path, token: str) -> None:
+    config = read_json(root / '.github/skill-catalog.json')
+    for category in config['categories'].values():
+        if category['repository']:
+            check_remote_publish_repository(category['repository'], token)
 
 
 def publish_releases(artifacts: Path, repo: str, expected_commit: str | None = None) -> None:
@@ -136,12 +156,18 @@ def main() -> int:
     state.add_argument("--repo", required=True)
     args = parser.parse_args()
     if args.command == "releases":
+        check_publish_repository(args.repo)
+        check_remote_publish_repository(args.repo, os.environ.get('GH_TOKEN', ''))
+        # Verify every destination before creating even the first release tag.
+        check_category_destinations(args.root, os.environ.get('SYNC_AISA_SKILLS_TOKEN', ''))
         publish_releases(args.artifacts, args.repo, os.environ.get('GITHUB_SHA'))
     elif args.command == "category":
         config = read_json(args.root / ".github/skill-catalog.json")
         repository = config["categories"][args.category]["repository"]
         if not repository:
             raise ValueError("category has no distribution repository")
+        check_publish_repository(repository)
+        check_remote_publish_repository(repository, os.environ.get('SYNC_AISA_SKILLS_TOKEN', ''))
         with tempfile.TemporaryDirectory() as temporary:
             stage = Path(temporary) / "export"
             subprocess.run(["bash", ".github/scripts/prepare-category-repo.sh", args.category, "--output", str(stage)],
@@ -150,6 +176,8 @@ def main() -> int:
                               f"Sync {args.category} from {git(args.root, 'rev-parse', 'HEAD')}",
                               {"source_commit": git(args.root, "rev-parse", "HEAD"), "category": args.category})
     else:
+        check_publish_repository(args.repo)
+        check_remote_publish_repository(args.repo, os.environ.get('GH_TOKEN', ''))
         publish_directory(args.directory, args.repo, "skill-maintenance-state", os.environ.get("GH_TOKEN", ""),
                           "Update skill maintenance observations")
     return 0

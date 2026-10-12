@@ -15,7 +15,7 @@ import publish_skills as publishing
 
 def repository(root: Path) -> Path:
     (root / '.github').mkdir()
-    lifecycle.write_json(root / '.github/skill-catalog.json', {'categories': {'financial': {'name': 'Finance', 'description': 'Example', 'repository': 'AISA-skills/example'}}})
+    lifecycle.write_json(root / '.github/skill-catalog.json', {'categories': {'financial': {'name': 'Finance', 'description': 'Example', 'repository': 'AIsa-team/example'}}})
     lifecycle.write_json(root / 'maintenance/upstreams.json', {'docs': {'type': 'docs', 'url': 'https://example.com/docs.md'}})
     lifecycle.write_json(root / 'maintenance/reviews.json', {})
     (root / 'README.md').write_text('<!-- catalog:start -->\n<!-- catalog:end -->\n')
@@ -32,6 +32,15 @@ def repository(root: Path) -> Path:
 
 
 class VersionPolicyTests(unittest.TestCase):
+    def test_category_destinations_outside_aisa_team_fail_ci_validation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repository(root)
+            config = lifecycle.read_json(root / '.github/skill-catalog.json')
+            config['categories']['financial']['repository'] = 'another-org/example'
+            lifecycle.write_json(root / '.github/skill-catalog.json', config)
+            self.assertIn('must belong to AIsa-team', '\n'.join(lifecycle.validate(root)))
+
     def test_changes_require_version_and_changelog(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -150,6 +159,51 @@ class RuntimeAndBundleTests(unittest.TestCase):
 
 
 class PublicationTests(unittest.TestCase):
+    def test_authenticated_preflight_checks_canonical_owner_and_repository_access(self):
+        with patch.object(publishing.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0,
+                json.dumps({'owner': {'login': 'AIsa-team'}}), '')) as run:
+            publishing.check_remote_publish_repository('AIsa-team/example', 'test-token')
+            self.assertEqual(run.call_args.kwargs['env']['GH_TOKEN'], 'test-token')
+        with patch.object(publishing.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0,
+                json.dumps({'owner': {'login': 'another-org'}}), '')):
+            with self.assertRaisesRegex(ValueError, 'resolves outside AIsa-team'):
+                publishing.check_remote_publish_repository('AIsa-team/example', 'test-token')
+        with patch.object(publishing.subprocess, 'run', return_value=subprocess.CompletedProcess([], 1, '', 'HTTP 404')):
+            with self.assertRaisesRegex(ValueError, 'repository existence and token access'):
+                publishing.check_remote_publish_repository('AIsa-team/example', 'test-token')
+
+    def test_destination_preflight_failure_prevents_any_release_creation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repository(root)
+            with patch.object(publishing, 'check_remote_publish_repository', side_effect=[None, ValueError('unavailable destination')]), \
+                    patch.object(publishing, 'publish_releases') as release:
+                with patch.object(sys, 'argv', ['publish_skills.py', '--root', str(root), 'releases', '--artifacts', '/tmp/unused', '--repo', 'AIsa-team/agent-skills']):
+                    with self.assertRaisesRegex(ValueError, 'unavailable destination'):
+                        publishing.main()
+                release.assert_not_called()
+
+    def test_ci_publisher_refuses_other_organizations_before_any_side_effect(self):
+        for command, arguments in (('releases', ['--artifacts', '/tmp/unused']), ('state', ['--directory', '/tmp/unused'])):
+            with self.subTest(command=command), patch.object(publishing.subprocess, 'run') as run:
+                with patch.object(sys, 'argv', ['publish_skills.py', command, *arguments, '--repo', 'another-org/example']):
+                    with self.assertRaisesRegex(ValueError, 'must belong to AIsa-team'):
+                        publishing.main()
+                run.assert_not_called()
+        lifecycle.check_publish_repository('AIsa-team/example')
+        lifecycle.check_publish_repository('aisa-team/example')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repository(root)
+            config = lifecycle.read_json(root / '.github/skill-catalog.json')
+            config['categories']['financial']['repository'] = 'another-org/example'
+            lifecycle.write_json(root / '.github/skill-catalog.json', config)
+            with patch.object(publishing.subprocess, 'run') as run:
+                with patch.object(sys, 'argv', ['publish_skills.py', '--root', str(root), 'category', '--category', 'financial']):
+                    with self.assertRaisesRegex(ValueError, 'must belong to AIsa-team'):
+                        publishing.main()
+                run.assert_not_called()
+
     def test_empty_export_cannot_delete_a_destination(self):
         with tempfile.TemporaryDirectory() as directory:
             with patch.object(publishing.subprocess, 'run') as run:

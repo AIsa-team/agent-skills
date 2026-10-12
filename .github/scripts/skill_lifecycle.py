@@ -23,6 +23,13 @@ SEMVER = re.compile(r"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
 IGNORED = {".git", ".venv", "node_modules", "__pycache__"}
 
 
+def check_publish_repository(repository: str) -> None:
+    if not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', repository):
+        raise ValueError('invalid destination repository')
+    if repository.split('/')[0].lower() != 'aisa-team':
+        raise ValueError('CI publishing destinations must belong to AIsa-team')
+
+
 def read_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -103,6 +110,13 @@ def historic_files(root: Path, ref: str, relative: str) -> dict[str, bytes]:
 
 def validate(root: Path, reference: str | None = None) -> list[str]:
     issues = []
+    config = read_json(root / '.github/skill-catalog.json')
+    for category, settings in config['categories'].items():
+        if settings.get('repository') is not None:
+            try:
+                check_publish_repository(settings['repository'])
+            except ValueError as error:
+                issues.append(f'.github/skill-catalog.json:{category}: {error}')
     upstreams = read_json(root / "maintenance/upstreams.json")
     for source_id, source in upstreams.items():
         if source.get("type") not in {"npm", "docs", "json", "openapi", "mcp"} or not source.get("url", "").startswith("https://"):

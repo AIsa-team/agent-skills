@@ -138,6 +138,7 @@ jobs:
       - name: Publish independently versioned skills
         env:
           GH_TOKEN: ${{ github.token }}
+          SYNC_AISA_SKILLS_TOKEN: ${{ secrets.SYNC_AISA_SKILLS_TOKEN }}
           REPOSITORY: ${{ github.repository }}
         run: python3 .github/scripts/publish_skills.py releases --artifacts build/releases --repo "$REPOSITORY"
 

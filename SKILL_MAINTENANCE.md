@@ -42,7 +42,15 @@ complete sources, references, manifests, and built entrypoints. Builds must matc
 the checked-in distribution; consumers do not need this monorepo.
 
 Destinations are configured in `.github/skill-catalog.json`. Category publishing
-skips identical contents, commits onto destination history, and uses normal
+targets repositories under **AIsa-team**. CI validates this organization policy,
+and the publisher rejects release, category, or state destinations outside it.
+The six category repositories must exist in AIsa-team before publication runs.
+An authenticated preflight verifies access and the actual repository owner,
+including GitHub redirects, before any release tags are created. Category and
+state publishing repeat this check before pushing. Missing/inaccessible
+destinations stop publication with a clear error; create or transfer the six
+repositories into AIsa-team before merging if they do not already exist there.
+Category publishing skips identical contents, commits onto destination history, and uses normal
 pushes. `SOURCE.json` records the most recent content update's source revision.
 Platform deliberately has no category destination but has individual releases.
 The obsolete SaaS workflow was removed because its source skills are absent.
@@ -165,6 +173,9 @@ or document skill-local installation. Tests should exercise shipped entrypoints.
 ## Workflow setup
 
 The `SYNC_AISA_SKILLS_TOKEN` must push to configured category repos.
+Create it with **Resource owner: AIsa-team**, access to the six configured
+category repositories, and **Contents: Read and write**. Store the secret in
+`AIsa-team/agent-skills` under the exact name `SYNC_AISA_SKILLS_TOKEN`.
 GitHub's workflow token needs contents write for releases/state and issues write
 for maintenance issues. Enable repository Issues. When MCP requires credentials,
 configure a supported discovery credential as `AISA_MONITOR_MCP_TOKEN`; missing
