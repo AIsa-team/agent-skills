@@ -4,6 +4,7 @@ description: Use this skill when a user asks for SEO keyword research, keyword d
 license: MIT
 compatibility: "Works with any agentskills.io-compatible harness, including Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, curl, and AISA_API_KEY."
 metadata:
+  version: "1.0.0"
   short-description: AIsa-powered SEO keyword research
   aisa:
     homepage: https://aisa.one

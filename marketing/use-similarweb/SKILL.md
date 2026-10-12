@@ -4,6 +4,7 @@ description: "Use this skill whenever a user or agent needs Similarweb website i
 license: MIT
 compatibility: "Works with any agentskills.io-compatible harness (Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose). Requires Python 3 and AISA_API_KEY on an account with the Hive GTM subscription."
 metadata:
+  version: "1.0.0"
   short-description: Similarweb through AIsa — contract discovered at runtime, cost quoted before every call
   aisa:
     homepage: https://aisa.one

@@ -9,10 +9,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: skill-catalog-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   validate-catalog:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
@@ -46,23 +50,23 @@ jobs:
             --only-binary :all: \
             .github/quality-gate-requirements.txt
 
-      - name: Run quality-gate unit tests
-        run: .venv/bin/python .github/scripts/tests/test_catalog_quality.py -v
+      - name: Run tooling and credential contract tests
+        run: .venv/bin/python -m unittest discover -s .github/scripts/tests -v
 
-      # The AISA credential resolver is duplicated byte-for-byte across several
-      # skills (a skill must be self-contained and cannot import across skill
-      # dirs). This asserts every copy still behaves identically.
-      - name: Run credential-resolution contract tests
-        run: .venv/bin/python .github/scripts/tests/test_credentials_resolution.py -v
+      - name: Verify standalone TypeScript support
+        run: .venv/bin/python .github/scripts/tests/check_typescript_fixture.py
 
       - name: Type-check quality-gate code
         run: >-
           .venv/bin/pyright
           .github/scripts/catalog_quality.py
-          .github/scripts/tests/test_catalog_quality.py
-          .github/scripts/tests/test_credentials_resolution.py
+          .github/scripts/skill_lifecycle.py
+          .github/scripts/skill_maintenance.py
+          .github/scripts/publish_skills.py
+          .github/scripts/tests
 
       - name: Validate catalog changes
+        id: scope
         env:
           EVENT_NAME: ${{ github.event_name }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -82,3 +86,44 @@ jobs:
           fi
           .venv/bin/python .github/scripts/catalog_quality.py \
             --changed-from "$reference"
+          .venv/bin/python .github/scripts/skill_lifecycle.py validate \
+            --changed-from "$reference"
+          .venv/bin/python .github/scripts/skill_lifecycle.py catalog --check
+          echo "reference=$reference" >> "$GITHUB_OUTPUT"
+
+      - name: Test isolated skill distributions
+        env:
+          REFERENCE: ${{ steps.scope.outputs.reference }}
+        run: .venv/bin/python .github/scripts/skill_lifecycle.py checks --changed-from "$REFERENCE"
+
+      - name: Prepare and verify immutable release artifacts
+        run: .venv/bin/python .github/scripts/skill_lifecycle.py bundle --output build/releases
+
+      - name: Save validated artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: skill-releases-${{ github.sha }}
+          path: build/releases/
+          if-no-files-found: error
+          retention-days: 14
+
+  publish-releases:
+    needs: validate-catalog
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: skill-releases-${{ github.sha }}
+          path: build/releases/
+      - name: Publish independently versioned skills
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: python3 .github/scripts/publish_skills.py releases --artifacts build/releases --repo "$REPOSITORY"

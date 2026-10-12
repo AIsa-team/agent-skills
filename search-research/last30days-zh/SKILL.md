@@ -4,6 +4,7 @@ description: '聚合最近 30 天的 Reddit、X/Twitter、YouTube、TikTok、Ins
 license: MIT
 compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries python3, bash, environment variables AISA_API_KEY and internet access to api.aisa.one.
 metadata:
+  version: "1.0.9"
   aisa:
     emoji: 📰
     requires:

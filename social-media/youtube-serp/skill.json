@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "owner": "@chaimengphp",
+  "languages": [
+    "python"
+  ],
+  "runtime": {
+    "python": "3.11"
+  },
+  "entrypoints": [
+    "scripts/youtube_client.py"
+  ],
+  "checks": {
+    "lint": [],
+    "typecheck": [],
+    "build": [],
+    "test": []
+  },
+  "upstreams": [
+    "aisa-authentication",
+    "aisa-api-social-media",
+    "doc-e4638a7a5d8b"
+  ]
+}

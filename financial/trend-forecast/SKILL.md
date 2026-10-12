@@ -4,6 +4,7 @@ description: 'Multi-signal trend forecasting for autonomous agents. Combines pre
 
   '
 metadata:
+  version: "1.0.0"
   openclaw:
     emoji: 📈
     requires:

@@ -15,3 +15,7 @@ venv/
 
 # Git specific
 /.git
+
+# Generated release bundles and monitor observations
+/build/
+node_modules/

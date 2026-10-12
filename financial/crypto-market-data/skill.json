@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "owner": "@karensheng",
+  "languages": [
+    "python"
+  ],
+  "runtime": {
+    "python": "3.11"
+  },
+  "entrypoints": [
+    "scripts/coingecko_client.py"
+  ],
+  "checks": {
+    "lint": [],
+    "typecheck": [],
+    "build": [],
+    "test": []
+  },
+  "upstreams": [
+    "aisa-authentication",
+    "aisa-api-financial",
+    "doc-e4638a7a5d8b",
+    "doc-1d06eb23d884",
+    "doc-1d7142073b80",
+    "doc-12dff3c1a4d9",
+    "doc-30ee15ebfe5c",
+    "doc-41e832f910ce",
+    "doc-1a3b65277e30",
+    "doc-500332518613",
+    "doc-07c7c43f2753",
+    "doc-93ae421ec015",
+    "doc-93a21c3a06e6",
+    "doc-bc9f803c615e",
+    "doc-263cc1f5b965",
+    "doc-0383e341a0cd",
+    "doc-eaaa4c72a1b7",
+    "doc-571ef234d9b4",
+    "doc-e302e413b682",
+    "doc-d0af2d751dc9",
+    "doc-e2d981c9e006",
+    "doc-a26176407ce1",
+    "doc-616307c7391b",
+    "doc-964e2886206e"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "owner": "@eddiearc",
+  "languages": [],
+  "runtime": {},
+  "entrypoints": [],
+  "checks": {
+    "lint": [],
+    "typecheck": [],
+    "build": [],
+    "test": []
+  },
+  "upstreams": [
+    "aisa-authentication",
+    "aisa-cli",
+    "aisa-mcp",
+    "aisa-mcp-catalog",
+    "aisa-agent-quickstart",
+    "doc-13b1056e5acd"
+  ]
+}

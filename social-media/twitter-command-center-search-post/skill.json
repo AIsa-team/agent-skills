@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "owner": "@chaimengphp",
+  "languages": [
+    "python"
+  ],
+  "runtime": {
+    "python": "3.11"
+  },
+  "entrypoints": [
+    "scripts/twitter_client.py",
+    "scripts/twitter_oauth_client.py"
+  ],
+  "checks": {
+    "lint": [],
+    "typecheck": [],
+    "build": [],
+    "test": []
+  },
+  "upstreams": [
+    "aisa-authentication",
+    "aisa-api-social-media"
+  ]
+}

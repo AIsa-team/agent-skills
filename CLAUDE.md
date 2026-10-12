@@ -121,11 +121,26 @@ uv --no-config venv --python python3.11 .venv
 uv --no-config pip sync --python .venv/bin/python --require-hashes \
   --only-binary :all: .github/quality-gate-requirements.txt
 .venv/bin/python .github/scripts/catalog_quality.py --changed-from origin/main
+.venv/bin/python .github/scripts/skill_lifecycle.py validate --changed-from origin/main
+.venv/bin/python .github/scripts/skill_lifecycle.py catalog --check
+.venv/bin/python .github/scripts/skill_lifecycle.py checks
+.venv/bin/python .github/scripts/skill_lifecycle.py bundle --output build/releases
 ```
 
-This validates repository-wide structure, credentials, symlinks, and category
-exports, then applies schema, link, reference, and syntax checks only to files
+This validates repository-wide structure, credentials, and symlinks, then
+applies schema, link, reference, and syntax checks only to files
 changed from `origin/main`. Use `--all` when intentionally cleaning historical
 catalog issues. For behavior changes, also run the affected client against the
 live API with a real key. Skill removals remain normal Git changes and require
 explicit reviewer approval; there is no separate retirement database.
+
+Every Skill declares `metadata.version`, `CHANGELOG.md`, and `skill.json`.
+Read `SKILL_MAINTENANCE.md` before changing lifecycle policy. Use the bump helper
+for changed bundles; no-change review records live outside bundles. Daily
+monitoring warns after 14 days without substantive updates and tracks observed
+upstream changes separately from approved reviews.
+
+All skills are distributed solely from `AIsa-team/agent-skills`. Categories
+organize the source catalog; there are no category sync jobs or sync-token
+requirements. Release packaging verifies per-skill archive paths, contents,
+provenance, and checksums.

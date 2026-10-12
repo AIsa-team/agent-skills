@@ -18,6 +18,12 @@ with a few house-level requirements on top.
 4. A `README.md` and consistent body sections are recommended for humans
    browsing the repository, but they are not required by the Agent Skills
    specification and are not validity gates.
+5. Each Skill has semantic `metadata.version`, `CHANGELOG.md`, and `skill.json`
+   with ownership, runtime checks, and upstream dependencies. See
+   [SKILL_MAINTENANCE.md](SKILL_MAINTENANCE.md) for the repository lifecycle policy.
+   The owner is the maintenance contact, not the author. Declare a GitHub user or
+   team, or `unassigned` until responsibility is established; unassigned ownership
+   creates an advisory maintenance warning.
 
 ## Directory layout
 
@@ -28,6 +34,8 @@ with a few house-level requirements on top.
 └── <skill-name>/
     ├── SKILL.md      # required — metadata + agent-facing instructions
     ├── README.md     # optional — human-facing overview
+    ├── CHANGELOG.md  # repository release history
+    ├── skill.json    # owner, runtime checks, upstream dependencies
     ├── scripts/      # optional — runnable code
     ├── references/   # optional — long-form docs the agent loads on demand
     ├── assets/       # optional — static resources (templates, data, images)
@@ -35,9 +43,10 @@ with a few house-level requirements on top.
 ```
 
 Use the narrowest matching category. Adding a new top-level category requires
-updating the root README, `CATEGORY_NAMES`, and the exporter allowlist. Add a
-sync workflow only when a separate category distribution is intended;
-`platform` currently has none. Do not create placeholder publisher workflows.
+updating `CATEGORY_NAMES` and `.github/skill-catalog.json`, then regenerating
+catalog entries/counts with `skill_lifecycle.py catalog`. Categories only organize
+skills inside this repository. All source distributions and individual releases
+come from `AIsa-team/agent-skills`; do not add category publisher workflows.
 
 Directory name rules (enforced by the spec):
 
@@ -255,9 +264,13 @@ Blocking checks are limited to objective, reproducible conditions:
 3. Frontmatter passes the pinned `skills-ref==0.1.1` validator.
 4. Local Markdown references resolve inside the repository.
 5. Referenced scripts and `{baseDir}` targets exist.
-6. Python, shell, and JavaScript entry points parse successfully.
+6. Python, shell, and JavaScript entry points parse successfully. TypeScript
+   skills pass declared typecheck/build/test commands in standalone exports.
 7. No plaintext credentials or repository symlinks are introduced.
-8. Every category export is byte-for-byte identical to its source directory.
+8. Every per-skill release archive preserves its source files byte-for-byte,
+   includes the declared skill, and has matching provenance and checksums.
+   Changed managed bundles require a version bump and changelog entry;
+   published versions are immutable.
 9. Run the repository quality gate with its locked dependencies:
    ```bash
    uv --no-config venv --python python3.11 .venv
@@ -266,12 +279,22 @@ Blocking checks are limited to objective, reproducible conditions:
    .venv/bin/python .github/scripts/catalog_quality.py --changed-from origin/main
    ```
    This validates repository-wide structure, credentials, symlinks, and
-   category exports, while schema, link, reference, and syntax checks apply to
+   skill contracts, while schema, link, reference, and syntax checks apply to
    files changed from `origin/main`. Run with `--all` when deliberately cleaning
    historical catalog issues.
    If `.github/quality-gate-requirements.in` changes, regenerate and commit the
    hashed lock using the exact command recorded at the top of
    `.github/quality-gate-requirements.txt`.
+
+Also run lifecycle validation, generated-count checks, isolated runtime checks,
+and release packaging verification:
+
+```bash
+.venv/bin/python .github/scripts/skill_lifecycle.py validate --changed-from origin/main
+.venv/bin/python .github/scripts/skill_lifecycle.py catalog --check
+.venv/bin/python .github/scripts/skill_lifecycle.py checks
+.venv/bin/python .github/scripts/skill_lifecycle.py bundle --output build/releases
+```
 
 README files, fixed body headings, `license`, `compatibility`, canonical Docs
 URLs, and a consistent presentation style remain useful review guidance, but

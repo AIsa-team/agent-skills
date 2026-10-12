@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "owner": "unassigned",
+  "languages": [
+    "javascript"
+  ],
+  "runtime": {
+    "node": "22"
+  },
+  "entrypoints": [
+    "scripts/extract.mjs",
+    "scripts/search.mjs"
+  ],
+  "checks": {
+    "lint": [],
+    "typecheck": [],
+    "build": [],
+    "test": []
+  },
+  "upstreams": [
+    "aisa-authentication",
+    "aisa-api-search-research"
+  ]
+}

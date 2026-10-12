@@ -4,6 +4,7 @@ description: '通过 AIsa API 发现 Polymarket 和 Kalshi 预测市场的套利
 license: MIT
 compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries python3, environment variables AISA_API_KEY and internet access to api.aisa.one.
 metadata:
+  version: "1.0.0"
   aisa:
     emoji: ⚖️
     requires:

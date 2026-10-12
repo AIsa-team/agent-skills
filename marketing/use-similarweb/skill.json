@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "owner": "@lhymmEU",
+  "languages": [
+    "python"
+  ],
+  "runtime": {
+    "python": "3.11"
+  },
+  "entrypoints": [
+    "scripts/similarweb_client.py"
+  ],
+  "checks": {
+    "lint": [],
+    "typecheck": [],
+    "build": [],
+    "test": []
+  },
+  "upstreams": [
+    "aisa-authentication",
+    "aisa-api-marketing",
+    "aisa-mcp-catalog",
+    "aisa-mcp",
+    "doc-e4638a7a5d8b",
+    "doc-fa4b239d3f9e",
+    "doc-2dd0e1856974"
+  ]
+}
