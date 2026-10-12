@@ -1,12 +1,33 @@
 {
   "schema_version": 1,
   "categories": {
-    "platform": {"name": "Platform", "description": "Generic AIsa MCP and CLI entry for published tools.", "repository": null},
-    "financial": {"name": "Financial & Markets", "description": "Market data, stock research, portfolios, prediction markets, and forecasting.", "repository": "AIsa-team/financial-data-skills"},
-    "search-research": {"name": "Search & Research", "description": "Web, academic, Tavily, Perplexity, and recent multi-source research.", "repository": "AIsa-team/search-research-skills"},
-    "social-media": {"name": "Social Media", "description": "Twitter/X intelligence and engagement plus YouTube discovery.", "repository": "AIsa-team/social-media-skills"},
-    "ai-models": {"name": "AI Models", "description": "Provider setup and unified routing for Chinese and global LLMs.", "repository": "AIsa-team/ai-model-gateway-skills"},
-    "marketing": {"name": "Marketing", "description": "SEO/GEO review, creator partnerships and discovery, and traffic research.", "repository": "AIsa-team/marketing-skills"},
-    "creative": {"name": "Creative", "description": "Image and video generation workflows.", "repository": "AIsa-team/creative-ai-skills"}
+    "platform": {
+      "name": "Platform",
+      "description": "Generic AIsa MCP and CLI entry for published tools."
+    },
+    "financial": {
+      "name": "Financial & Markets",
+      "description": "Market data, stock research, portfolios, prediction markets, and forecasting."
+    },
+    "search-research": {
+      "name": "Search & Research",
+      "description": "Web, academic, Tavily, Perplexity, and recent multi-source research."
+    },
+    "social-media": {
+      "name": "Social Media",
+      "description": "Twitter/X intelligence and engagement plus YouTube discovery."
+    },
+    "ai-models": {
+      "name": "AI Models",
+      "description": "Provider setup and unified routing for Chinese and global LLMs."
+    },
+    "marketing": {
+      "name": "Marketing",
+      "description": "SEO/GEO review, creator partnerships and discovery, and traffic research."
+    },
+    "creative": {
+      "name": "Creative",
+      "description": "Image and video generation workflows."
+    }
   }
 }

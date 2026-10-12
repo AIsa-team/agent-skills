@@ -15,7 +15,7 @@ import publish_skills as publishing
 
 def repository(root: Path) -> Path:
     (root / '.github').mkdir()
-    lifecycle.write_json(root / '.github/skill-catalog.json', {'categories': {'financial': {'name': 'Finance', 'description': 'Example', 'repository': 'AIsa-team/example'}}})
+    lifecycle.write_json(root / '.github/skill-catalog.json', {'categories': {'financial': {'name': 'Finance', 'description': 'Example'}}})
     lifecycle.write_json(root / 'maintenance/upstreams.json', {'docs': {'type': 'docs', 'url': 'https://example.com/docs.md'}})
     lifecycle.write_json(root / 'maintenance/reviews.json', {})
     (root / 'README.md').write_text('<!-- catalog:start -->\n<!-- catalog:end -->\n')
@@ -32,14 +32,14 @@ def repository(root: Path) -> Path:
 
 
 class VersionPolicyTests(unittest.TestCase):
-    def test_category_destinations_outside_aisa_team_fail_ci_validation(self):
+    def test_catalog_rejects_category_publication_settings(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             repository(root)
             config = lifecycle.read_json(root / '.github/skill-catalog.json')
             config['categories']['financial']['repository'] = 'another-org/example'
             lifecycle.write_json(root / '.github/skill-catalog.json', config)
-            self.assertIn('must belong to AIsa-team', '\n'.join(lifecycle.validate(root)))
+            self.assertIn('category publication settings are unsupported', '\n'.join(lifecycle.validate(root)))
 
     def test_changes_require_version_and_changelog(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -96,6 +96,44 @@ class VersionPolicyTests(unittest.TestCase):
 
 
 class RuntimeAndBundleTests(unittest.TestCase):
+    def test_release_archive_content_must_match_source_even_with_updated_checksums(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repository(root)
+            releases = lifecycle.bundle(root, root / 'out')
+            release = releases[0]
+            archive_path = root / 'out' / release['archive']
+            import io
+            import hashlib
+            import tarfile
+            with tarfile.open(archive_path) as archive:
+                content = {}
+                for member in archive.getmembers():
+                    handle = archive.extractfile(member)
+                    self.assertIsNotNone(handle)
+                    content[member.name] = handle.read() if handle else b''
+            content['example/SKILL.md'] += b'Changed after validation\n'
+            with tarfile.open(archive_path, 'w:gz') as archive:
+                for name, data in content.items():
+                    info = tarfile.TarInfo(name)
+                    info.size = len(data)
+                    archive.addfile(info, io.BytesIO(data))
+            release['archive_sha256'] = hashlib.sha256(archive_path.read_bytes()).hexdigest()
+            lifecycle.write_json(root / 'out/catalog.json', releases)
+            lifecycle.write_json(root / 'out/example-1.0.0.json', release)
+            (root / 'out/SHA256SUMS').write_text(f"{release['archive_sha256']}  {release['archive']}\n")
+            with self.assertRaisesRegex(ValueError, 'archive content differs from the source'):
+                lifecycle.verify_bundles(root, root / 'out')
+
+    def test_release_catalog_cannot_omit_a_skill(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repository(root)
+            lifecycle.bundle(root, root / 'out')
+            lifecycle.write_json(root / 'out/catalog.json', [])
+            with self.assertRaisesRegex(ValueError, 'cover every skill exactly once'):
+                lifecycle.verify_bundles(root, root / 'out')
+
     def test_archives_are_reproducible_and_include_license_and_provenance(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -161,62 +199,50 @@ class RuntimeAndBundleTests(unittest.TestCase):
 class PublicationTests(unittest.TestCase):
     def test_authenticated_preflight_checks_canonical_owner_and_repository_access(self):
         with patch.object(publishing.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0,
-                json.dumps({'owner': {'login': 'AIsa-team'}}), '')) as run:
-            publishing.check_remote_publish_repository('AIsa-team/example', 'test-token')
+                json.dumps({'full_name': lifecycle.PUBLISH_REPOSITORY}), '')) as run:
+            publishing.check_remote_publish_repository(lifecycle.PUBLISH_REPOSITORY, 'test-token')
             self.assertEqual(run.call_args.kwargs['env']['GH_TOKEN'], 'test-token')
         with patch.object(publishing.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0,
-                json.dumps({'owner': {'login': 'another-org'}}), '')):
-            with self.assertRaisesRegex(ValueError, 'resolves outside AIsa-team'):
-                publishing.check_remote_publish_repository('AIsa-team/example', 'test-token')
+                json.dumps({'full_name': 'another-org/agent-skills'}), '')):
+            with self.assertRaisesRegex(ValueError, 'resolves outside AIsa-team/agent-skills'):
+                publishing.check_remote_publish_repository(lifecycle.PUBLISH_REPOSITORY, 'test-token')
         with patch.object(publishing.subprocess, 'run', return_value=subprocess.CompletedProcess([], 1, '', 'HTTP 404')):
             with self.assertRaisesRegex(ValueError, 'repository existence and token access'):
-                publishing.check_remote_publish_repository('AIsa-team/example', 'test-token')
+                publishing.check_remote_publish_repository(lifecycle.PUBLISH_REPOSITORY, 'test-token')
 
-    def test_destination_preflight_failure_prevents_any_release_creation(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            repository(root)
-            with patch.object(publishing, 'check_remote_publish_repository', side_effect=[None, ValueError('unavailable destination')]), \
-                    patch.object(publishing, 'publish_releases') as release:
-                with patch.object(sys, 'argv', ['publish_skills.py', '--root', str(root), 'releases', '--artifacts', '/tmp/unused', '--repo', 'AIsa-team/agent-skills']):
-                    with self.assertRaisesRegex(ValueError, 'unavailable destination'):
-                        publishing.main()
-                release.assert_not_called()
+    def test_release_publishing_needs_only_the_source_repository_and_workflow_token(self):
+        with patch.object(publishing, 'check_remote_publish_repository') as preflight, \
+                patch.object(publishing, 'publish_releases') as release, \
+                patch.dict(publishing.os.environ, {'GH_TOKEN': 'test-workflow-token'}, clear=True):
+            with patch.object(sys, 'argv', ['publish_skills.py', 'releases', '--artifacts', '/tmp/unused', '--repo', lifecycle.PUBLISH_REPOSITORY]):
+                self.assertEqual(publishing.main(), 0)
+            preflight.assert_called_once_with(lifecycle.PUBLISH_REPOSITORY, 'test-workflow-token')
+            release.assert_called_once()
 
-    def test_ci_publisher_refuses_other_organizations_before_any_side_effect(self):
-        for command, arguments in (('releases', ['--artifacts', '/tmp/unused']), ('state', ['--directory', '/tmp/unused'])):
-            with self.subTest(command=command), patch.object(publishing.subprocess, 'run') as run:
-                with patch.object(sys, 'argv', ['publish_skills.py', command, *arguments, '--repo', 'another-org/example']):
-                    with self.assertRaisesRegex(ValueError, 'must belong to AIsa-team'):
-                        publishing.main()
-                run.assert_not_called()
-        lifecycle.check_publish_repository('AIsa-team/example')
-        lifecycle.check_publish_repository('aisa-team/example')
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            repository(root)
-            config = lifecycle.read_json(root / '.github/skill-catalog.json')
-            config['categories']['financial']['repository'] = 'another-org/example'
-            lifecycle.write_json(root / '.github/skill-catalog.json', config)
-            with patch.object(publishing.subprocess, 'run') as run:
-                with patch.object(sys, 'argv', ['publish_skills.py', '--root', str(root), 'category', '--category', 'financial']):
-                    with self.assertRaisesRegex(ValueError, 'must belong to AIsa-team'):
-                        publishing.main()
-                run.assert_not_called()
+    def test_ci_publisher_refuses_every_other_repository_before_any_side_effect(self):
+        for target in ('another-org/agent-skills', 'AIsa-team/financial-data-skills'):
+            for command, arguments in (('releases', ['--artifacts', '/tmp/unused']), ('state', ['--directory', '/tmp/unused'])):
+                with self.subTest(command=command, target=target), patch.object(publishing.subprocess, 'run') as run:
+                    with patch.object(sys, 'argv', ['publish_skills.py', command, *arguments, '--repo', target]):
+                        with self.assertRaisesRegex(ValueError, 'restricted to AIsa-team/agent-skills'):
+                            publishing.main()
+                    run.assert_not_called()
+        lifecycle.check_publish_repository(lifecycle.PUBLISH_REPOSITORY)
+        lifecycle.check_publish_repository('aisa-team/AGENT-SKILLS')
 
     def test_empty_export_cannot_delete_a_destination(self):
         with tempfile.TemporaryDirectory() as directory:
             with patch.object(publishing.subprocess, 'run') as run:
                 with self.assertRaisesRegex(ValueError, 'empty export'):
-                    publishing.publish_directory(Path(directory), 'owner/example', 'main', 'test-token', 'Empty')
+                    publishing.publish_state(Path(directory), lifecycle.PUBLISH_REPOSITORY, 'test-token')
                 run.assert_not_called()
 
-    def test_category_history_is_preserved_and_unchanged_exports_are_skipped(self):
+    def test_monitor_state_history_is_preserved_and_identical_state_is_skipped(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             source = root / 'source'
             source.mkdir()
-            (source / 'README.md').write_text('First\n')
+            (source / 'state.json').write_text('{"snapshot": 1}\n')
             remote = root / 'remote.git'
             subprocess.run(['git', 'init', '--bare', str(remote)], check=True, capture_output=True)
             real_run = subprocess.run
@@ -225,12 +251,12 @@ class PublicationTests(unittest.TestCase):
                     command = command[:-1] + [str(remote)]
                 return real_run(command, **kwargs)
             with patch.object(publishing.subprocess, 'run', side_effect=local_remote):
-                self.assertTrue(publishing.publish_directory(source, 'owner/example', 'main', 'test-token', 'First', {'source_commit': 'a'}))
-                self.assertFalse(publishing.publish_directory(source, 'owner/example', 'main', 'test-token', 'No change', {'source_commit': 'b'}))
-                (source / 'README.md').write_text('Second\n')
-                self.assertTrue(publishing.publish_directory(source, 'owner/example', 'main', 'test-token', 'Second', {'source_commit': 'c'}))
-            self.assertEqual(lifecycle.git(remote, 'rev-list', '--count', 'main'), '2')
-            self.assertIn('c', lifecycle.git(remote, 'show', 'main:SOURCE.json'))
+                self.assertTrue(publishing.publish_state(source, lifecycle.PUBLISH_REPOSITORY, 'test-token'))
+                self.assertFalse(publishing.publish_state(source, lifecycle.PUBLISH_REPOSITORY, 'test-token'))
+                (source / 'state.json').write_text('{"snapshot": 2}\n')
+                self.assertTrue(publishing.publish_state(source, lifecycle.PUBLISH_REPOSITORY, 'test-token'))
+            self.assertEqual(lifecycle.git(remote, 'rev-list', '--count', 'skill-maintenance-state'), '2')
+            self.assertIn('2', lifecycle.git(remote, 'show', 'skill-maintenance-state:state.json'))
 
     def test_new_release_is_draft_until_assets_are_uploaded(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -243,7 +269,7 @@ class PublicationTests(unittest.TestCase):
                 missing = command[1] == 'api' and command[2].endswith('v1.0.0')
                 return subprocess.CompletedProcess(command, 1 if missing else 0, '', 'HTTP 404' if missing else '')
             with patch.object(publishing.subprocess, 'run', side_effect=gh):
-                publishing.publish_releases(root / 'out', 'owner/example')
+                publishing.publish_releases(root / 'out', lifecycle.PUBLISH_REPOSITORY)
             self.assertIn('--method', calls[1])
             self.assertIn('--draft', calls[2])
             self.assertIn('--verify-tag', calls[2])
@@ -256,7 +282,7 @@ class PublicationTests(unittest.TestCase):
             lifecycle.bundle(root, root / 'out')
             with patch.object(publishing.subprocess, 'run', return_value=subprocess.CompletedProcess([], 1, '', 'HTTP 401')) as run:
                 with self.assertRaisesRegex(RuntimeError, 'inspect release'):
-                    publishing.publish_releases(root / 'out', 'owner/example')
+                    publishing.publish_releases(root / 'out', lifecycle.PUBLISH_REPOSITORY)
                 run.assert_called_once()
 
     def test_altered_validated_archive_is_rejected_before_network_access(self):
@@ -267,7 +293,7 @@ class PublicationTests(unittest.TestCase):
             (root / 'out/example-1.0.0.tar.gz').write_bytes(b'altered')
             with patch.object(publishing.subprocess, 'run') as run:
                 with self.assertRaisesRegex(ValueError, 'checksum'):
-                    publishing.publish_releases(root / 'out', 'owner/example')
+                    publishing.publish_releases(root / 'out', lifecycle.PUBLISH_REPOSITORY)
                 run.assert_not_called()
 
     def test_interrupted_draft_upload_is_resumed_without_overwriting_published_release(self):
@@ -290,7 +316,7 @@ class PublicationTests(unittest.TestCase):
                     output = ''
                 return subprocess.CompletedProcess(command, 0, output, '')
             with patch.object(publishing.subprocess, 'run', side_effect=gh):
-                publishing.publish_releases(root / 'out', 'owner/example')
+                publishing.publish_releases(root / 'out', lifecycle.PUBLISH_REPOSITORY)
             self.assertIn('--clobber', calls[2])
             self.assertIn('--draft=false', calls[-1])
             self.assertFalse(any('create' in command for command in calls))

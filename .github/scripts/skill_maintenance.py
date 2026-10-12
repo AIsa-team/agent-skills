@@ -19,7 +19,7 @@ from typing import Any
 
 import yaml
 
-from skill_lifecycle import ROOT, digest, files, git, historic_files, payload, read_json, skill_dirs, substantive_content, version, write_json
+from skill_lifecycle import ROOT, check_publish_repository, digest, files, git, historic_files, payload, read_json, skill_dirs, substantive_content, version, write_json
 
 MAX_RESPONSE = 16 * 1024 * 1024
 
@@ -264,6 +264,7 @@ def record_review(root: Path, skill_id: str, state: dict[str, Any], evidence: st
 
 
 def notify(rows: list[dict[str, Any]], repo: str) -> None:
+    check_publish_repository(repo)
     issues = json.loads(subprocess.check_output(["gh", "issue", "list", "--repo", repo, "--state", "all",
         "--limit", "1000", "--json", "number,title,body,state"], text=True))
     for row in rows:

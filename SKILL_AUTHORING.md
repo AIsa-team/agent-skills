@@ -40,11 +40,10 @@ with a few house-level requirements on top.
 ```
 
 Use the narrowest matching category. Adding a new top-level category requires
-updating the root README, `CATEGORY_NAMES`, and the exporter allowlist. Add a
-sync workflow only when a separate category distribution is intended;
-`platform` has no category destination but has individual releases. Configure
-destinations in `.github/skill-catalog.json`; do not create duplicate publishers.
-Regenerate counts with `skill_lifecycle.py catalog`.
+updating `CATEGORY_NAMES` and `.github/skill-catalog.json`, then regenerating
+catalog entries/counts with `skill_lifecycle.py catalog`. Categories only organize
+skills inside this repository. All source distributions and individual releases
+come from `AIsa-team/agent-skills`; do not add category publisher workflows.
 
 Directory name rules (enforced by the spec):
 
@@ -265,7 +264,8 @@ Blocking checks are limited to objective, reproducible conditions:
 6. Python, shell, and JavaScript entry points parse successfully. TypeScript
    skills pass declared typecheck/build/test commands in standalone exports.
 7. No plaintext credentials or repository symlinks are introduced.
-8. Every category export is byte-for-byte identical to its source directory.
+8. Every per-skill release archive preserves its source files byte-for-byte,
+   includes the declared skill, and has matching provenance and checksums.
    Changed managed bundles require a version bump and changelog entry;
    published versions are immutable.
 9. Run the repository quality gate with its locked dependencies:
@@ -276,19 +276,21 @@ Blocking checks are limited to objective, reproducible conditions:
    .venv/bin/python .github/scripts/catalog_quality.py --changed-from origin/main
    ```
    This validates repository-wide structure, credentials, symlinks, and
-   category exports, while schema, link, reference, and syntax checks apply to
+   skill contracts, while schema, link, reference, and syntax checks apply to
    files changed from `origin/main`. Run with `--all` when deliberately cleaning
    historical catalog issues.
    If `.github/quality-gate-requirements.in` changes, regenerate and commit the
    hashed lock using the exact command recorded at the top of
    `.github/quality-gate-requirements.txt`.
 
-Also run lifecycle validation, generated-count checks, and isolated runtime checks:
+Also run lifecycle validation, generated-count checks, isolated runtime checks,
+and release packaging verification:
 
 ```bash
 .venv/bin/python .github/scripts/skill_lifecycle.py validate --changed-from origin/main
 .venv/bin/python .github/scripts/skill_lifecycle.py catalog --check
 .venv/bin/python .github/scripts/skill_lifecycle.py checks
+.venv/bin/python .github/scripts/skill_lifecycle.py bundle --output build/releases
 ```
 
 README files, fixed body headings, `license`, `compatibility`, canonical Docs

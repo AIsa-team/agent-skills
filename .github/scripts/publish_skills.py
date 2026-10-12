@@ -7,13 +7,12 @@ import base64
 import hashlib
 import json
 import os
-import re
 import shutil
 import subprocess
 import tempfile
 from pathlib import Path
 
-from skill_lifecycle import ROOT, check_publish_repository, files, git, read_json, write_json
+from skill_lifecycle import PUBLISH_REPOSITORY, check_publish_repository, files, read_json, write_json
 
 
 def check_remote_publish_repository(repository: str, token: str) -> None:
@@ -24,19 +23,13 @@ def check_remote_publish_repository(repository: str, token: str) -> None:
                             env={**os.environ, 'GH_TOKEN': token})
     if result.returncode:
         raise ValueError(f'cannot access {repository}; verify repository existence and token access')
-    owner = json.loads(result.stdout)['owner']['login']
-    if owner.lower() != 'aisa-team':
-        raise ValueError(f'{repository} resolves outside AIsa-team; refusing to publish')
-
-
-def check_category_destinations(root: Path, token: str) -> None:
-    config = read_json(root / '.github/skill-catalog.json')
-    for category in config['categories'].values():
-        if category['repository']:
-            check_remote_publish_repository(category['repository'], token)
+    actual = json.loads(result.stdout)['full_name']
+    if actual.lower() != PUBLISH_REPOSITORY.lower():
+        raise ValueError(f'{repository} resolves outside {PUBLISH_REPOSITORY}; refusing to publish')
 
 
 def publish_releases(artifacts: Path, repo: str, expected_commit: str | None = None) -> None:
+    check_publish_repository(repo)
     for release in read_json(artifacts / "catalog.json"):
         archive = artifacts / release['archive']
         if hashlib.sha256(archive.read_bytes()).hexdigest() != release['archive_sha256']:
@@ -96,14 +89,13 @@ def publish_releases(artifacts: Path, repo: str, expected_commit: str | None = N
             subprocess.run(["gh", "release", "edit", tag, "--repo", repo, "--draft=false"], check=True)
 
 
-def publish_directory(source: Path, repository: str, branch: str, token: str, message: str,
-                      provenance: dict[str, str] | None = None) -> bool:
+def publish_state(source: Path, repository: str, token: str) -> bool:
+    check_publish_repository(repository)
+    branch = "skill-maintenance-state"
     if not source.is_dir() or not files(source):
         raise ValueError('refusing to publish an absent or empty export')
     if not token:
         raise ValueError("publishing token is required")
-    if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository):
-        raise ValueError("invalid destination repository")
     authorization = base64.b64encode(f"x-access-token:{token}".encode()).decode()
     environment = {**os.environ, "GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "http.https://github.com/.extraheader",
                    "GIT_CONFIG_VALUE_0": f"AUTHORIZATION: basic {authorization}", "GIT_TERMINAL_PROMPT": "0"}
@@ -119,7 +111,6 @@ def publish_directory(source: Path, repository: str, branch: str, token: str, me
             run("fetch", "--depth=1", "origin", branch)
             run("checkout", "-B", branch, "FETCH_HEAD")
         existing = files(destination)
-        existing.pop("SOURCE.json", None)
         content = files(source)
         if existing == content:
             return False
@@ -131,12 +122,10 @@ def publish_directory(source: Path, repository: str, branch: str, token: str, me
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(data)
             target.chmod(0o755 if data.startswith(b"#!") else 0o644)
-        if provenance:
-            write_json(destination / "SOURCE.json", provenance)
         run("config", "user.name", "github-actions")
         run("config", "user.email", "github-actions@aisa.one")
         run("add", ".")
-        run("commit", "-m", message)
+        run("commit", "-m", "Update skill maintenance observations")
         # Normal push preserves destination history and rejects races.
         run("push", "origin", f"HEAD:refs/heads/{branch}")
         return True
@@ -144,42 +133,19 @@ def publish_directory(source: Path, repository: str, branch: str, token: str, me
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--root", type=Path, default=ROOT)
     commands = parser.add_subparsers(dest="command", required=True)
     release = commands.add_parser("releases")
     release.add_argument("--artifacts", type=Path, required=True)
     release.add_argument("--repo", required=True)
-    category = commands.add_parser("category")
-    category.add_argument("--category", required=True)
     state = commands.add_parser("state")
     state.add_argument("--directory", type=Path, required=True)
     state.add_argument("--repo", required=True)
     args = parser.parse_args()
+    check_remote_publish_repository(args.repo, os.environ.get('GH_TOKEN', ''))
     if args.command == "releases":
-        check_publish_repository(args.repo)
-        check_remote_publish_repository(args.repo, os.environ.get('GH_TOKEN', ''))
-        # Verify every destination before creating even the first release tag.
-        check_category_destinations(args.root, os.environ.get('SYNC_AISA_SKILLS_TOKEN', ''))
         publish_releases(args.artifacts, args.repo, os.environ.get('GITHUB_SHA'))
-    elif args.command == "category":
-        config = read_json(args.root / ".github/skill-catalog.json")
-        repository = config["categories"][args.category]["repository"]
-        if not repository:
-            raise ValueError("category has no distribution repository")
-        check_publish_repository(repository)
-        check_remote_publish_repository(repository, os.environ.get('SYNC_AISA_SKILLS_TOKEN', ''))
-        with tempfile.TemporaryDirectory() as temporary:
-            stage = Path(temporary) / "export"
-            subprocess.run(["bash", ".github/scripts/prepare-category-repo.sh", args.category, "--output", str(stage)],
-                           cwd=args.root, check=True)
-            publish_directory(stage, repository, "main", os.environ.get("SYNC_AISA_SKILLS_TOKEN", ""),
-                              f"Sync {args.category} from {git(args.root, 'rev-parse', 'HEAD')}",
-                              {"source_commit": git(args.root, "rev-parse", "HEAD"), "category": args.category})
     else:
-        check_publish_repository(args.repo)
-        check_remote_publish_repository(args.repo, os.environ.get('GH_TOKEN', ''))
-        publish_directory(args.directory, args.repo, "skill-maintenance-state", os.environ.get("GH_TOKEN", ""),
-                          "Update skill maintenance observations")
+        publish_state(args.directory, args.repo, os.environ.get("GH_TOKEN", ""))
     return 0
 
 

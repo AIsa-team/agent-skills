@@ -150,7 +150,7 @@ class AdapterTests(unittest.TestCase):
         row = {'skill': 'financial/example', 'warnings': ['review overdue'], 'notification_digest': 'same'}
         issue = {'title': 'Skill maintenance: financial/example', 'body': '<!-- skill-maintenance:same -->', 'state': 'OPEN', 'number': 1}
         with patch.object(maintenance.subprocess, 'check_output', return_value=json.dumps([issue])), patch.object(maintenance.subprocess, 'run') as run:
-            maintenance.notify([row], 'owner/repo')
+            maintenance.notify([row], lifecycle.PUBLISH_REPOSITORY)
             run.assert_not_called()
 
     def test_source_deadline_is_enforced_and_failure_is_sanitized(self):

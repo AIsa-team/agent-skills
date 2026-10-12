@@ -29,20 +29,6 @@ def write_skill(root: Path, category: str, name: str, description: str = "test s
     return skill_file
 
 
-def write_copy_exporter(root: Path) -> None:
-    exporter = root / ".github" / "scripts" / "prepare-category-repo.sh"
-    exporter.parent.mkdir(parents=True, exist_ok=True)
-    exporter.write_text(
-        "#!/usr/bin/env bash\n"
-        "set -euo pipefail\n"
-        "category=$1\n"
-        "output=$3\n"
-        "mkdir -p \"$output\"\n"
-        "cp -a \"$category/.\" \"$output/\"\n",
-        encoding="utf-8",
-    )
-
-
 class ChangedScopeTests(unittest.TestCase):
     def test_untouched_legacy_problems_do_not_block_an_unrelated_change(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -234,41 +220,11 @@ class GlobalChecksTests(unittest.TestCase):
 
         self.assertEqual(issues, {"secrets:github-token:credential.txt"})
 
-    def test_exporter_must_preserve_file_paths_and_contents(self) -> None:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            root = Path(temp_dir)
-            for category in catalog_quality.CATEGORY_NAMES:
-                write_skill(root, category, "example")
-            exporter = root / ".github" / "scripts" / "prepare-category-repo.sh"
-            exporter.parent.mkdir(parents=True)
-            exporter.write_text(
-                "#!/usr/bin/env bash\n"
-                "set -euo pipefail\n"
-                "category=$1\n"
-                "output=$3\n"
-                "mkdir -p \"$output\"\n"
-                "cp -a \"$category/.\" \"$output/\"\n"
-                "if [[ \"$category\" == financial ]]; then\n"
-                "  printf 'changed\\n' >> \"$output/example/SKILL.md\"\n"
-                "fi\n",
-                encoding="utf-8",
-            )
-
-            issues = catalog_quality.check_exports(
-                root, {category: 1 for category in catalog_quality.CATEGORY_NAMES}
-            )
-
-        self.assertEqual(
-            issues,
-            {"exports:content-mismatch:financial:example/SKILL.md"},
-        )
-
     def test_global_checks_pass_for_a_small_valid_catalog(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             for category in catalog_quality.CATEGORY_NAMES:
                 write_skill(root, category, "example")
-            write_copy_exporter(root)
 
             issues = catalog_quality.collect_global_issues(root)
 
@@ -288,7 +244,10 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn("persist-credentials: false", workflow)
         self.assertIn("permissions:\n  contents: read", workflow)
         self.assertIn("--require-hashes", workflow)
-        self.assertIn('needs: [validate-catalog, publish-releases]', workflow)
+        self.assertIn('needs: validate-catalog', workflow)
+        self.assertNotIn('publish-categories', workflow)
+        self.assertNotIn('secrets.SYNC_', workflow)
+        self.assertIn('GH_TOKEN: ${{ github.token }}', workflow)
         self.assertIn("github.event_name == 'push' && github.ref == 'refs/heads/main'", workflow)
         self.assertNotIn('--force', workflow)
         self.assertIn('check_typescript_fixture.py', workflow)

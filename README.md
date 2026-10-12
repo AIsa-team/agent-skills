@@ -122,4 +122,4 @@ The merge analysis is in [SKILL_DEDUP_ANALYSIS.md](./SKILL_DEDUP_ANALYSIS.md).
 
 ## Releases and maintenance
 
-Each skill declares an independent version and maintenance manifest. See [SKILL_MAINTENANCE.md](./SKILL_MAINTENANCE.md) for releasing, reviewing upstream changes, runtime checks, and 14-day freshness warnings.
+All skills are distributed from this repository and its per-skill GitHub releases. Categories organize the source catalog; no separate category repositories are required. Each skill declares an independent version and maintenance manifest. See [SKILL_MAINTENANCE.md](./SKILL_MAINTENANCE.md) for releasing, reviewing upstream changes, runtime checks, and 14-day freshness warnings.

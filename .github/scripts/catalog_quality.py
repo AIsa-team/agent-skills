@@ -5,11 +5,9 @@ from __future__ import annotations
 
 import argparse
 import ast
-import hashlib
 import os
 import re
 import subprocess
-import tempfile
 from pathlib import Path
 from typing import Iterable
 from urllib.parse import unquote, urlsplit
@@ -279,69 +277,6 @@ def check_skill_references(root: Path, skill_files: Iterable[Path]) -> set[str]:
     return issues
 
 
-def _file_hashes(root: Path) -> dict[str, str]:
-    hashes: dict[str, str] = {}
-    for path in _repository_files(root, set()):
-        digest = hashlib.sha256()
-        with path.open("rb") as handle:
-            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-                digest.update(chunk)
-        hashes[_relative(path, root)] = digest.hexdigest()
-    return hashes
-
-
-def check_exports(root: Path, expected_categories: dict[str, int]) -> set[str]:
-    """Run the trusted exporter and compare exported paths and file contents."""
-    issues: set[str] = set()
-    exporter = root / ".github/scripts/prepare-category-repo.sh"
-    if not exporter.exists():
-        return {"exports:missing-exporter"}
-
-    source_snapshots = {
-        category: _file_hashes(root / category) for category in CATEGORY_NAMES
-    }
-    for category in CATEGORY_NAMES:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            destination = Path(temp_dir) / "release"
-            try:
-                result = subprocess.run(
-                    ["bash", str(exporter), category, "--output", str(destination)],
-                    cwd=root,
-                    capture_output=True,
-                    text=True,
-                    timeout=60,
-                )
-            except subprocess.TimeoutExpired:
-                issues.add(f"exports:timeout:{category}")
-                continue
-            if result.returncode:
-                issues.add(f"exports:failed:{category}")
-                continue
-            if destination.is_symlink() or any(
-                path.is_symlink() for path in destination.rglob("*")
-            ):
-                issues.add(f"exports:symlink:{category}")
-                continue
-
-            count = len(list(destination.glob("*/SKILL.md")))
-            expected = expected_categories[category]
-            if count != expected:
-                issues.add(f"exports:skill-count:{category}:{count}!={expected}")
-
-            source_hashes = source_snapshots[category]
-            exported_hashes = _file_hashes(destination)
-            source_paths = set(source_hashes)
-            exported_paths = set(exported_hashes)
-            for path in sorted(source_paths - exported_paths):
-                issues.add(f"exports:missing-file:{category}:{path}")
-            for path in sorted(exported_paths - source_paths):
-                issues.add(f"exports:unexpected-file:{category}:{path}")
-            for path in sorted(source_paths & exported_paths):
-                if source_hashes[path] != exported_hashes[path]:
-                    issues.add(f"exports:content-mismatch:{category}:{path}")
-    return issues
-
-
 def check_validator(root: Path, skill_dirs: Iterable[Path]) -> set[str]:
     issues: set[str] = set()
     for skill_dir in sorted(set(skill_dirs)):
@@ -384,7 +319,6 @@ def collect_global_issues(root: Path) -> set[str]:
     issues.update(check_symlinks(root))
     issues.update(check_skill_contracts(root))
     issues.update(check_credentials(root))
-    issues.update(check_exports(root, _current_counts(root)))
     return issues
 
 

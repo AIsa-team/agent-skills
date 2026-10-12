@@ -18,9 +18,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
 
-    outputs:
-      categories: ${{ steps.distribution.outputs.categories }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -99,18 +96,8 @@ jobs:
           REFERENCE: ${{ steps.scope.outputs.reference }}
         run: .venv/bin/python .github/scripts/skill_lifecycle.py checks --changed-from "$REFERENCE"
 
-      - name: Prepare immutable release artifacts
+      - name: Prepare and verify immutable release artifacts
         run: .venv/bin/python .github/scripts/skill_lifecycle.py bundle --output build/releases
-
-      - name: Read configured category destinations
-        id: distribution
-        run: |
-          python - <<'PY' >> "$GITHUB_OUTPUT"
-          import json
-          from pathlib import Path
-          config = json.loads(Path('.github/skill-catalog.json').read_text())
-          print('categories=' + json.dumps([name for name, item in config['categories'].items() if item['repository']]))
-          PY
 
       - name: Save validated artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -138,28 +125,5 @@ jobs:
       - name: Publish independently versioned skills
         env:
           GH_TOKEN: ${{ github.token }}
-          SYNC_AISA_SKILLS_TOKEN: ${{ secrets.SYNC_AISA_SKILLS_TOKEN }}
           REPOSITORY: ${{ github.repository }}
         run: python3 .github/scripts/publish_skills.py releases --artifacts build/releases --repo "$REPOSITORY"
-
-  publish-categories:
-    needs: [validate-catalog, publish-releases]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        category: ${{ fromJSON(needs.validate-catalog.outputs.categories) }}
-    concurrency:
-      group: skill-distribution-${{ matrix.category }}
-      cancel-in-progress: false
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-      - name: Publish category only when exported content differs
-        env:
-          SYNC_AISA_SKILLS_TOKEN: ${{ secrets.SYNC_AISA_SKILLS_TOKEN }}
-          CATEGORY: ${{ matrix.category }}
-        run: python3 .github/scripts/publish_skills.py category --category "$CATEGORY"

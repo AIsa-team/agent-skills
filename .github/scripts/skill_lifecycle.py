@@ -21,13 +21,14 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[2]
 SEMVER = re.compile(r"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
 IGNORED = {".git", ".venv", "node_modules", "__pycache__"}
+PUBLISH_REPOSITORY = 'AIsa-team/agent-skills'
 
 
 def check_publish_repository(repository: str) -> None:
     if not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', repository):
         raise ValueError('invalid destination repository')
-    if repository.split('/')[0].lower() != 'aisa-team':
-        raise ValueError('CI publishing destinations must belong to AIsa-team')
+    if repository.lower() != PUBLISH_REPOSITORY.lower():
+        raise ValueError(f'CI publishing is restricted to {PUBLISH_REPOSITORY}')
 
 
 def read_json(path: Path) -> Any:
@@ -112,11 +113,8 @@ def validate(root: Path, reference: str | None = None) -> list[str]:
     issues = []
     config = read_json(root / '.github/skill-catalog.json')
     for category, settings in config['categories'].items():
-        if settings.get('repository') is not None:
-            try:
-                check_publish_repository(settings['repository'])
-            except ValueError as error:
-                issues.append(f'.github/skill-catalog.json:{category}: {error}')
+        if 'repository' in settings:
+            issues.append(f'.github/skill-catalog.json:{category}: category publication settings are unsupported')
     upstreams = read_json(root / "maintenance/upstreams.json")
     for source_id, source in upstreams.items():
         if source.get("type") not in {"npm", "docs", "json", "openapi", "mcp"} or not source.get("url", "").startswith("https://"):
@@ -285,7 +283,7 @@ def run_checks(root: Path, reference: str | None = None) -> None:
                 target.chmod(0o755 if data.startswith(b'#!') else 0o644)
             directory = stage / skill.name
             environment = {k: v for k, v in os.environ.items()
-                           if k not in {"AISA_API_KEY", "GITHUB_TOKEN", "GH_TOKEN", "SYNC_AISA_SKILLS_TOKEN", "PYTHONPATH", "NODE_PATH"}}
+                           if k not in {"AISA_API_KEY", "GITHUB_TOKEN", "GH_TOKEN", "PYTHONPATH", "NODE_PATH"}}
             if (directory / "package.json").is_file():
                 subprocess.run(["npm", "ci", "--ignore-scripts", "--engine-strict", "--no-audit", "--no-fund"],
                                cwd=directory, env=environment, check=True, timeout=300)
@@ -377,7 +375,42 @@ def bundle(root: Path, output: Path) -> list[dict[str, Any]]:
         releases.append(release)
     write_json(output / "catalog.json", releases)
     (output / "SHA256SUMS").write_text("".join(f"{r['archive_sha256']}  {r['archive']}\n" for r in releases))
+    verify_bundles(root, output)
     return releases
+
+
+def verify_bundles(root: Path, output: Path) -> None:
+    """Verify the actual release archives preserve every skill's shipped files."""
+    releases = read_json(output / 'catalog.json')
+    skills = {s.name: s for s in skill_dirs(root)}
+    if len(releases) != len(skills) or {r['skill'] for r in releases} != set(skills):
+        raise ValueError('release catalog must cover every skill exactly once')
+    sums = ''.join(f"{r['archive_sha256']}  {r['archive']}\n" for r in releases)
+    if (output / 'SHA256SUMS').read_text() != sums:
+        raise ValueError('release checksum list does not match the catalog')
+    commit = git(root, 'rev-parse', 'HEAD')
+    for release in releases:
+        skill = skills[release['skill']]
+        current = version((skill / 'SKILL.md').read_text())
+        expected = payload(skill)
+        name = f'{skill.name}-{current}.tar.gz'
+        if read_json(output / f'{skill.name}-{current}.json') != release:
+            raise ValueError(f'{skill.name}: release manifest differs from the catalog')
+        if release['archive'] != name or release['version'] != current or release['source_commit'] != commit:
+            raise ValueError(f'{skill.name}: release provenance does not match the source')
+        if release['payload_sha256'] != digest(expected):
+            raise ValueError(f'{skill.name}: payload digest does not match the source')
+        archive_path = output / name
+        if release['archive_sha256'] != hashlib.sha256(archive_path.read_bytes()).hexdigest():
+            raise ValueError(f'{skill.name}: archive checksum does not match')
+        with tarfile.open(archive_path) as archive:
+            members = archive.getmembers()
+            if len(members) != len(expected) or {m.name for m in members} != set(expected) or not all(m.isfile() for m in members):
+                raise ValueError(f'{skill.name}: archive paths differ from the source')
+            for member in members:
+                handle = archive.extractfile(member)
+                if handle is None or handle.read() != expected[member.name]:
+                    raise ValueError(f'{skill.name}: archive content differs from the source')
 
 
 def main() -> int:

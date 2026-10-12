@@ -41,19 +41,18 @@ the skill directory and preserve the accompanying license. Bundles contain
 complete sources, references, manifests, and built entrypoints. Builds must match
 the checked-in distribution; consumers do not need this monorepo.
 
-Destinations are configured in `.github/skill-catalog.json`. Category publishing
-targets repositories under **AIsa-team**. CI validates this organization policy,
-and the publisher rejects release, category, or state destinations outside it.
-The six category repositories must exist in AIsa-team before publication runs.
-An authenticated preflight verifies access and the actual repository owner,
-including GitHub redirects, before any release tags are created. Category and
-state publishing repeat this check before pushing. Missing/inaccessible
-destinations stop publication with a clear error; create or transfer the six
-repositories into AIsa-team before merging if they do not already exist there.
-Category publishing skips identical contents, commits onto destination history, and uses normal
-pushes. `SOURCE.json` records the most recent content update's source revision.
-Platform deliberately has no category destination but has individual releases.
-The obsolete SaaS workflow was removed because its source skills are absent.
+All skills are distributed solely from **AIsa-team/agent-skills** through this
+repository's source tree and independently versioned GitHub releases. Categories
+organize the catalog; `.github/skill-catalog.json` defines display metadata for
+the generated catalog, with no publishing destinations. No separate category repositories or
+sync jobs are used.
+
+The publisher accepts only `AIsa-team/agent-skills`. An authenticated preflight
+verifies the actual repository name, including GitHub redirects, before release
+or maintenance writes. Release archives are verified against the source for
+complete file coverage, byte-for-byte contents, provenance, and checksums before
+CI uploads them. Maintenance state stays on this repository's separate
+`skill-maintenance-state` branch.
 
 ## Monitoring upstream changes
 
@@ -172,14 +171,14 @@ or document skill-local installation. Tests should exercise shipped entrypoints.
 
 ## Workflow setup
 
-The `SYNC_AISA_SKILLS_TOKEN` must push to configured category repos.
-Create it with **Resource owner: AIsa-team**, access to the six configured
-category repositories, and **Contents: Read and write**. Store the secret in
-`AIsa-team/agent-skills` under the exact name `SYNC_AISA_SKILLS_TOKEN`.
-GitHub's workflow token needs contents write for releases/state and issues write
-for maintenance issues. Enable repository Issues. When MCP requires credentials,
-configure a supported discovery credential as `AISA_MONITOR_MCP_TOKEN`; missing
-credentials cause an unavailable warning. Public docs/npm/OpenAPI need no secret.
+No personal access token or category sync secret is required. Releases and
+maintenance state use GitHub's built-in `GITHUB_TOKEN`, passed to the GitHub CLI
+as `GH_TOKEN`. The workflow declares contents write for releases/state and
+issues write for maintenance issues. Enable repository Issues.
+
+`AISA_MONITOR_MCP_TOKEN` is optional. Anonymous MCP discovery currently works,
+so leave it unset unless the endpoint requires a supported discovery credential.
+Public docs/npm/OpenAPI monitoring needs no secret.
 
 CODEOWNERS requests review of maintenance policy and tooling. Administrators
 should require `validate-catalog` before merge; CODEOWNERS alone does not enforce
