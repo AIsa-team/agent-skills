@@ -1,0 +1,25 @@
+{
+  "settlementCurrency": "USD",
+  "tax": { "salesTaxRate": 0.2, "priceIncludesTax": true },
+  "costs": {
+    "product": { "amount": 70, "currency": "CNY", "fxToSettlement": 0.14285714285714285 },
+    "inboundFreight": { "amount": 1.5, "currency": "USD" },
+    "packaging": { "amount": 0.5, "currency": "USD" },
+    "customsDuty": { "amount": 1, "currency": "USD" },
+    "fulfillment": { "amount": 3, "currency": "USD" },
+    "outboundShipping": { "amount": 0, "currency": "USD" },
+    "customerAcquisition": { "amount": 2, "currency": "USD" },
+    "fixedOrderFees": { "amount": 0.3, "currency": "USD" },
+    "otherPerOrder": { "amount": 0.2, "currency": "USD" },
+    "overheadAllocation": { "amount": 0.5, "currency": "USD" }
+  },
+  "importVat": { "amount": { "amount": 2.5, "currency": "USD" }, "recoverableRate": 0 },
+  "returns": {
+    "rate": 0.05,
+    "incrementalCost": { "amount": 3, "currency": "USD" },
+    "productRecovery": { "amount": 5, "currency": "USD" }
+  },
+  "fees": [{ "name": "hypothetical-channel-fee", "rate": 0.15, "basis": "grossPrice", "refundOnReturnRate": 0 }],
+  "target": { "contributionMargin": 0.2, "profitPerOrder": { "amount": 2, "currency": "USD" } },
+  "offeredPrice": 39.9
+}

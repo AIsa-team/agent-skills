@@ -1,0 +1,26 @@
+# Primary knowledge foundation
+
+Reviewed 2026-10-12. Links support the methods below; rates, thresholds, product duties, marketplace fees and obligations must be checked for the actual origin, destination, category and effective date. Defaults in this skill are business heuristics unless attributed otherwise.
+
+| Source | What changes the decision |
+| --- | --- |
+| [ITA: Conducting Market Research](https://www.trade.gov/conducting-market-research) and [eCommerce Market Opportunities](https://www.trade.gov/ecommerce-market-opportunities) | Screen product demand, competitors, distribution and local fit; search destination marketplaces in local language. Trade flows are broad context, not seller sales forecasts. |
+| [ITA: Pricing Strategy](https://www.trade.gov/pricing-strategy) | Reconcile full export costs with demand and competitors. Cost-supported prices can exceed buyer willingness to pay. |
+| [ITA: Know Your Incoterms](https://www.trade.gov/know-your-incoterms) | Delivery terms allocate transport/clearance responsibilities; capture named place and version before including route costs. |
+| [WTO: Tariff and Trade Data](https://www.wto.org/english/tratop_e/tariffs_e/tariff_data_e.htm) and [Customs Valuation](https://www.wto.org/english/tratop_e/cusval_e/cusval_e.htm) | Distinguish bound, applied and eligible preferential tariffs; match origin/code/date. Customs value has its own rules and adjustments. |
+| [Google: Trends data FAQ](https://support.google.com/trends/answer/4365533?hl=en) | Interest is sampled/normalized, not sales or absolute volume. Low-volume results may be zero. |
+| [Amazon: Best Sellers Rank](https://sell.amazon.com/blog/amazon-best-sellers-rank) | Rank is relative to category/store; it does not reveal profit or verified units sold. |
+| [eBay: Product research](https://www.ebay.com/help/selling/selling-tools/research?id=4853) | Where the seller has access, actual sold prices and precise filters are stronger price evidence than current asking listings. This skill does not assume AIsa has transaction coverage. |
+| [Amazon: Selling fees](https://sell.amazon.com/pricing) and [eBay: Selling fees](https://www.ebay.com/help/selling/fees-credits-invoices/x?id=4822) | Verify destination site, category, threshold/minimum and fulfillment program. Fee bases can include charged shipping and sometimes collected tax. |
+| [Etsy: Currency Conversion Fees](https://help.etsy.com/hc/en-us/articles/360000344668-Currency-Conversion-Fees?segment=selling) and [ECB: Reference exchange rates](https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html) | Listing/settlement mismatch can add fees. Reference FX is informational, not a guaranteed payout rate; record direction and spread. |
+| [HMRC: VAT Notice 700](https://www.gov.uk/guidance/vat-guide-notice-700) | Embedded VAT is removed by dividing the gross amount by 1+rate. Retail output VAT is separate from import VAT. |
+| [EC: VAT taxable amount](https://taxation-customs.ec.europa.eu/taxation/vat/vat-directive/taxable-amount_en) and [VAT deductions](https://taxation-customs.ec.europa.eu/taxation/vat/vat-directive/vat-deductions_en) | Import VAT uses its applicable base; input-tax recoverability requires eligibility/documentation. Separate recoverable tax cash funding from profit cost. |
+| [CBP: Customs value](https://www.help.cbp.gov/s/article/Article-1162?language=en_US) and [UK: Goods sent from abroad](https://www.gov.uk/goods-sent-from-abroad/tax-and-duty) | Freight treatment differs by jurisdiction. Do not use one worldwide duty formula; obtain actual bases/amounts and verify special duties. |
+| [EU: Returns](https://europa.eu/youreurope/citizens/consumers/shopping/returns/) | Destination rights and defective-goods obligations affect the return process; legal rights do not predict commercial return rates. |
+| [CPSC: Online Sellers' Safety Guide](https://www.cpsc.gov/Business--Manufacturing/Online-Sellers-Safety-Guide) and [EU: General Product Safety Regulation](https://eur-lex.europa.eu/EN/legal-content/summary/general-product-safety-regulation-2023.html) | Safety/testing/labeling and responsible operator requirements can block market entry even for ordinary consumer accessories. |
+| [WIPO: Check availability](https://www.wipo.int/en/web/madrid-system/check-availability) | Screen target-market trademark conflicts using relevant registers; search results are preliminary evidence. |
+| [World Bank: LPI 2.0](https://lpi.worldbank.org/en/about) | Current methodology provides logistics indicators without one overall country rank. Record indicator/year; a country measure does not replace a route quote. |
+
+For a specific market, use its customs/tax and product-safety authorities, official marketplace fee schedule and a current carrier quote. Do not transplant US/EU/UK rates or obligations to other destinations.
+
+Authoring basis: [Agent Skills specification](https://agentskills.io/specification), [best practices](https://agentskills.io/skill-creation/best-practices) and [script guidance](https://agentskills.io/skill-creation/using-scripts). The entrypoint routes to focused references; the helpers use structured inputs, explicit validation, `--help`, bounded offline behavior and tested compiled entrypoints.

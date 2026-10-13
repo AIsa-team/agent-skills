@@ -1,0 +1,17 @@
+{
+  "opportunities": [
+    {
+      "id": "hypothetical-organizer-de",
+      "market": "Germany (hypothetical)",
+      "product": "Specified travel organizer (hypothetical)",
+      "channel": "Marketplace pilot (hypothetical)",
+      "gates": { "compliance": "unknown", "fulfillment": "pass", "economics": "unknown" },
+      "dimensions": {
+        "demand": { "score": 3, "evidence": ["demo-local-keywords"] },
+        "economics": null,
+        "competition": { "score": 2, "evidence": ["demo-listings"] },
+        "operations": { "score": 4, "evidence": ["demo-route-quote"] }
+      }
+    }
+  ]
+}
