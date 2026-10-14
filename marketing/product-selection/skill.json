@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "owner": "unassigned",
+  "languages": ["typescript", "javascript"],
+  "runtime": { "node": "22" },
+  "entrypoints": ["dist/cli.js"],
+  "checks": {
+    "lint": [],
+    "typecheck": [["npm", "run", "typecheck"]],
+    "build": [["npm", "run", "build"]],
+    "test": [["npm", "test"]]
+  },
+  "upstreams": ["aisa-mcp-catalog", "aisa-api-marketing", "aisa-api-search-research"]
+}

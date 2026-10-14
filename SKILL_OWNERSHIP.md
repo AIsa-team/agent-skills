@@ -41,6 +41,7 @@ The monitor flags unassigned ownership even when the skill is verified current.
 | `marketing/article-seo-geo-review` | @zhenlonghe | [Introduction](https://github.com/AIsa-team/agent-skills/commit/83e995b29d4d53321c7fe9920b15b9422aee37d2) |
 | `marketing/creator-marketing` | @fatflowers | [Introduction](https://github.com/AIsa-team/agent-skills/commit/205a8492dd3ad093f5779ab384889b3dae1cfc89) |
 | `marketing/kol-creator-discovery` | @lijing-22 | [Introduction](https://github.com/AIsa-team/agent-skills/commit/ffbe6da3ea977c8cd1419052ab3a9c86ea283aa9) |
+| `marketing/product-selection` | unassigned | New skill; maintenance responsibility not yet assigned |
 | `marketing/seo-keyword-research` | @lijing-22 | [Introduction](https://github.com/AIsa-team/agent-skills/commit/21b25b978205686d8fc87d6c5354a53cf6452f6c) |
 | `marketing/use-similarweb` | @lhymmEU | [Introduction](https://github.com/AIsa-team/agent-skills/commit/9813811e39a8749bf38c859134c2b9bf1a3259ea) |
 | `platform/aisa` | @eddiearc | [Introduction](https://github.com/AIsa-team/agent-skills/commit/6dcb21159a551e8c6cb0c509ca67627c5b69324a) |
