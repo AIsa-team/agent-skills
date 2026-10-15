@@ -1,59 +1,88 @@
-# Cost control protocol
+# Quotes, authorization, and charge tracking
 
-**This file contains no prices or pricing formulas, by design.** Prices and the way they are computed can
-change at any time, so the only sources of cost are the API's quote (before a call) and its cost header (after).
+Use the current [AIsa pricing guide](https://aisa.one/docs/guides/pricing) for billing semantics.
+This skill contains no fixed prices or pricing formulas. Obtain an estimate for the exact request before
+execution, then report the actual charge from response evidence when available.
 
-## 1. Quote (free)
+## Quote the intended request
 
-Send the exact request you intend to make — built from the contract (`discovery.md`) — plus one header:
+`quote ROUTE name=value …` sends `X-AISA-Cost-Mode: quote`. It estimates cost without executing the
+upstream request. A quote can include `estimated_cost_micros_usd` and `may_exceed_estimate`.
+One million micro-USD equals one USD; keep currency comparisons exact at micro-USD precision.
+
+A successful quote is not a guarantee of data availability or execution success. Quotes need not exercise
+all provider validation. If wider scope is useful, quote the proposed variant too and compare the result
+against the original question and budget. Do not infer a pricing formula from one quote.
+
+## Authorization and the admission threshold
+
+Honor the budget and scope the user already authorized. Ask only when that authorization is absent or
+insufficient for the intended request. Do not request approval again for every call that stays within it.
+
+Without `--max-usd`, `call` only quotes. With a nonnegative USD amount of at most six decimal places, it
+compares the quote with that threshold and sends `X-AISA-Max-Price-USD` if the request can proceed. This header limits the
+**estimate accepted for admission**, not the final charge. The actual charge can exceed the estimate;
+neither this flag nor the task ledger can guarantee an absolute final-charge ceiling.
+
+When the user requires a hard final spending limit, do not present an estimate threshold as satisfying it.
+Resolve that limitation before executing variable-cost requests. Inspect `may_exceed_estimate` and the
+current pricing terms instead of assuming the estimate is exact.
+
+## Tracking a task budget
+
+For multiple calls under one task budget, use one ledger consistently:
 
 ```bash
-curl -s "https://api.aisa.one/apis/v1/similarweb<ROUTE>?<parameters from the contract>" \
-  -H "Authorization: Bearer $AISA_API_KEY" \
-  -H "X-AISA-Cost-Mode: quote"
+python3 scripts/similarweb_client.py call ROUTE name=value … \
+  --max-usd "$APPROVED_REQUEST_USD" \
+  --task-ledger task-spend.json \
+  --task-budget-usd "$APPROVED_TASK_USD"
 ```
 
-- Response: `200 {"object":"cost_estimate","estimated_cost_micros_usd":<int>,"may_exceed_estimate":<bool>, …}`.
-- Units: micro-dollars, 1,000,000 = 1 USD.
-- A quote is not executed, not billed and not counted as a request.
-- An invalid request is rejected at quote time with the same 400 it would get when executed.
+Set `--task-budget-usd` when creating the ledger. On later calls, omit it or repeat the same total; a
+different total is rejected. The ledger accounts for recorded actual charges and compares the next quote
+with the remaining task budget. Use the same file for every paid call in the task. A timeout, incomplete
+request, or response with unknown cost blocks further ledger spending until the outcome is resolved. Starting another ledger would
+lose that protection. The ledger does not include calls made outside it or guarantee that a request's
+final charge will fit the remaining budget.
 
-## 2. Compare scope variants before widening
+## Request records and idempotency
 
-Scope dimensions include months, metrics, rows (`limit`, `offset`) and the number of domains. Do not assume how
-any of them affects cost:
+Before dispatch, the client persists a request record under the cache's `requests` directory and updates
+it with the full response afterward. The result includes `idempotency_key` and `request_record` so the logical request remains identifiable after an
+interruption. `--idem KEY` allows an explicit idempotency key.
 
-1. Build the smallest request that answers the question and quote it.
-2. If the question needs more, build the wider variant and quote it.
-3. Compare what each variant returns against what it costs, and choose.
+The client never automatically retries a paid request. If execution times out or its outcome is ambiguous,
+inspect the saved record and establish what happened before retrying. A fresh key can admit a second paid
+execution; do not use one to bypass an unresolved request or duplicate-key rejection. A provider hint such
+as `retryable: true` does not establish that the previous attempt was uncharged. A completed successful
+request must not be repeated merely to obtain missing billing metadata.
 
-Quotes are free, so two to four quotes per decision is normal.
+When request-specific Usage & Logs evidence establishes the charge, record it locally:
 
-## 3. Budget and approval
+```bash
+python3 scripts/similarweb_client.py reconcile REQUEST_RECORD \
+  --charged-usd "$VERIFIED_CHARGE_USD" --evidence "Request-specific Usage & Logs evidence"
+```
 
-Get a budget from the user, per call or per task. Never execute a call whose quote exceeds it without explicit
-approval. `similarweb_client.py call` enforces this: without `--max-usd` it only quotes.
+`reconcile` records the supplied amount and evidence without an API call; it does not independently verify
+the claim or re-execute the request. Use zero only when the evidence establishes no charge. The ledger then
+uses the reconciled charge when deciding whether another request fits. If a process interruption left an
+execution lock, establish that the process is no longer active and obtain evidence of its outcome before
+removing the lock and recording the reconciliation.
 
-## 4. Cap
+## Actual cost and errors
 
-`X-AISA-Max-Price-USD: <USD>` → if the estimate exceeds it, the call is refused before execution:
-`402 {"error":{"code":"estimated_price_exceeds_max_price"}}`, not billed. Set it to the approved amount.
+The `x-aisa-customer-cost-micros-usd` response header provides the charged amount. Report it as `cost_usd`
+when valid. A missing or invalid cost header means **unknown**, not zero and not the quoted estimate.
+Retain the raw response, request ID, and saved record when the result is incomplete.
 
-## 5. Idempotency
+Read the actual error body to distinguish validation, entitlement, estimate-threshold refusal, duplicate
+admission, and upstream failure. HTTP status alone is insufficient to declare that a request was uncharged.
+In particular, do not label every 400, 402, 409, or 503 as free, and do not apply a blanket new-key retry rule.
 
-`Idempotency-Key: <uuid>` → a repeated key returns `409 {"error":"idempotent request already admitted"}`, not
-billed. Use one key per logical request and a fresh key for a deliberate retry.
+## Aggregate usage
 
-## 6. Actual cost
-
-On a 2xx response, the header `x-aisa-customer-cost-micros-usd` is what was charged. Report this value; it can
-differ from the quote.
-
-## 7. Reconcile
-
-`GET https://api.aisa.one/v1/usage?start_time=<unix>&end_time=<unix>` → `totals.charged_micros_usd`.
-
-## Over MCP
-
-MCP `use(max_price_usd=…)` refuses calls whose estimate is above the cap (402, not billed). For each call's actual
-cost, make paid calls over REST, which returns the cost header.
+`usage --days N` reads `GET /v1/usage` for a time interval. These are aggregate totals for the API key,
+potentially including other tasks. Use them as supporting billing evidence, not as exact reconciliation
+of this task or proof of a particular request's outcome. Keep task-specific records for attribution.

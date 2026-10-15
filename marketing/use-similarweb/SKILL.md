@@ -1,11 +1,11 @@
 ---
 name: use-similarweb
-description: "Use this skill whenever a user or agent needs Similarweb website intelligence through AIsa — monthly visits and engagement for a domain, traffic trend, country/category rank, PPC spend, marketing channels, referrals, ad networks, similar sites, demographics, deduplicated audience, audience interest and overlap, technologies, popular pages, subdomains, keyword competitors, website keywords, SERP players, landing pages, top geographies. It holds no parameters and no prices: it reads the live API contract to build and validate every request, finds the latest data month, quotes each request for free, compares scope variants, gets approval against the user's budget, caps spend with a header, and reports the actual cost. Keywords - similarweb, website traffic, domain traffic, competitor traffic, traffic sources, audience overlap, keyword competitors, aisa, openapi contract, quote, budget."
+description: "Retrieve Similarweb website and competitor intelligence through AIsa: traffic, engagement, audience, sources, rankings, technologies, and search performance. Use for Similarweb data requests, with live contract discovery, request quotes, authorized budgets, and actual-charge reporting."
 license: MIT
-compatibility: "Works with any agentskills.io-compatible harness (Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose). Requires Python 3 and AISA_API_KEY on an account with the Hive GTM subscription."
+compatibility: "Requires Python 3.11+, network access, and AISA_API_KEY with access to the requested AIsa routes. Run the bundled Python client from a harness that supports local commands."
 metadata:
-  version: "1.0.0"
-  short-description: Similarweb through AIsa — contract discovered at runtime, cost quoted before every call
+  version: "1.1.0"
+  short-description: Similarweb through AIsa — discover contracts, quote requests, track charges
   aisa:
     homepage: https://aisa.one
     requires:
@@ -16,14 +16,11 @@ metadata:
     primaryEnv: AISA_API_KEY
 ---
 
-# AIsa Similarweb 📡
+# AIsa Similarweb
 
-**Similarweb website intelligence for agents — discovered at runtime, spent deliberately. Powered by AIsa.**
-
-This skill holds **no endpoint parameters and no prices**, because both change over time. The agent reads
-them from the API instead: parameters from the live contract at `https://aisa.one/docs/openapi/similarweb.json`,
-cost from a free quote before each call and the cost header after it. A 20-line version of this protocol for
-pasting into any agent is `references/agent-rules.txt`.
+Retrieve Similarweb data through AIsa using the live API contract and a quote before each paid request.
+Read [references/discovery.md](references/discovery.md) for contract and date handling, and
+[references/cost-control.md](references/cost-control.md) before executing paid requests.
 
 ## Requirements
 
@@ -31,102 +28,81 @@ pasting into any agent is `references/agent-rules.txt`.
 export AISA_API_KEY="sk-aisa-..."
 ```
 
-- Base URL `https://api.aisa.one/apis/v1/similarweb`; header `Authorization: Bearer $AISA_API_KEY`.
-- The key's account needs the **Go-to-Market Plan subscription**. `https://aisa.one/solutions/go-to-market`
+- Python 3.11+; no third-party Python packages are required.
+- API origin `https://api.aisa.one`; header `Authorization: Bearer $AISA_API_KEY`.
+- Access depends on the key and requested route. Use authentication or entitlement errors to identify missing access.
 - Never print or commit the key. If it is missing, ask the user to set `AISA_API_KEY`.
 
 ## Quick Start
 
 ```bash
 python3 scripts/similarweb_client.py discover                     # route index from the live contract
-python3 scripts/similarweb_client.py describe ROUTE               # one route: parameters, enums, limits, date rules
-python3 scripts/similarweb_client.py window                       # latest complete data month
-python3 scripts/similarweb_client.py check ROUTE name=value …     # validate against the contract, no API call
-python3 scripts/similarweb_client.py quote ROUTE name=value …     # free price estimate
+python3 scripts/similarweb_client.py describe ROUTE               # parameters, constraints, examples, response schema
+python3 scripts/similarweb_client.py window                       # unverified date candidate; no paid probe
+python3 scripts/similarweb_client.py check ROUTE name=value …     # local contract checks; may fetch the public contract
+python3 scripts/similarweb_client.py quote ROUTE name=value …     # non-executing price estimate
 python3 scripts/similarweb_client.py call  ROUTE name=value … --max-usd "$APPROVED_USD"
-python3 scripts/similarweb_client.py usage --days 1               # charged USD for reconciliation
+python3 scripts/similarweb_client.py usage --days 1               # aggregate usage for this API key
 ```
 
-`ROUTE` is a path from `discover` (without the `/similarweb` prefix). Every `name=value` comes from `describe`.
-`{baseDir}/scripts/similarweb_client.py` is the same path in harnesses that substitute `{baseDir}`.
+Run these commands from the skill directory, or use the script's absolute path. `ROUTE` may be a short
+path from `discover`, such as `/website/traffic-engagement`, or its full `/apis/v1/similarweb/...` path.
+Read the current `describe` output to construct each `name=value` argument. Quote arguments containing shell metacharacters.
 
-## Two rules
+## Request protocol
 
-- **Cost rule** — never state or assume a price. Prices come only from a quote (before a call) or the
-  `x-aisa-customer-cost-micros-usd` response header (after it).
-- **Contract rule** — never assume a parameter. Build every request from the live contract.
+1. **Discover and inspect.** Run `discover` and `describe ROUTE`. Read required parameters, schemas,
+   `x-aisa-constraints`, examples, and response declarations. Examples illustrate shape; their dates and
+   account-specific identifiers are not evidence of current availability. Do not hardcode route counts or prices.
+2. **Preserve the requested dates.** `window` proposes the previous complete UTC calendar month and reports
+   `latest_month: null`; it does not verify Similarweb availability. Use it only when a candidate is needed.
+   Never replace an explicit user period with this candidate or an example date.
+3. **Build and check.** Select the smallest scope that answers the question and run `check`.
+   Contract checks and a successful quote do not prove that data is available or that upstream execution will succeed.
+4. **Quote and authorize.** Quote the exact request; compare variants when considering wider scope.
+   Honor an existing user-approved budget and scope without asking again. If authorization is absent or the
+   intended request exceeds it, show the quote and resolve that gap before execution.
+5. **Execute and record.** `call --max-usd` compares the quote with an admission threshold and sends
+   `X-AISA-Max-Price-USD`; this is **not a hard cap on the final charge**. For a task-wide budget, use the
+   same `--task-ledger FILE` for all calls, setting `--task-budget-usd USD` when creating it. Read the
+   cost-control reference for its limits.
+6. **Report evidence.** Report the returned data period, quote, actual cost when known, and request ID.
+   Preserve the request record and idempotency key. A missing cost header means the charge is unknown.
 
-## The protocol
+## Rejections and interrupted requests
 
-### Discover — at session start, and again whenever a contract-built request is rejected
+Read the actual error body. A 400 can indicate invalid parameters, date constraints, or unavailable data;
+it does not by itself prove contract drift. Refresh the contract once if drift is plausible, then correct
+the identified problem within the user's scope. Authentication and entitlement errors require resolving access.
 
-1. **Fetch the contract** — `discover`. It downloads the contract once, caches it with its ETag and revalidates
-   with `If-None-Match` (a 304 means unchanged). `discover --refresh` forces a new copy.
-2. **Read each route you need** — `describe ROUTE` shows required and optional parameters, enums, defaults,
-   maximums and the route description. Date-window rules are written in the description.
-3. **Find the latest data month** — `window`. It finds the route whose description requires the latest month,
-   sends it an old month, and reads the allowed month from the free 400 message.
-
-### Call — every request, in order
-
-4. **Build the smallest request** that answers the question — the fewest months, metrics and rows the
-   contract allows — and `check` it.
-5. **Quote it** — `quote` (free). A 400 on a contract-built request means the contract changed: the client
-   re-fetches the contract and reports what now differs.
-6. **Compare before widening** — to add months, metrics, rows or domains, quote the wider variant too and pick
-   the one that answers the question at the lowest quote.
-7. **Get approval** — show the user the quote. Ask for a budget if none is set; above it, wait for approval.
-8. **Call with a cap** — `call … --max-usd <approved USD>` sets `X-AISA-Max-Price-USD` and an
-   `Idempotency-Key`. `call` without `--max-usd` only quotes.
-9. **Report and reconcile** — report `cost_usd` (from the cost header) and `data_month`; reconcile with `usage`.
-
-## How discovery works
-
-| You need | Where it comes from |
-|---|---|
-| Routes and parameters | The contract JSON — `discover`, `describe` |
-| Whether a request is valid | `check` against the contract, then a free quote |
-| Date-window rules | The route description, and the message of the free 400 a real call returns if a rule is broken |
-| Latest data month | `window` |
-| Valid values after a 400 | `error.supported` in the response |
-| Price before a call | `quote` (`X-AISA-Cost-Mode: quote`) |
-| Actual cost | `cost_usd` (`x-aisa-customer-cost-micros-usd`) |
-| Data month | `data_month` (`meta.last_updated` or `meta.end_date`) |
-| Spend to date | `usage` (`GET /v1/usage`) |
-
-Verified on 2026-09-13 across all 23 routes: every request built from the contract alone was accepted, every
-required parameter was enforced exactly as declared, and every declared optional parameter was accepted.
-Details, including the MCP alternative: `references/discovery.md`.
-
-## Reading responses
-
-- **400 with `meta.error_message`** on a real call — a date-window rule quotes do not check. The message states
-  the rule or the allowed range; use it to fix the dates and retry. Not billed.
-- **400 with `error.supported`** — `error.message` names the parameter, `supported` lists valid values. Not billed.
-- **402** — the estimate is above your cap. Not billed.
-- **409** — the `Idempotency-Key` was already used. Not billed.
-- **503 with `retryable: true`** — retry once with a new key. Not billed.
-- **Never retry a 200.** Make paid calls over REST, where the cost header is returned.
-
-Cost-control detail: `references/cost-control.md`.
+The client does not automatically retry paid requests. After a timeout, transport failure, or ambiguous
+response, use the saved request record to establish the outcome before retrying. Do not infer zero cost from
+an HTTP status or obtain a fresh idempotency key merely to bypass an uncertain or duplicate outcome.
+After obtaining request-specific charge evidence from Usage & Logs, `reconcile REQUEST_RECORD
+--charged-usd USD --evidence TEXT` records that evidence locally without an API call.
 
 ## When to use / when not to
 
 - Use when the question is about a **website's** traffic, audience, sources, technology or search footprint.
-- For keyword volumes and difficulty use the DataForSEO or Semrush skills; for backlinks, Ahrefs.
+- For a task that needs keyword difficulty or backlink analysis beyond the discovered Similarweb routes,
+  use an available specialist tool appropriate to that task.
 
 ## Output
 
-`call` prints JSON: `status`, `quoted_usd`, `cost_usd`, `request_id`, `latency_s`, `data_month`, `note`
-(the API's own explanation when a rule or value was rejected) and `data` (the Similarweb response).
-Report the data month with every number.
+`call` returns the raw Similarweb response in `data`, alongside status, quote, cost, request ID, latency,
+data period when available, `idempotency_key`, and `request_record`. With `--out FILE`, the full result is saved
+to that file and stdout remains JSON. `requested_period` records the input; `data_period`, `data_month`, and `last_updated` retain separate
+response metadata. Do not treat an update timestamp or an echoed request period as observed coverage. Missing cost or provider-period metadata must remain unknown;
+do not substitute the quote for actual cost or label a calendar candidate as confirmed data availability.
+
+`usage` reports aggregate totals for the API key over a time window. It does not isolate this task's charges.
+The compact protocol in [references/agent-rules.txt](references/agent-rules.txt) is available for external agents.
 
 ## API Reference
 
-- Contract: [`https://aisa.one/docs/openapi/similarweb.json`](https://aisa.one/docs/openapi/similarweb.json) — the source of truth for routes and parameters
-- Human reference: [Similarweb API docs](https://aisa.one/docs/api-reference/similarweb/get_similarweb-website-traffic-engagement) (each page embeds the same contract)
-- MCP: `https://mcp.aisa.one/similarweb/mcp` (`tools/list` returns the same schemas)
-- Cost control: quote header `X-AISA-Cost-Mode: quote` · cap header `X-AISA-Max-Price-USD` · cost header `x-aisa-customer-cost-micros-usd` · usage `GET https://api.aisa.one/v1/usage?start_time=<unix>`
+- [Similarweb OpenAPI contract](https://aisa.one/docs/openapi/similarweb.json) — routes, parameters, constraints, and response declarations
+- [Similarweb API docs](https://aisa.one/docs/api-reference/similarweb/get_similarweb-website-traffic-engagement)
+- [AIsa pricing guide](https://aisa.one/docs/guides/pricing) — quotation, admission, and billing semantics
 
 See the [full AIsa API Reference](https://aisa.one/docs/api-reference).
 

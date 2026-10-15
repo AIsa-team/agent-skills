@@ -1,0 +1,854 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "SimilarWeb",
+    "version": "1",
+    "x-aisa-document": {
+      "seed_month": "2026-09"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.aisa.one"
+    }
+  ],
+  "paths": {
+    "/apis/v1/similarweb/website/traffic-engagement": {
+      "get": {
+        "description": "",
+        "operationId": "get_similarweb_traffic_engagement",
+        "parameters": [
+          {
+            "examples": {
+              "default": {
+                "value": "ww"
+              },
+              "minimal": {
+                "value": "ww"
+              }
+            },
+            "in": "query",
+            "name": "country",
+            "required": false,
+            "schema": {
+              "default": "ww",
+              "description": "Worldwide data only; values are case-insensitive.",
+              "enum": [
+                "ww"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "examples": {
+              "default": {
+                "value": "cnn.com"
+              },
+              "minimal": {
+                "value": "cnn.com"
+              }
+            },
+            "in": "query",
+            "name": "domain",
+            "required": true,
+            "schema": {
+              "maxLength": 253,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          {
+            "examples": {
+              "default": {
+                "value": "2026-09"
+              },
+              "minimal": {
+                "value": "2026-09"
+              }
+            },
+            "in": "query",
+            "name": "end_date",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "granularity",
+            "required": false,
+            "schema": {
+              "default": "monthly",
+              "enum": [
+                "monthly"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "main_domain_only",
+            "required": false,
+            "schema": {
+              "default": true,
+              "type": "boolean"
+            }
+          },
+          {
+            "examples": {
+              "default": {
+                "value": "visits"
+              },
+              "minimal": {
+                "value": "visits"
+              }
+            },
+            "in": "query",
+            "name": "metrics",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "x-aisa-delimiter": ",",
+              "x-aisa-maxItems": 8,
+              "x-aisa-minItems": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "mtd",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "examples": {
+              "default": {
+                "value": "2026-09"
+              },
+              "minimal": {
+                "value": "2026-09"
+              }
+            },
+            "in": "query",
+            "name": "start_date",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "web_source",
+            "required": false,
+            "schema": {
+              "enum": [
+                "desktop",
+                "mobile_web",
+                "total"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SimilarWeb v5 envelope (meta + data).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "meta": {
+                      "$ref": "#/components/schemas/ResponseE0D24A93E9A2_SimilarWebMeta"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string"
+                          },
+                          "visits": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "format": "double",
+                            "description": "Estimated number of visits to the website"
+                          },
+                          "bounce_rate": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "format": "double",
+                            "description": "Percentage of visits that view only one page on the website"
+                          },
+                          "average_visit_duration": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "format": "double",
+                            "description": "Average time on website (in seconds)"
+                          },
+                          "pages_per_visit": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "format": "double",
+                            "description": "Average number of pages viewed per visit"
+                          },
+                          "page_views": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "format": "double",
+                            "description": "Estimated number of pages viewed on the website"
+                          },
+                          "unique_visitors": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "format": "double",
+                            "description": "Estimated number of unique visitors (not deduplicated across devices) to the website"
+                          },
+                          "new_users": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "format": "double",
+                            "description": "Estimated number of new users to the website"
+                          },
+                          "returning_users": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "format": "double",
+                            "description": "Estimated number of returning users to the website"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Error response; upstream passthrough responses may use provider formats"
+          }
+        },
+        "summary": "Traffic & Engagement",
+        "x-aisa-constraints": {
+          "notes": [
+            "country supports ww only; default ww. State-level filtering is not supported."
+          ]
+        }
+      }
+    },
+    "/apis/v1/similarweb/website/technologies": {
+      "get": {
+        "description": "",
+        "operationId": "get_similarweb_technologies",
+        "parameters": [
+          {
+            "examples": {
+              "default": {
+                "value": "ww"
+              }
+            },
+            "in": "query",
+            "name": "country",
+            "required": false,
+            "schema": {
+              "default": "ww",
+              "description": "Worldwide data only; values are case-insensitive.",
+              "enum": [
+                "ww"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "examples": {
+              "default": {
+                "value": "example.com"
+              },
+              "minimal": {
+                "value": "example.com"
+              }
+            },
+            "in": "query",
+            "name": "domain",
+            "required": true,
+            "schema": {
+              "maxLength": 2048,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          {
+            "examples": {
+              "default": {
+                "value": "2026-09"
+              },
+              "minimal": {
+                "value": "2026-09"
+              }
+            },
+            "in": "query",
+            "name": "end_date",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "format",
+            "required": false,
+            "schema": {
+              "enum": [
+                "json"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "examples": {
+              "default": {
+                "value": "monthly"
+              },
+              "minimal": {
+                "value": "monthly"
+              }
+            },
+            "in": "query",
+            "name": "granularity",
+            "required": true,
+            "schema": {
+              "enum": [
+                "monthly"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "examples": {
+              "default": {
+                "value": 1
+              },
+              "minimal": {
+                "value": 1
+              }
+            },
+            "in": "query",
+            "name": "limit",
+            "required": true,
+            "schema": {
+              "maximum": 20,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "main_domain_only",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "examples": {
+              "default": {
+                "value": "2026-09"
+              },
+              "minimal": {
+                "value": "2026-09"
+              }
+            },
+            "in": "query",
+            "name": "start_date",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "web_source",
+            "required": false,
+            "schema": {
+              "enum": [
+                "total"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SimilarWeb v5 envelope (meta + data).",
+            "content": {
+              "application/json": {
+                "example": {
+                  "meta": {
+                    "query": {
+                      "limit": 5,
+                      "offset": 0,
+                      "asc": null,
+                      "sort": null
+                    },
+                    "request": {
+                      "status": "installed_and_removed",
+                      "format": "json",
+                      "domain": "cnn.com",
+                      "granularity": "monthly",
+                      "start_date": "2026-07-01",
+                      "end_date": "2026-07-31",
+                      "metrics": [
+                        "sub_category",
+                        "pricing_model",
+                        "description",
+                        "first_seen_date"
+                      ],
+                      "main_domain_only": false,
+                      "category": null
+                    },
+                    "status": "success",
+                    "last_updated": "2026-07-31"
+                  },
+                  "data": [
+                    {
+                      "technology": "24 7 Media",
+                      "category": "Advertising",
+                      "sub_category": "Publisher Ad Server",
+                      "pricing_model": "Free",
+                      "description": "24/7 Media creates the tools for business advantage in the digital world.",
+                      "status": "removed",
+                      "first_seen_date": "2018-04-21"
+                    }
+                  ]
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "meta": {
+                      "$ref": "#/components/schemas/ResponseBd0Df3C14905_SimilarWebMeta"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "technology": {
+                            "type": "string"
+                          },
+                          "category": {
+                            "type": "string"
+                          },
+                          "sub_category": {
+                            "type": "string"
+                          },
+                          "pricing_model": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "first_seen_date": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Error response; upstream passthrough responses may use provider formats"
+          }
+        },
+        "summary": "Website Technologies",
+        "x-aisa-constraints": {
+          "notes": [
+            "country supports ww only; default ww. State-level filtering is not supported.",
+            "The bound Similarweb v5 upstream documents a current technology snapshot for the last month, with monthly granularity only, not a historical time series. Required start_date and end_date must still be supplied under this public contract; use the latest available month. Source: https://docs.similarweb.com/api-v5/api-reference/website-analysis-api/website-content/website-technologies"
+          ]
+        }
+      }
+    },
+    "/apis/v1/similarweb/search/website-keywords": {
+      "get": {
+        "description": "",
+        "operationId": "get_similarweb_keywords",
+        "parameters": [
+          {
+            "examples": {
+              "default": {
+                "value": "ww"
+              }
+            },
+            "in": "query",
+            "name": "country",
+            "required": false,
+            "schema": {
+              "default": "ww",
+              "description": "Worldwide data only; values are case-insensitive.",
+              "enum": [
+                "ww"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "examples": {
+              "default": {
+                "value": "example.com"
+              },
+              "minimal": {
+                "value": "example.com"
+              }
+            },
+            "in": "query",
+            "name": "domain",
+            "required": true,
+            "schema": {
+              "maxLength": 2048,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          {
+            "examples": {
+              "default": {
+                "value": "2026-09"
+              },
+              "minimal": {
+                "value": "2026-09"
+              }
+            },
+            "in": "query",
+            "name": "end_date",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "format",
+            "required": false,
+            "schema": {
+              "enum": [
+                "json"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "examples": {
+              "default": {
+                "value": "monthly"
+              },
+              "minimal": {
+                "value": "monthly"
+              }
+            },
+            "in": "query",
+            "name": "granularity",
+            "required": true,
+            "schema": {
+              "enum": [
+                "monthly"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "examples": {
+              "default": {
+                "value": 1
+              },
+              "minimal": {
+                "value": 1
+              }
+            },
+            "in": "query",
+            "name": "limit",
+            "required": true,
+            "schema": {
+              "maximum": 20,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "main_domain_only",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "examples": {
+              "default": {
+                "value": "2026-09"
+              },
+              "minimal": {
+                "value": "2026-09"
+              }
+            },
+            "in": "query",
+            "name": "start_date",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "web_source",
+            "required": false,
+            "schema": {
+              "enum": [
+                "total"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SimilarWeb v5 envelope (meta + data).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "meta": {
+                      "$ref": "#/components/schemas/ResponseF53Baa954733_SimilarWebMeta"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "keyword": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "A single keyword or name of a keyword group to analyze"
+                          },
+                          "clicks": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "format": "double",
+                            "description": "The number of keyword search clicks to the website"
+                          },
+                          "traffic_share": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "format": "double",
+                            "description": "The share of the traffic to the website"
+                          },
+                          "competition": {
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "int32",
+                            "description": "Competition level for ad placement on the keyword."
+                          },
+                          "primary_intent": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "An estimation of what peaople searching for this keywords are trying to acheive."
+                          },
+                          "secondary_intent": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "Secondary intent for keyword search."
+                          },
+                          "position": {
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "int32",
+                            "description": "The keyword's latest universal position within the selected time range. Not avaialble for 'world' country."
+                          },
+                          "serp_features": {
+                            "type": [
+                              "array",
+                              "null"
+                            ],
+                            "description": "SERP features. The provider declares an array (or null), but its published item declaration is incomplete and differs from observed string elements. Element types are not yet confirmed; this field does not assert an item schema.",
+                            "x-aisa-schema-status": "item_definition_unconfirmed"
+                          },
+                          "top_url": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "The site url with the highest organic position that ranks for the analyzed keyword"
+                          },
+                          "url_count": {
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "int32",
+                            "description": "Number of URLs for the keyword"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Error response; upstream passthrough responses may use provider formats"
+          }
+        },
+        "summary": "Website Keywords",
+        "x-aisa-constraints": {
+          "notes": [
+            "country supports ww only; default ww. State-level filtering is not supported."
+          ]
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ResponseF53Baa954733_SimilarWebMeta": {
+        "type": "object",
+        "description": "SimilarWeb v5 response envelope metadata.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Upstream status; 'success' on a successful call.",
+            "example": "success"
+          },
+          "last_updated": {
+            "type": "string",
+            "description": "Date of the most recent data point available upstream (YYYY-MM-DD).",
+            "example": "2026-06-30"
+          },
+          "request": {
+            "type": "object",
+            "description": "Full echo of the normalized upstream request (parameters as received)."
+          },
+          "query": {
+            "type": "object",
+            "description": "Pagination/sort echo when applicable (limit, offset, asc, sort)."
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "ResponseBd0Df3C14905_SimilarWebMeta": {
+        "type": "object",
+        "description": "SimilarWeb v5 response envelope metadata.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Upstream status; 'success' on a successful call.",
+            "example": "success"
+          },
+          "last_updated": {
+            "type": "string",
+            "description": "Date of the most recent data point available upstream (YYYY-MM-DD).",
+            "example": "2026-06-30"
+          },
+          "request": {
+            "type": "object",
+            "description": "Full echo of the normalized upstream request (parameters as received)."
+          },
+          "query": {
+            "type": "object",
+            "description": "Pagination/sort echo when applicable (limit, offset, asc, sort)."
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "ResponseE0D24A93E9A2_SimilarWebMeta": {
+        "type": "object",
+        "description": "SimilarWeb v5 response envelope metadata.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Upstream status; 'success' on a successful call.",
+            "example": "success"
+          },
+          "last_updated": {
+            "type": "string",
+            "description": "Date of the most recent data point available upstream (YYYY-MM-DD).",
+            "example": "2026-06-30"
+          },
+          "request": {
+            "type": "object",
+            "description": "Full echo of the normalized upstream request (parameters as received)."
+          },
+          "query": {
+            "type": "object",
+            "description": "Pagination/sort echo when applicable (limit, offset, asc, sort)."
+          }
+        },
+        "required": [
+          "status"
+        ]
+      }
+    }
+  },
+  "x-test-fixture": {
+    "source": "https://aisa.one/docs/openapi/similarweb.json",
+    "captured_on": "2026-10-15",
+    "scope": "Three representative routes, preserving request schemas, examples, constraints and response schemas. Pricing and unrelated provider metadata intentionally omitted."
+  }
+}
