@@ -99,7 +99,8 @@ def generate_daily(since: str = None) -> dict:
 
     # Cost info
     daily_cost = store.get_daily_cost()
-    budget = float(store.get_setting("daily_budget", "5.00"))
+    budget = (float(store.get_setting("daily_budget"))
+              if store.get_setting("daily_budget_authorized") == "true" else None)
 
     # Find the single top finding across all topics (for TL;DR)
     all_findings = []

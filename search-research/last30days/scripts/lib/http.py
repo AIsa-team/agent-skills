@@ -1,6 +1,7 @@
 """HTTP utilities for last30days skill (stdlib only)."""
 
 import json
+import http.client
 import os
 import re
 import sys
@@ -11,7 +12,7 @@ from typing import Any, Dict, Optional, Union
 from urllib.parse import urlencode
 from urllib.parse import urlparse
 
-from . import __version__
+from . import __version__, costs
 from . import log as _log
 from .env import _resolve_aisa_api_key
 
@@ -32,10 +33,11 @@ DEBUG = False
 
 class HTTPError(Exception):
     """HTTP request error with status code."""
-    def __init__(self, message: str, status_code: Optional[int] = None, body: Optional[str] = None):
+    def __init__(self, message: str, status_code: Optional[int] = None, body: Optional[str] = None, *, retryable: bool = True):
         super().__init__(message)
         self.status_code = status_code
         self.body = body
+        self.retryable = retryable
 
 
 def classify_error(exc: BaseException) -> str:
@@ -95,6 +97,20 @@ def request(
     if json_data is not None:
         data = json.dumps(json_data).encode('utf-8')
         headers.setdefault("Content-Type", "application/json")
+
+    parsed = urlparse(url)
+    if parsed.hostname == "api.aisa.one":
+        if parsed.scheme != "https":
+            raise costs.CostControlError("AIsa credentials require HTTPS")
+        # Only this documented read-only catalog path bypasses paid accounting.
+        if method.upper() == "GET" and parsed.path == "/v1/models" and not parsed.query:
+            return _decode_aisa_response(_send_aisa_once(method, url, headers, data, timeout), raw)
+        budget = costs.current_budget()
+        response = budget.request(
+            method, url, headers, data,
+            lambda dispatch_headers: _send_aisa_once(method, url, dispatch_headers, data, timeout),
+        )
+        return _decode_aisa_response(response, raw)
 
     req = urllib.request.Request(url, data=data, headers=headers, method=method)
 
@@ -167,6 +183,57 @@ def request(
     if last_error:
         raise last_error
     raise HTTPError("Request failed with no error details")
+
+
+class _NoAIsaRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        # A redirect changes the quoted request and can forward bearer secrets.
+        return None
+
+
+def _open_aisa(req, timeout):
+    return urllib.request.build_opener(_NoAIsaRedirect()).open(req, timeout=timeout)
+
+
+def _send_aisa_once(method: str, url: str, headers: Dict[str, str], data: bytes | None,
+                    timeout: int) -> costs.Response:
+    """Retain billing headers before reading a potentially truncated body."""
+    req = urllib.request.Request(url, data=data, headers=headers, method=method)
+    try:
+        response = _open_aisa(req, timeout=timeout)
+    except urllib.error.HTTPError as exc:
+        response = exc
+    with response:
+        status = response.status
+        response_headers = dict(response.headers.items())
+        try:
+            body = response.read()
+            return costs.Response(status, response_headers, body)
+        except (OSError, http.client.HTTPException) as exc:
+            partial = getattr(exc, "partial", b"")
+            return costs.Response(status, response_headers, partial if isinstance(partial, bytes) else b"",
+                                  read_error=type(exc).__name__)
+
+
+def _decode_aisa_response(response: costs.Response, raw: bool):
+    if response.read_error:
+        raise HTTPError(f"AIsa response could not be fully read ({response.read_error}); inspect the cost ledger",
+                        response.status, retryable=False)
+    try:
+        body = response.body.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise HTTPError("Invalid UTF-8 AIsa response; billing is recorded in the cost ledger",
+                        response.status, retryable=False) from exc
+    if not 200 <= response.status < 300:
+        raise HTTPError(f"HTTP {response.status}: AIsa request failed; billing is recorded in the cost ledger",
+                        response.status, body, retryable=False)
+    if raw:
+        return body
+    try:
+        return json.loads(body) if body else {}
+    except json.JSONDecodeError as exc:
+        raise HTTPError("Invalid JSON AIsa response; billing is recorded in the cost ledger",
+                        response.status, retryable=False) from exc
 
 
 def get(url: str, headers: Optional[Dict[str, str]] = None, **kwargs) -> Dict[str, Any]:

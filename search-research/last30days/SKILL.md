@@ -2,9 +2,9 @@
 name: last30days
 description: Research the last 30 days across Reddit, X, YouTube, TikTok, Instagram, Hacker News, Polymarket, GitHub, and grounded web search. Returns a ranked, clustered brief with citations. Use when the task needs recent social evidence, competitor comparisons, launch reactions, trend scans, or person/company profiles.
 license: MIT
-compatibility: Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY.
+compatibility: Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3.11+ and a POSIX shell; hosted retrieval requires AISA_API_KEY and an authorized budget.
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   aisa:
     emoji: 📰
     homepage: https://aisa.one
@@ -30,7 +30,7 @@ metadata:
 
 **30-day multi-source research brief for autonomous agents. Powered by AIsa.**
 
-One API key. Reddit, X, YouTube, TikTok, Instagram, Hacker News, Polymarket, GitHub, and grounded web — merged into a single ranked brief.
+Combine public Reddit and Hacker News, AIsa-hosted X/YouTube/Polymarket/web retrieval, optional GitHub, and indexed TikTok/Instagram web discoveries into one ranked evidence brief. Native social engagement is not available from web discovery.
 
 ## Compatibility
 
@@ -45,7 +45,7 @@ harness, including:
 - and any other harness that implements the [Agent Skills
   specification](https://agentskills.io/specification)
 
-Requires Python 3, a POSIX shell, and `AISA_API_KEY` (get one at
+Requires Python 3.11+, a POSIX shell, and `AISA_API_KEY` for hosted retrieval (get one at
 [aisa.one](https://aisa.one)).
 
 ## What Can You Do?
@@ -81,30 +81,40 @@ Requires Python 3, a POSIX shell, and `AISA_API_KEY` (get one at
 # 1. Export your AIsa key
 export AISA_API_KEY=sk-...
 
-# 2. First-run setup (interactive — picks planner / rerank / fun-scorer models)
-bash {baseDir}/scripts/run-last30days.sh setup
+# 2. Optional setup: inspect configuration and choose model pins
+bash scripts/run-last30days.sh setup
 
-# 3. Research a topic
-bash {baseDir}/scripts/run-last30days.sh "OpenAI Agents SDK"
+# 3. Research within the user-authorized estimate budget
+bash scripts/run-last30days.sh "OpenAI Agents SDK" \
+  --budget-usd "$APPROVED_BUDGET_USD" --cost-ledger research-costs.json
 ```
+
+Run paths relative to the installed skill directory, or resolve them to absolute paths.
+The wrappers preserve the caller's working directory and project configuration.
+Public-source/local and `--mock` runs do not need an AIsa key or budget.
+
+For hosted work, honor the budget the user actually authorized. Read
+[request costs and recovery](references/cost-control.md) before running paid retrieval.
+Quotes marked `may_exceed_estimate` require explicit acceptance via
+`--allow-variable-cost`; the final charge can exceed the admission estimate.
 
 ## Common Flags
 
 ```bash
 # Low-latency profile (fewer candidates per source)
-bash {baseDir}/scripts/run-last30days.sh "$ARGUMENTS" --quick
+bash scripts/run-last30days.sh "$ARGUMENTS" --cost-ledger research-costs.json --quick
 
 # Higher-recall profile
-bash {baseDir}/scripts/run-last30days.sh "$ARGUMENTS" --deep
+bash scripts/run-last30days.sh "$ARGUMENTS" --cost-ledger research-costs.json --deep
 
 # Machine-readable output (full plan + candidates + clusters)
-bash {baseDir}/scripts/run-last30days.sh "$ARGUMENTS" --emit=json
+bash scripts/run-last30days.sh "$ARGUMENTS" --cost-ledger research-costs.json --emit=json
 
 # Restrict to specific sources
-bash {baseDir}/scripts/run-last30days.sh "$ARGUMENTS" --search=reddit,x,grounding
+bash scripts/run-last30days.sh "$ARGUMENTS" --cost-ledger research-costs.json --search=reddit,x,grounding
 
-# Check provider / source availability
-bash {baseDir}/scripts/run-last30days.sh --diagnose
+# Inspect configured providers/sources (does not verify live availability)
+bash scripts/run-last30days.sh --diagnose
 ```
 
 ## Inputs and Outputs
@@ -118,8 +128,10 @@ bash {baseDir}/scripts/run-last30days.sh --diagnose
 - `ranked_candidates` — reranked candidate pool with scores
 - `clusters` — semantically grouped findings
 - `items_by_source` — per-source item lists with dates, engagement, URLs
-- `provider_runtime` — which models + retrieval backends ran
-- `errors_by_source` — any source-level failures (fail-soft)
+- `provider_runtime` — configured reasoning models and retrieval backends; inspect plan notes/warnings for fallbacks
+- `errors_by_source` — failures, including partial source failures
+- `artifacts.source_coverage` — retained counts and unavailable/empty/partial/failed source status
+- `artifacts.costs` — exact known charges, unresolved requests, and durable ledger location
 
 ## When to use
 
@@ -134,30 +146,25 @@ bash {baseDir}/scripts/run-last30days.sh --diagnose
 
 ## Capabilities
 
-- **AISA-powered**: planner (structured JSON query plan), reranker
-  (relevance ordering), fun-scorer (meme/quirk signal), and hosted
-  retrieval for X, YouTube, TikTok, Instagram, Polymarket, and grounded
-  Tavily web search.
-- **Public paths (no extra credentials)**: Reddit, Hacker News.
-- **GitHub** via the official API when `GH_TOKEN` or `GITHUB_TOKEN` is
-  set — optional.
-- **Fail-soft**: if one source errors or times out, the brief still
-  renders with the others and notes the gap.
+- **Hosted retrieval**: X, YouTube, Polymarket public search, and Tavily web search through AIsa. TikTok/Instagram are indexed web discoveries, with unknown native engagement preserved as missing.
+- **Public paths**: Reddit and Hacker News; GitHub is optional with `GH_TOKEN` or `GITHUB_TOKEN`.
+- **Freshness**: ranked posts/articles require valid publication dates inside the requested window. Undated, future, and older items are excluded. Polymarket entries are explicitly labeled current observations, with resolution dates kept separate; they do not establish historical price movement.
+- **Partial failures** remain visible when a source also returns usable results.
 
-## Model Configuration
+## Reasoning configuration
 
-The skill makes three LLM calls per run. Each role is independently
-pinnable via `~/.config/last30days/.env`:
+Deterministic planning and local ranking work without model configuration.
+The current chat endpoint does not declare quote/admission-limit support, so
+this release blocks hosted reasoning calls before dispatch and uses those local
+fallbacks. Retrieval APIs with verified cost capabilities remain available.
+Model pins (`AISA_MODEL` or per-role `LAST30DAYS_*_MODEL`) are retained for
+configuration compatibility; their presence does not prove a model was called.
 
-```bash
-LAST30DAYS_PLANNER_MODEL=qwen-flash           # fast + reliable JSON
-LAST30DAYS_RERANK_MODEL=qwen-plus-2025-12-01  # quality ranking
-LAST30DAYS_FUN_MODEL=qwen-flash               # cheap vibes
-```
-
-Or set `AISA_MODEL=...` for a single model across all three roles. Run
-`last30days setup` to pick interactively — the picker fetches the live
-catalog from [aisa.one/docs/guides/models](https://aisa.one/docs/guides/models).
+Unknown flags, malformed external plans, invalid date windows, and unsupported
+creator/hashtag or deep-research options fail before research. `--lookback-days`
+accepts 1–365 days. Mock mode covers Reddit, X, and web fixtures and performs no
+network calls. The historical revision evaluator is restricted to mock mode
+because old revisions do not provide the current accounting guarantees.
 
 ## API Reference
 
@@ -165,27 +172,27 @@ last30days calls the following AIsa endpoints directly. See the
 [full API Reference](https://aisa.one/docs/api-reference) for the
 complete catalog.
 
-- [OpenAI Chat / `createChatCompletion`](https://aisa.one/docs/api-reference/chat/createchatcompletion) — planner, reranker, fun-scorer
+- [OpenAI Chat / `createChatCompletion`](https://aisa.one/docs/api-reference/chat/createchatcompletion) — configured reasoning integration; dispatch blocked pending verified cost capabilities
 - [Twitter Advanced Search](https://aisa.one/docs/api-reference/twitter/get_twitter-tweet-advanced-search) — X retrieval
 - [YouTube Search](https://aisa.one/docs/api-reference/search/get_youtube-search) — YouTube retrieval
 - [Tavily Search](https://aisa.one/docs/api-reference/search/post_tavily-search) — grounded web
-- [Polymarket Markets](https://aisa.one/docs/api-reference/prediction-market/get_polymarket-markets) — prediction-market retrieval
+- [Polymarket Public Search](https://aisa.one/docs/api-reference/polymarket-gamma/any_polymarket_data_apis_v1_polymarket_public_search) — prediction-market retrieval
 
 Reddit and Hacker News use their respective public APIs directly (no
 AISA proxy required).
 
 ## Requirements
 
-- **Python 3.12+**
-- **`AISA_API_KEY`** — required. Get one at [aisa.one](https://aisa.one).
+- **Python 3.11+**
+- **`AISA_API_KEY`** — required for hosted retrieval. Get one at [aisa.one](https://aisa.one).
 - **`GH_TOKEN` / `GITHUB_TOKEN`** — optional, enables the GitHub source.
 
 ```bash
-# Pin an interpreter ≥ 3.12
-for py in /usr/local/python3.12/bin/python3.12 python3.14 python3.13 python3.12 python3; do
+# Optionally select a supported interpreter
+for py in python3.14 python3.13 python3.12 python3.11 python3; do
   command -v "$py" >/dev/null 2>&1 || continue
-  "$py" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 12) else 1)' || continue
-  LAST30DAYS_PYTHON="$py"
+  "$py" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 11) else 1)' || continue
+  export LAST30DAYS_PYTHON="$py"
   break
 done
 ```

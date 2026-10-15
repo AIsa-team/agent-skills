@@ -4,5 +4,4 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PYTHON="$(bash "$ROOT/scripts/dev-python.sh")"
 
-cd "$ROOT"
-exec "$PYTHON" -m pytest --capture=no "$@"
+exec "$PYTHON" -m unittest discover -s "$ROOT/tests" -v "$@"

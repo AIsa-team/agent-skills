@@ -4,5 +4,4 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PYTHON="$(bash "$ROOT/scripts/dev-python.sh")"
 
-cd "$ROOT"
 exec "$PYTHON" "$ROOT/scripts/last30days.py" "$@"

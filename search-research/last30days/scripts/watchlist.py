@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import uuid
 import subprocess
 import sys
 import time
@@ -18,7 +20,7 @@ SCRIPT_DIR = Path(__file__).parent.resolve()
 sys.path.insert(0, str(SCRIPT_DIR))
 
 import store
-from lib import http, schema
+from lib import costs, http, schema
 
 
 # --- Webhook Delivery Functions ---
@@ -112,133 +114,143 @@ def cmd_remove(args):
     }))
 
 
+def _ledger_dir() -> Path:
+    return store._get_db_path().parent / "cost-ledgers" / "watchlist"
+
+
+def _configured_budget() -> int | None:
+    # Old databases contained an automatic $5 default; that is not consent.
+    if store.get_setting("daily_budget_authorized") != "true":
+        return None
+    value = store.get_setting("daily_budget")
+    if value is None:
+        return None
+    return costs.parse_usd(value)
+
+
+def _daily_state() -> dict:
+    today = costs.utc_day()
+    current = None
+    unresolved = []
+    for path in sorted(_ledger_dir().glob("*.json")):
+        summary = costs.ledger_summary(path)
+        if summary.get("period") == today:
+            current = summary
+        if summary["unknown_requests"]:
+            unresolved.append({"ledger_path": str(path), "request_ids": summary["unknown_requests"]})
+    return {
+        "utc_day": today,
+        "budget_micros_usd": current["budget_micros_usd"] if current else _configured_budget(),
+        "known_cost_micros_usd": current["known_cost_micros_usd"] if current else 0,
+        "spent_micros_usd": current["spent_micros_usd"] if current else 0,
+        "unresolved_ledgers": unresolved,
+        "accounting_scope": "watchlist request ledgers; unknown charges from earlier days block new spending",
+    }
+
+
+def _daily_budget(args) -> costs.RunBudget:
+    amount = args.budget_usd if args.budget_usd is not None else _configured_budget()
+    if amount is None:
+        raise costs.CostControlError("Watchlist spending requires --budget-usd or an explicit 'config budget USD'")
+    state = _daily_state()
+    if state["unresolved_ledgers"]:
+        raise costs.CostControlError("Unresolved watchlist charges must be reconciled before another run: "
+                                    + ", ".join(row["ledger_path"] for row in state["unresolved_ledgers"]))
+    return costs.RunBudget(_ledger_dir() / f"{state['utc_day']}.json", amount,
+                           period=state["utc_day"], allow_variable_cost=args.allow_variable_cost)
+
+
 def cmd_list(args):
     del args
-    topics = store.list_topics()
-    budget_used = store.get_daily_cost()
-    budget_limit = float(store.get_setting("daily_budget", "5.00"))
-    print(json.dumps({
-        "topics": topics,
-        "budget_used": budget_used,
-        "budget_limit": budget_limit,
-    }, default=str))
+    print(json.dumps({"topics": store.list_topics(), "costs": _daily_state()}, default=str))
 
 
 def cmd_run_one(args):
     topic = store.get_topic(args.topic)
     if not topic:
-        print(json.dumps({"error": f'Topic not found: "{args.topic}"'}))
-        sys.exit(1)
-    print(json.dumps(_run_topic(topic), default=str))
+        raise SystemExit(f'Topic not found: "{args.topic}"')
+    # This directory-level lock also prevents concurrent watchlist runs crossing
+    # a UTC day boundary from ignoring an earlier run's unresolved outcome.
+    with costs._locked(_ledger_dir() / "watchlist"):
+        budget = _daily_budget(args)
+        result = _run_topic(topic, budget)
+    print(json.dumps(result, default=str))
 
 
 def cmd_run_all(args):
-    del args
     topics = [topic for topic in store.list_topics() if topic["enabled"]]
     if not topics:
         print(json.dumps({"message": "No enabled topics to research."}))
         return
-
-    budget_limit = float(store.get_setting("daily_budget", "5.00"))
     results = []
-    for topic in topics:
-        if store.get_daily_cost() >= budget_limit:
-            results.append({
-                "topic": topic["name"],
-                "status": "skipped",
-                "reason": f"Budget exceeded: ${store.get_daily_cost():.2f}/${budget_limit:.2f}",
-            })
-            continue
-        results.append(_run_topic(topic))
-
-    print(json.dumps({
-        "action": "run_all",
-        "results": results,
-        "budget_used": store.get_daily_cost(),
-        "budget_limit": budget_limit,
-    }, default=str))
+    with costs._locked(_ledger_dir() / "watchlist"):
+        for topic in topics:
+            try:
+                budget = _daily_budget(args)
+                state = budget.summary()
+                if state["budget_exceeded"] or state["remaining_micros_usd"] == 0:
+                    raise costs.CostControlError("The daily admission budget is exhausted")
+            except costs.CostControlError as exc:
+                results.append({"topic": topic["name"], "status": "skipped", "reason": str(exc)})
+                continue
+            results.append(_run_topic(topic, budget))
+        state = _daily_state()
+    print(json.dumps({"action": "run_all", "results": results, "costs": state}, default=str))
 
 
-def _run_topic(topic: dict) -> dict:
+def _run_topic(topic: dict, budget: costs.RunBudget) -> dict:
     start_time = time.time()
     topic_id = topic["id"]
-    run_id = store.record_run(topic_id, source_mode="v3", status="running")
+    run_id = store.record_run(topic_id, source_mode="v3", status="running", cost_ledger=str(budget.path))
+    child_run_id = uuid.uuid4().hex
+    child_env = {**os.environ, "LAST30DAYS_COST_RUN_ID": child_run_id}
+
+    def finish_cost() -> dict:
+        summary = costs.run_summary(budget.path, child_run_id)
+        amount = summary["run_cost_micros_usd"]
+        store.update_run(run_id, cost_micros_usd=amount,
+                         cost_status="reported" if amount is not None else "unknown",
+                         cost_ledger=str(budget.path))
+        return summary
 
     try:
         search_queries = json.loads(topic["search_queries"]) if topic.get("search_queries") else None
         search_term = search_queries[0] if search_queries else topic["name"]
-        result = subprocess.run(
-            [
-                sys.executable,
-                str(SCRIPT_DIR / "last30days.py"),
-                search_term,
-                "--emit=json",
-                "--quick",
-                "--lookback-days",
-                "90",
-            ],
-            capture_output=True,
-            text=True,
-            timeout=300,
-        )
+        command = [sys.executable, str(SCRIPT_DIR / "last30days.py"), search_term,
+                   "--emit=json", "--quick", "--lookback-days", "90",
+                   "--budget-usd", costs.usd_text(budget.summary()["budget_micros_usd"]),
+                   "--cost-ledger", str(budget.path)]
+        if budget.allow_variable_cost:
+            command.append("--allow-variable-cost")
+        result = subprocess.run(command, capture_output=True, text=True, timeout=300, env=child_env)
         duration = time.time() - start_time
         if result.returncode != 0:
-            store.update_run(
-                run_id,
-                status="failed",
-                error_message=result.stderr[:500],
-                duration_seconds=duration,
-            )
-            return {
-                "topic": topic["name"],
-                "status": "failed",
-                "error": result.stderr[:200],
-                "duration": duration,
-            }
-
+            store.update_run(run_id, status="failed", error_message=result.stderr[:500], duration_seconds=duration)
+            return {"topic": topic["name"], "status": "failed", "error": result.stderr[:200],
+                    "duration": duration, "costs": finish_cost()}
         report = schema.report_from_dict(json.loads(result.stdout))
         findings = store.findings_from_report(report, limit=25)
         counts = store.store_findings(run_id, topic_id, findings)
-        store.update_run(
-            run_id,
-            status="completed",
-            duration_seconds=duration,
-            findings_new=counts["new"],
-            findings_updated=counts["updated"],
-        )
-        
-        # Deliver webhook notification if configured
+        store.update_run(run_id, status="completed", duration_seconds=duration,
+                         findings_new=counts["new"], findings_updated=counts["updated"])
+        summary = finish_cost()
         _deliver_findings(topic["name"], counts)
-        
-        return {
-            "topic": topic["name"],
-            "status": "completed",
-            "new": counts["new"],
-            "updated": counts["updated"],
-            "duration": duration,
-        }
-    except subprocess.TimeoutExpired:
+        return {"topic": topic["name"], "status": "completed", "new": counts["new"],
+                "updated": counts["updated"], "duration": duration, "costs": summary}
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
         duration = time.time() - start_time
-        store.update_run(
-            run_id,
-            status="failed",
-            error_message="Research timed out after 300s",
-            duration_seconds=duration,
-        )
-        return {"topic": topic["name"], "status": "failed", "error": "timeout"}
-    except json.JSONDecodeError as exc:
-        duration = time.time() - start_time
-        store.update_run(
-            run_id,
-            status="failed",
-            error_message=f"Invalid JSON output: {exc}",
-            duration_seconds=duration,
-        )
-        return {"topic": topic["name"], "status": "failed", "error": f"parse error: {exc}"}
+        error = "Research timed out after 300s" if isinstance(exc, subprocess.TimeoutExpired) else str(exc)
+        store.update_run(run_id, status="failed", error_message=error[:500], duration_seconds=duration)
+        return {"topic": topic["name"], "status": "failed", "error": error, "costs": finish_cost()}
+
+
 def cmd_config(args):
     if args.key == "budget":
-        store.set_setting("daily_budget", str(args.value))
-        print(json.dumps({"action": "config", "key": "daily_budget", "value": str(args.value)}))
+        value = costs.usd_text(costs.parse_usd(args.value))
+        store.set_setting("daily_budget", value)
+        store.set_setting("daily_budget_authorized", "true")
+        print(json.dumps({"action": "config", "key": "daily_budget", "value": value,
+                          "limit_semantics": "admission estimate limit; final charges may exceed estimates"}))
         return
     if args.key == "delivery":
         store.set_setting("delivery_channel", str(args.value))
@@ -271,6 +283,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     run_all = sub.add_parser("run-all")
     run_all.set_defaults(func=cmd_run_all)
+    for runner in (run_one, run_all):
+        runner.add_argument("--budget-usd", type=costs.parse_usd,
+                            help="Explicit daily admission budget; final charges may exceed estimates")
+        runner.add_argument("--allow-variable-cost", action="store_true",
+                            help="Allow provider quotes whose final charge may exceed the estimate")
 
     config = sub.add_parser("config")
     config.add_argument("key", choices=["delivery", "budget"])
@@ -286,7 +303,10 @@ def main() -> int:
     if not getattr(args, "command", None):
         parser.print_help()
         return 1
-    args.func(args)
+    try:
+        args.func(args)
+    except (costs.CostControlError, ValueError) as exc:
+        parser.exit(2, f"{exc}\n")
     return 0
 
 

@@ -21,7 +21,7 @@ import json
 import os
 import sqlite3
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -132,7 +132,6 @@ CREATE TABLE IF NOT EXISTS settings (
 
 SCHEMA_V1_DEFAULTS = """
 INSERT OR IGNORE INTO schema_version (version) VALUES (1);
-INSERT OR IGNORE INTO settings (key, value) VALUES ('daily_budget', '5.00');
 INSERT OR IGNORE INTO settings (key, value) VALUES ('delivery_channel', '');
 INSERT OR IGNORE INTO settings (key, value) VALUES ('delivery_mode', 'announce');
 INSERT OR IGNORE INTO settings (key, value) VALUES ('briefing_format', 'concise');
@@ -144,6 +143,9 @@ _UPDATABLE_RUN_COLUMNS = frozenset({
     "prompt_tokens",
     "completion_tokens",
     "token_cost",
+    "cost_micros_usd",
+    "cost_status",
+    "cost_ledger",
     "duration_seconds",
     "status",
     "error_message",
@@ -166,7 +168,13 @@ _UPDATABLE_FINDING_COLUMNS = frozenset({
 })
 
 # Future migrations keyed by version number
-MIGRATIONS: Dict[int, str] = {}
+MIGRATIONS: Dict[int, str] = {
+    2: """
+        ALTER TABLE research_runs ADD COLUMN cost_micros_usd INTEGER;
+        ALTER TABLE research_runs ADD COLUMN cost_status TEXT DEFAULT 'unknown';
+        ALTER TABLE research_runs ADD COLUMN cost_ledger TEXT;
+    """,
+}
 
 
 def _connect(db_path: Optional[Path] = None) -> sqlite3.Connection:
@@ -306,19 +314,30 @@ def record_run(
     duration_seconds: float = 0,
     prompt_tokens: int = 0,
     completion_tokens: int = 0,
-    token_cost: float = 0,
+    token_cost: Optional[float] = None,
+    cost_micros_usd: Optional[int] = None,
+    cost_status: str = "unknown",
+    cost_ledger: Optional[str] = None,
 ) -> int:
-    """Record a research run. Returns the run ID."""
+    """Record a run; absent billing evidence is unknown, never zero."""
+    if cost_micros_usd is not None:
+        if type(cost_micros_usd) is not int or cost_micros_usd < 0:
+            raise ValueError("cost_micros_usd must be a nonnegative integer")
+        token_cost = cost_micros_usd / 1_000_000
+        if cost_status == "unknown":
+            cost_status = "reported"
     conn = _connect()
     try:
         cursor = conn.execute(
             """INSERT INTO research_runs
                (topic_id, run_date, source_mode, status, error_message,
-                duration_seconds, prompt_tokens, completion_tokens, token_cost)
-               VALUES (?, datetime('now'), ?, ?, ?, ?, ?, ?, ?)""",
+                duration_seconds, prompt_tokens, completion_tokens, token_cost,
+                cost_micros_usd, cost_status, cost_ledger)
+               VALUES (?, datetime('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 topic_id, source_mode, status, error_message,
                 duration_seconds, prompt_tokens, completion_tokens, token_cost,
+                cost_micros_usd, cost_status, cost_ledger,
             ),
         )
         conn.commit()
@@ -329,6 +348,12 @@ def record_run(
 
 def update_run(run_id: int, **kwargs):
     """Update a research run's fields."""
+    if "cost_micros_usd" in kwargs:
+        amount = kwargs["cost_micros_usd"]
+        if amount is not None and (type(amount) is not int or amount < 0):
+            raise ValueError("cost_micros_usd must be a nonnegative integer")
+        kwargs["token_cost"] = amount / 1_000_000 if amount is not None else None
+        kwargs.setdefault("cost_status", "reported" if amount is not None else "unknown")
     conn = _connect()
     try:
         invalid_columns = sorted(set(kwargs) - _UPDATABLE_RUN_COLUMNS)
@@ -499,19 +524,21 @@ def dismiss_finding(finding_id: int):
 # --- Cost Tracking ---
 
 
-def get_daily_cost(date: Optional[str] = None) -> float:
-    """Get total token cost for a given day (default: today)."""
+def get_daily_cost(date: Optional[str] = None) -> Optional[float]:
+    """Reported UTC-day cost, or None if any stored run's cost is unknown.
+
+    Spending authorization uses the durable request ledger, not this reporting
+    projection. Historical runs without billing evidence remain unknown.
+    """
     conn = _connect()
     try:
-        if not date:
-            date = datetime.now().strftime("%Y-%m-%d")
+        date = date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
         row = conn.execute(
-            """SELECT COALESCE(SUM(token_cost), 0) as total
-               FROM research_runs
-               WHERE date(run_date) = date(?)""",
-            (date,),
+            """SELECT COALESCE(SUM(cost_micros_usd), 0) AS known,
+                      SUM(CASE WHEN cost_micros_usd IS NULL THEN 1 ELSE 0 END) AS unknown
+               FROM research_runs WHERE date(run_date) = date(?)""", (date,),
         ).fetchone()
-        return row["total"]
+        return None if row["unknown"] else row["known"] / 1_000_000
     finally:
         conn.close()
 
@@ -572,10 +599,12 @@ def get_stats() -> Dict[str, Any]:
             "SELECT COUNT(*) FROM research_runs WHERE run_date >= ? AND status = 'failed'",
             (week_ago,),
         ).fetchone()[0]
-        cost_7d = conn.execute(
-            "SELECT COALESCE(SUM(token_cost), 0) FROM research_runs WHERE run_date >= ?",
-            (week_ago,),
-        ).fetchone()[0]
+        cost_row = conn.execute(
+            "SELECT COALESCE(SUM(cost_micros_usd), 0), "
+            "SUM(CASE WHEN cost_micros_usd IS NULL THEN 1 ELSE 0 END) "
+            "FROM research_runs WHERE run_date >= ?", (week_ago,),
+        ).fetchone()
+        cost_7d = None if cost_row[1] else cost_row[0] / 1_000_000
 
         # Source breakdown
         sources = {}
@@ -596,7 +625,7 @@ def get_stats() -> Dict[str, Any]:
             "failed_7d": failed_7d,
             "cost_7d": cost_7d,
             "sources": sources,
-            "daily_budget": get_setting("daily_budget", "5.00"),
+            "daily_budget": get_setting("daily_budget") if get_setting("daily_budget_authorized") == "true" else None,
         }
     finally:
         conn.close()

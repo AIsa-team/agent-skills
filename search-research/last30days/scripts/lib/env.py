@@ -154,6 +154,8 @@ def _find_project_env() -> Path | None:
     Searches for .claude/last30days.env in each parent directory,
     stopping at the user's home directory or filesystem root.
     """
+    if CONFIG_FILE is None:
+        return None
     cwd = Path.cwd()
     for parent in [cwd, *cwd.parents]:
         candidate = parent / '.claude' / 'last30days.env'

@@ -31,7 +31,7 @@ TRANSCRIPT_LIMITS = {
 # Max words to keep from each transcript
 TRANSCRIPT_MAX_WORDS = 5000
 
-from . import aisa, env, http, log
+from . import aisa, costs, env, http, log
 from .relevance import token_overlap_relevance as _compute_relevance
 
 
@@ -205,7 +205,6 @@ def search_youtube(
     Returns:
         Dict with 'items' list of video metadata dicts.
     """
-    del to_date
     # Not os.environ: a harness that scrubs the environment (or a plugin
     # install with no profile .env) leaves this empty, and returning
     # "not configured" here silently drops YouTube from the whole run.
@@ -218,8 +217,10 @@ def search_youtube(
         aisa.search_youtube(api_key, core_topic, depth=depth),
         topic=core_topic,
         from_date=from_date,
+        to_date=to_date or None,
     )
-    items.sort(key=lambda x: x.get("engagement", {}).get("views", 0), reverse=True)
+    items.sort(key=lambda x: x.get("engagement", {}).get("views") or 0, reverse=True)
+    items = items[:DEPTH_CONFIG.get(depth, DEPTH_CONFIG["default"])]
     return {"items": items}
 
 
@@ -461,8 +462,18 @@ def search_and_transcribe(
     queries = expand_youtube_queries(topic, depth)
     seen_ids: Set[str] = set()
     items: List[Dict[str, Any]] = []
+    partial_errors: List[str] = []
     for q in queries:
-        search_result = search_youtube(q, from_date, to_date, depth)
+        try:
+            search_result = search_youtube(q, from_date, to_date, depth)
+        except costs.CostControlError as exc:
+            partial_errors.append(f"YouTube query {q!r} stopped by cost controls: {exc}")
+            break
+        except (http.HTTPError, OSError, ValueError) as exc:
+            partial_errors.append(f"YouTube query {q!r} failed: {type(exc).__name__}: {exc}")
+            continue
+        if search_result.get("error"):
+            partial_errors.append(f"YouTube query {q!r} failed: {search_result['error']}")
         for item in search_result.get("items", []):
             vid = item.get("video_id", "")
             if vid and vid not in seen_ids:
@@ -470,10 +481,10 @@ def search_and_transcribe(
                 items.append(item)
 
     # Sort merged results by views descending
-    items.sort(key=lambda x: x.get("engagement", {}).get("views", 0), reverse=True)
+    items.sort(key=lambda x: x.get("engagement", {}).get("views") or 0, reverse=True)
 
     if not items:
-        return search_result
+        return {"items": [], "partial_errors": partial_errors}
 
     transcripts: Dict[str, Optional[str]] = {}
     transcript_limit = TRANSCRIPT_LIMITS.get(depth, TRANSCRIPT_LIMITS["default"])
@@ -500,7 +511,7 @@ def search_and_transcribe(
             transcript or "", core_topic,
         )
 
-    return {"items": items}
+    return {"items": items, "partial_errors": partial_errors}
 
 
 def parse_youtube_response(response: Dict[str, Any]) -> List[Dict[str, Any]]:

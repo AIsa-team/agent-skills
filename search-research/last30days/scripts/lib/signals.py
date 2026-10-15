@@ -37,7 +37,7 @@ def local_relevance(item: schema.SourceItem, ranking_query: str) -> float:
     # often have titles that don't keyword-match the query (e.g., "YE - FATHER
     # (feat. TRAVIS SCOTT)" doesn't match "kanye west"). The engagement signals
     # say "this is important" even when text overlap is weak.
-    if item.source == "youtube" and item.engagement.get("views", 0) > 100_000:
+    if item.source == "youtube" and (item.engagement.get("views") or 0) > 100_000:
         score = max(score, 0.3)
 
     # Project-mode GitHub floor: items fetched via --github-repo are explicitly
@@ -52,7 +52,10 @@ def local_relevance(item: schema.SourceItem, ranking_query: str) -> float:
 
 
 def freshness(item: schema.SourceItem, freshness_mode: str = "balanced_recent") -> int:
-    score = dates.recency_score(item.published_at)
+    evidence_date = item.published_at
+    if item.metadata.get("date_kind") == "market_observation":
+        evidence_date = str(item.metadata.get("observed_at") or "")[:10] or None
+    score = dates.recency_score(evidence_date)
     if freshness_mode == "strict_recent":
         return int(score)
     if freshness_mode == "evergreen_ok":
@@ -183,8 +186,8 @@ def _passes_engagement_floor(item: schema.SourceItem, sole_source: bool) -> bool
         return True
     if sole_source:
         return True
-    views = item.engagement.get("views", 0) if item.engagement else 0
-    return views >= _VIDEO_ENGAGEMENT_FLOOR_VIEWS
+    views = item.engagement.get("views") if item.engagement else None
+    return views is None or views >= _VIDEO_ENGAGEMENT_FLOOR_VIEWS
 
 
 def prune_low_relevance(
@@ -205,7 +208,7 @@ def prune_low_relevance(
         rel = item.local_relevance if item.local_relevance is not None else 0.0
         if rel < minimum:
             return False
-        if item.source in _SOCIAL_SOURCES and (item.engagement_score is None or item.engagement_score == 0):
+        if item.source in _SOCIAL_SOURCES and item.engagement_score == 0:
             if rel < minimum * 1.5:
                 return False
         sole_source = sources_present == {item.source}

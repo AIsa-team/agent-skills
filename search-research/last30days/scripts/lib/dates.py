@@ -1,5 +1,8 @@
 """Date utilities for last30days skill."""
 
+import calendar
+import math
+import re
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from typing import Optional, Tuple
@@ -16,21 +19,44 @@ def get_date_range(days: int = 30) -> Tuple[str, str]:
     return from_date.isoformat(), today.isoformat()
 
 
-def parse_date(date_str: Optional[str]) -> Optional[datetime]:
+def parse_date(date_str: Optional[str], *, reference_time: Optional[datetime] = None) -> Optional[datetime]:
     """Parse a date string in various formats.
 
     Supports: Unix timestamp, ISO 8601, YYYY-MM-DD, and RFC 2822 / HTTP-date
     (e.g. 'Wed, 15 Apr 2026 19:28:36 GMT') — the format used by Tavily and
     many news sources via published_date.
     """
+    if date_str is None or isinstance(date_str, bool):
+        return None
+    date_str = str(date_str).strip()
     if not date_str:
         return None
+    date_str = re.sub(r"^(?:streamed|premiered)\s+", "", date_str, flags=re.IGNORECASE)
+    relative = re.fullmatch(r"(\d+)\s+(second|minute|hour|day|week|month|year)s?\s+ago", date_str, re.IGNORECASE)
+    if relative:
+        reference = reference_time or datetime.now(timezone.utc)
+        if reference.tzinfo is None:
+            reference = reference.replace(tzinfo=timezone.utc)
+        reference = reference.astimezone(timezone.utc)
+        quantity, unit = int(relative[1]), relative[2].lower()
+        try:
+            if unit in {"month", "year"}:
+                month_index = reference.year * 12 + reference.month - 1 - quantity * (12 if unit == "year" else 1)
+                year, month = divmod(month_index, 12)
+                month += 1
+                return reference.replace(year=year, month=month, day=min(reference.day, calendar.monthrange(year, month)[1]))
+            seconds = quantity * {"second": 1, "minute": 60, "hour": 3600, "day": 86400, "week": 604800}[unit]
+            return reference - timedelta(seconds=seconds)
+        except (ValueError, OverflowError):
+            return None
 
     # Try Unix timestamp (from Reddit)
     try:
         ts = float(date_str)
+        if not math.isfinite(ts):
+            return None
         return datetime.fromtimestamp(ts, tz=timezone.utc)
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, OverflowError, OSError):
         pass
 
     # Try ISO formats
@@ -40,6 +66,9 @@ def parse_date(date_str: Optional[str]) -> Optional[datetime]:
         "%Y-%m-%dT%H:%M:%SZ",
         "%Y-%m-%dT%H:%M:%S%z",
         "%Y-%m-%dT%H:%M:%S.%f%z",
+        "%a %b %d %H:%M:%S %z %Y",
+        "%b %d, %Y",
+        "%B %d, %Y",
     ]
 
     for fmt in formats:
@@ -74,7 +103,7 @@ def timestamp_to_date(ts: Optional[float]) -> Optional[str]:
     try:
         dt = datetime.fromtimestamp(ts, tz=timezone.utc)
         return dt.date().isoformat()
-    except (ValueError, TypeError, OSError):
+    except (ValueError, TypeError, OSError, OverflowError):
         return None
 
 

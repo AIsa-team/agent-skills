@@ -23,23 +23,35 @@
     "scripts/store.py",
     "scripts/sync.sh",
     "scripts/test-v1-vs-v2.sh",
-    "scripts/watchlist.py"
+    "scripts/watchlist.py",
+    "scripts/lib/costs.py"
   ],
   "checks": {
     "lint": [],
     "typecheck": [],
     "build": [],
-    "test": []
+    "test": [
+      [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ]
+    ]
   },
   "upstreams": [
     "aisa-authentication",
     "aisa-api-search-research",
     "doc-e4638a7a5d8b",
     "doc-69cf34076850",
-    "doc-cd8920a9145f",
     "doc-dcf13d520881",
     "doc-9d06e8e0638b",
     "doc-d779cca5b3fd",
-    "doc-14a02dd5df8a"
+    "doc-14a02dd5df8a",
+    "aisa-polymarket-public-search",
+    "doc-128752d84419"
   ]
 }

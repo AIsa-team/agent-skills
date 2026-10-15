@@ -400,12 +400,14 @@ def get_setup_status_text(results: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def _has_python312_plus() -> bool:
+def _has_python311_plus() -> bool:
     candidates = [
+        sys.executable,
         "/usr/local/python3.12/bin/python3.12",
         shutil.which("python3.14"),
         shutil.which("python3.13"),
         shutil.which("python3.12"),
+        shutil.which("python3.11"),
         shutil.which("python3"),
     ]
     for candidate in candidates:
@@ -413,7 +415,7 @@ def _has_python312_plus() -> bool:
             continue
         try:
             proc = subprocess.run(
-                [candidate, "-c", "import sys; raise SystemExit(0 if sys.version_info >= (3, 12) else 1)"],
+                [candidate, "-c", "import sys; raise SystemExit(0 if sys.version_info >= (3, 11) else 1)"],
                 capture_output=True,
                 check=False,
                 text=True,
@@ -429,7 +431,7 @@ def run_openclaw_setup(config: dict[str, Any]) -> dict[str, Any]:
     """Server-side setup probe: no browser auth, just tool + key availability."""
     return {
         "node": shutil.which("node") is not None,
-        "python3": _has_python312_plus(),
+        "python3": _has_python311_plus(),
         "keys": {"aisa": bool(config.get("AISA_API_KEY"))},
         "aisa_configured": bool(config.get("AISA_API_KEY")),
         "x_method": "aisa" if config.get("AISA_API_KEY") else None,

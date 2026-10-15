@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import math
 import urllib.parse
+from datetime import datetime, timezone
 from typing import Any
 
 from . import dates, http
@@ -13,7 +15,7 @@ AISA_CHAT_COMPLETIONS_URL = f"{AISA_BASE_URL}/v1/chat/completions"
 AISA_TWITTER_SEARCH_URL = f"{AISA_BASE_URL}/apis/v1/twitter/tweet/advanced_search"
 AISA_YOUTUBE_SEARCH_URL = f"{AISA_BASE_URL}/apis/v1/youtube/search"
 AISA_TAVILY_SEARCH_URL = f"{AISA_BASE_URL}/apis/v1/tavily/search"
-AISA_POLYMARKET_MARKETS_URL = f"{AISA_BASE_URL}/apis/v1/polymarket/markets"
+AISA_POLYMARKET_SEARCH_URL = f"{AISA_BASE_URL}/apis/v1/polymarket/public-search"
 AISA_CHAT_TIMEOUT = 60
 AISA_CHAT_RETRIES = 1
 
@@ -84,14 +86,15 @@ def search_youtube(
         {
             "engine": "youtube",
             "q": query,
-            "num": DEPTH_LIMITS.get(depth, DEPTH_LIMITS["default"]),
         }
     )
-    return http.get(
+    response = http.get(
         f"{AISA_YOUTUBE_SEARCH_URL}?{params}",
         headers=_headers(api_key),
         timeout=45,
     )
+    response["_observed_at"] = datetime.now(timezone.utc).isoformat()
+    return response
 
 
 def search_tavily(
@@ -101,11 +104,12 @@ def search_tavily(
     *,
     limit: int | None = None,
     count: int = 5,
+    topic: str = "news",
 ) -> dict[str, Any]:
-    max_results = limit if limit is not None else count
+    max_results = min(20, max(0, limit if limit is not None else count))
     payload: dict[str, Any] = {
         "query": query,
-        "topic": "news",
+        "topic": topic,
         "max_results": max_results,
         "include_raw_content": False,
     }
@@ -124,12 +128,15 @@ def search_polymarket(
     api_key: str,
     query: str,
 ) -> dict[str, Any]:
-    params = urllib.parse.urlencode({"search": query, "status": "open"})
-    return http.get(
-        f"{AISA_POLYMARKET_MARKETS_URL}?{params}",
+    params = urllib.parse.urlencode({"q": query, "events_status": "active", "keep_closed_markets": 0,
+                                    "limit_per_type": 12, "search_profiles": "false", "search_tags": "false"})
+    response = http.get(
+        f"{AISA_POLYMARKET_SEARCH_URL}?{params}",
         headers=_headers(api_key),
         timeout=30,
     )
+    response["_observed_at"] = datetime.now(timezone.utc).isoformat()
+    return response
 
 
 def parse_twitter_response(response: dict[str, Any], *, query: str = "") -> list[dict[str, Any]]:
@@ -159,12 +166,12 @@ def parse_twitter_response(response: dict[str, Any], *, query: str = "") -> list
                 "text": str(text or "").strip()[:500],
                 "url": url,
                 "author_handle": _handle_from_item(item),
-                "date": _normalize_date(_first(item, "created_at", "date", "published_at")),
+                "date": _normalize_date(_first(item, "createdAt", "created_at", "date", "published_at")),
                 "engagement": {
-                    "likes": _to_int(_first(item, "favorite_count", "likes", "like_count")),
-                    "reposts": _to_int(_first(item, "retweet_count", "reposts")),
-                    "replies": _to_int(_first(item, "reply_count", "replies")),
-                    "quotes": _to_int(_first(item, "quote_count", "quotes")),
+                    "likes": _to_int(_first(item, "likeCount", "favorite_count", "likes", "like_count")),
+                    "reposts": _to_int(_first(item, "retweetCount", "retweet_count", "reposts")),
+                    "replies": _to_int(_first(item, "replyCount", "reply_count", "replies")),
+                    "quotes": _to_int(_first(item, "quoteCount", "quote_count", "quotes")),
                 },
                 "why_relevant": "AIsa Twitter search",
                 "relevance": 0.8 if not query else _query_relevance(query, str(text or "")),
@@ -173,7 +180,10 @@ def parse_twitter_response(response: dict[str, Any], *, query: str = "") -> list
     return items
 
 
-def parse_youtube_response(response: dict[str, Any], *, topic: str, from_date: str) -> list[dict[str, Any]]:
+def parse_youtube_response(response: dict[str, Any], *, topic: str, from_date: str,
+                           to_date: str | None = None) -> list[dict[str, Any]]:
+    observed_at = dates.parse_date(response.get("_observed_at")) or datetime.now(timezone.utc)
+    to_date = to_date or observed_at.date().isoformat()
     raw_items = (
         response.get("video_results")
         or response.get("videos")
@@ -193,15 +203,21 @@ def parse_youtube_response(response: dict[str, Any], *, topic: str, from_date: s
             continue
         title = str(_first(item, "title", "name") or "")
         snippet = str(_first(item, "snippet", "description") or "")[:500]
+        channel = _first(item, "channel", "channel_name", "author")
+        if isinstance(channel, dict):
+            channel = _first(channel, "title", "name")
+        published = _first(item, "published_time", "publishedDate", "published_at", "date")
+        parsed_date = dates.parse_date(published, reference_time=observed_at)
         items.append(
             {
                 "video_id": video_id or f"aisa-{index + 1}",
                 "title": title,
                 "url": url,
-                "channel_name": str(_first(item, "channel", "channel_name", "author") or ""),
-                "date": _normalize_date(_first(item, "publishedDate", "published_at", "date")),
+                "channel_name": str(channel or ""),
+                "date": parsed_date.date().isoformat() if parsed_date else None,
+                "date_confidence": "med" if published and "ago" in str(published).lower() else "high",
                 "engagement": {
-                    "views": _to_int(_first(item, "views", "view_count")) or 0,
+                    "views": _to_int(_first(item, "views", "view_count")),
                     "likes": _to_int(_first(item, "likes", "like_count")),
                     "comments": None,
                 },
@@ -211,8 +227,7 @@ def parse_youtube_response(response: dict[str, Any], *, topic: str, from_date: s
                 "description": snippet,
             }
         )
-    recent = [item for item in items if item.get("date") and item["date"] >= from_date]
-    return recent if len(recent) >= 3 else items
+    return [item for item in items if item.get("date") and from_date <= item["date"] <= to_date]
 
 
 def parse_tavily_response(response: dict[str, Any], *, date_range: tuple[str, str]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -243,38 +258,75 @@ def parse_tavily_response(response: dict[str, Any], *, date_range: tuple[str, st
     return items, artifact
 
 
-def parse_polymarket_response(response: dict[str, Any], *, topic: str = "") -> list[dict[str, Any]]:
-    raw_items = response.get("markets") or response.get("data") or response.get("results") or []
-    items: list[dict[str, Any]] = []
-    for index, item in enumerate(raw_items):
+def parse_polymarket_response(response: dict[str, Any] | list[Any], *, topic: str = "",
+                              observed_at: str | None = None) -> list[dict[str, Any]]:
+    """Flatten public-search events and market arrays without confusing resolution with publication.
+
+    Only a timestamp recorded when the response was retrieved establishes an
+    observation date. Re-parsing an undated or cached payload does not make it fresh.
+    """
+    if isinstance(response, list):
+        raw_items = response
+    else:
+        observed_at = observed_at or response.get("_observed_at")
+        raw_items = (response.get("events") or response.get("markets") or response.get("data")
+                     or response.get("results") or [])
+    observations: list[tuple[dict[str, Any], str | None]] = []
+    for item in raw_items:
         if not isinstance(item, dict):
+            continue
+        if isinstance(item.get("markets"), list):
+            if item.get("closed") is True:
+                continue
+            observations.extend((market, item.get("slug")) for market in item["markets"]
+                                if isinstance(market, dict))
+        else:
+            observations.append((item, None))
+    items: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for index, (item, event_slug) in enumerate(observations):
+        if item.get("closed") is True or item.get("active") is False:
             continue
         question = str(_first(item, "question", "title", "name") or "").strip()
         if not question:
             continue
         url = _first(item, "url")
         slug = _first(item, "market_slug", "slug")
-        market_id = _first(item, "condition_id", "id", "market_id")
+        market_id = _first(item, "id", "conditionId", "condition_id", "market_id")
         if not url:
-            if slug:
+            if event_slug and slug:
+                url = f"https://polymarket.com/event/{event_slug}/{slug}"
+            elif slug:
                 url = f"https://polymarket.com/event/{slug}"
-            elif market_id:
-                url = f"https://polymarket.com/event/{market_id}"
         if not url:
             continue
+        identity = str(market_id or url)
+        if identity in seen:
+            continue
+        seen.add(identity)
+        outcomes = _json_array(item.get("outcomes"))
+        prices = _json_array(item.get("outcomePrices"))
+        outcome_prices = [(str(name), price) for name, raw_price in zip(outcomes, prices)
+                          if (price := _normalize_probability(raw_price)) is not None]
+        probability = next((price for name, price in outcome_prices if name.lower() == "yes"), None)
+        if probability is None:
+            probability = _normalize_probability(_first(item, "probability", "yes_price", "price"))
         items.append(
             {
-                "id": f"AP{index + 1}",
+                "id": f"AP{market_id or index + 1}",
                 "title": question,
+                "question": question,
                 "url": url,
-                # end_time/start_time are Unix timestamps; _normalize_date handles them
-                # via the float branch. Prefer end_time (when the market resolves) over
-                # start_time so the "date" reflects recency of the prediction window.
-                "date": _normalize_date(_first(item, "end_time", "updatedAt", "end_date", "date", "start_time")),
-                "probability": _normalize_probability(_first(item, "probability", "yes_price", "price")),
-                "volume": _to_float(_first(item, "volume_total", "volume_1_month", "volume_1_week", "volume")),
+                "date": None,
+                "observed_at": observed_at,
+                "end_date": _normalize_date(_first(item, "endDate", "end_date", "end_time")),
+                "probability": probability,
+                "outcome_prices": outcome_prices,
+                "volume": _to_float(_first(item, "volumeNum", "volume", "volume_total")),
+                "liquidity": _to_float(_first(item, "liquidityNum", "liquidity")),
                 "container": "Polymarket",
-                "why_relevant": "AIsa Polymarket search",
+                "why_relevant": "Current Polymarket market observation via AIsa; not historical odds",
+                "metadata": {"retrieval_method": "native_api", "date_kind": "market_observation"},
                 "relevance": _query_relevance(topic, question) if topic else 0.8,
             }
         )
@@ -282,6 +334,11 @@ def parse_polymarket_response(response: dict[str, Any], *, topic: str = "") -> l
 
 
 def _handle_from_item(item: dict[str, Any]) -> str:
+    author = item.get("author") or item.get("user")
+    if isinstance(author, dict):
+        handle = _first(author, "userName", "screen_name", "username")
+        if handle:
+            return str(handle).lstrip("@")
     return str(
         _first(item, "screen_name", "author_handle", "username", "user_name", "handle") or ""
     ).lstrip("@")
@@ -305,20 +362,22 @@ def _normalize_date(value: object) -> str | None:
 
 
 def _to_int(value: Any) -> int | None:
-    if value in (None, ""):
+    if value in (None, "") or isinstance(value, bool):
         return None
     try:
-        return int(value)
-    except (TypeError, ValueError):
+        number = float(value)
+        return int(number) if math.isfinite(number) and number >= 0 and number.is_integer() else None
+    except (TypeError, ValueError, OverflowError):
         return None
 
 
 def _to_float(value: Any) -> float | None:
-    if value in (None, ""):
+    if value in (None, "") or isinstance(value, bool):
         return None
     try:
-        return float(value)
-    except (TypeError, ValueError):
+        number = float(value)
+        return number if math.isfinite(number) and number >= 0 else None
+    except (TypeError, ValueError, OverflowError):
         return None
 
 
@@ -326,9 +385,16 @@ def _normalize_probability(value: Any) -> float | None:
     prob = _to_float(value)
     if prob is None:
         return None
-    if prob > 1:
-        return prob / 100.0
-    return prob
+    return prob if 0 <= prob <= 1 else None
+
+
+def _json_array(value: Any) -> list[Any]:
+    if isinstance(value, str):
+        try:
+            value = json.loads(value)
+        except (ValueError, TypeError):
+            return []
+    return value if isinstance(value, list) else []
 
 
 def _query_relevance(topic: str, text: str) -> float:

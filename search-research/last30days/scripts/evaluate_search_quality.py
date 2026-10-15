@@ -28,6 +28,7 @@ from lib import schema
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 EVAL_TOPICS_FILE = REPO_ROOT / "fixtures" / "eval_topics.json"
+_TEMP_WORKTREES: dict[Path, Path] = {}
 
 
 def _load_default_topics() -> list[tuple[str, str]]:
@@ -46,7 +47,7 @@ def _load_default_topics() -> list[tuple[str, str]]:
 
 DEFAULT_TOPICS = _load_default_topics()
 DEFAULT_SEARCH = ""
-DEFAULT_JUDGE_MODEL = providers.AISA_DEFAULT
+DEFAULT_JUDGE_MODEL = None
 
 
 def stable_item_key(item: dict[str, Any]) -> str:
@@ -253,7 +254,7 @@ def get_judgments(
     if cache_file.exists():
         payload = json.loads(cache_file.read_text())
         return {row["id"]: int(row["grade"]) for row in payload.get("judgments") or []}
-    if not judge_api_key or not items:
+    if not judge_model or not judge_api_key or not items:
         return {}
     payload = call_aisa_judge(judge_api_key, judge_model, build_judge_prompt(topic, query_type, items))
     cache_file.write_text(json.dumps(payload, indent=2))
@@ -261,7 +262,6 @@ def get_judgments(
 
 
 def create_eval_env() -> dict[str, str]:
-    config = envlib.get_config()
     passthrough = {
         "PATH": os.environ.get("PATH", ""),
         "LANG": os.environ.get("LANG", "en_US.UTF-8"),
@@ -270,10 +270,7 @@ def create_eval_env() -> dict[str, str]:
         "PYTHONUTF8": "1",
         "LAST30DAYS_CONFIG_DIR": "",
     }
-    for key in ("AISA_API_KEY",):
-        value = os.environ.get(key) or config.get(key)
-        if value:
-            passthrough[key] = value
+    # Revision comparisons are mock-only. Do not forward live credentials.
     return passthrough
 
 
@@ -300,15 +297,29 @@ def run_last30days(repo_dir: Path, topic: str, *, search: str, timeout_seconds: 
 
 
 def create_worktree(rev: str) -> Path:
-    worktree_dir = Path(tempfile.mkdtemp(prefix="last30days-eval-"))
-    subprocess.run(
-        ["git", "worktree", "add", "--detach", str(worktree_dir), rev],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
+    repository = subprocess.run(
+        ["git", "rev-parse", "--show-toplevel"], cwd=REPO_ROOT,
+        check=True, capture_output=True, text=True,
     )
-    return worktree_dir
+    skill_relative = REPO_ROOT.resolve().relative_to(Path(repository.stdout.strip()).resolve())
+    worktree_dir = Path(tempfile.mkdtemp(prefix="last30days-eval-"))
+    try:
+        subprocess.run(
+            ["git", "worktree", "add", "--detach", str(worktree_dir), rev],
+            cwd=REPO_ROOT, check=True, capture_output=True, text=True,
+        )
+    except Exception:
+        try:
+            worktree_dir.rmdir()
+        except OSError:
+            pass
+        raise
+    skill_dir = worktree_dir / skill_relative
+    _TEMP_WORKTREES[skill_dir] = worktree_dir
+    if not (skill_dir / "scripts" / "last30days.py").is_file():
+        remove_worktree(skill_dir)
+        raise RuntimeError(f"Revision {rev} does not contain {skill_relative}/scripts/last30days.py")
+    return skill_dir
 
 
 def resolve_repo_dir(label: str) -> tuple[Path, bool]:
@@ -319,6 +330,7 @@ def resolve_repo_dir(label: str) -> tuple[Path, bool]:
 
 
 def remove_worktree(path: Path) -> None:
+    path = _TEMP_WORKTREES.pop(path, path)
     subprocess.run(
         ["git", "worktree", "remove", "--force", str(path)],
         cwd=REPO_ROOT,
@@ -456,16 +468,24 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> int:
-    args = build_parser().parse_args()
+    parser = build_parser()
+    args = parser.parse_args()
+    if not args.mock:
+        parser.error("revision comparisons require --mock: historical scripts may lack cost controls; use the current last30days CLI with an explicit budget for live validation")
     topics = parse_topics_file(Path(args.topics_file)) if args.topics_file else DEFAULT_TOPICS
     output_dir = Path(args.output_dir).resolve()
-    config = envlib.get_config()
-    judge_api_key = resolve_judge_api_key(config)
+    # Mock comparisons must never call a hosted judge, even with ambient credentials.
+    judge_api_key = None
     run_env = create_eval_env()
 
-    baseline_dir, baseline_temp = resolve_repo_dir(args.baseline)
-    candidate_dir, candidate_temp = resolve_repo_dir(args.candidate)
+    temporary_dirs = []
     try:
+        baseline_dir, baseline_temp = resolve_repo_dir(args.baseline)
+        if baseline_temp:
+            temporary_dirs.append(baseline_dir)
+        candidate_dir, candidate_temp = resolve_repo_dir(args.candidate)
+        if candidate_temp:
+            temporary_dirs.append(candidate_dir)
         summaries = []
         failures = []
         for topic, query_type in topics:
@@ -507,10 +527,8 @@ def main() -> int:
                 failures.append({"topic": topic, "query_type": query_type, "error": str(exc)})
         write_failure_summary(output_dir, args.baseline, args.candidate, summaries, failures)
     finally:
-        if baseline_temp:
-            remove_worktree(baseline_dir)
-        if candidate_temp:
-            remove_worktree(candidate_dir)
+        for temporary_dir in temporary_dirs:
+            remove_worktree(temporary_dir)
     result = {"output_dir": str(output_dir), "topics": len(topics), "failures": len(failures)}
     print(json.dumps(result, indent=2))
     return 1 if failures else 0

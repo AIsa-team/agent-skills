@@ -11,6 +11,7 @@ from typing import Any
 
 from . import (
     aisa,
+    costs,
     dates,
     dedupe,
     entity_extract,
@@ -52,7 +53,7 @@ SEARCH_ALIAS = {
 
 MAX_SOURCE_FETCHES: dict[str, int] = {"x": 2}
 
-MOCK_AVAILABLE_SOURCES = [
+SUPPORTED_SOURCES = [
     "reddit",
     "x",
     "youtube",
@@ -63,7 +64,11 @@ MOCK_AVAILABLE_SOURCES = [
     "grounding",
     "xiaohongshu",
     "github",
+    "threads",
+    "pinterest",
 ]
+
+MOCK_AVAILABLE_SOURCES = ["reddit", "x", "grounding"]
 
 
 def normalize_requested_sources(sources: list[str] | None) -> list[str] | None:
@@ -118,6 +123,7 @@ def diagnose(config: dict[str, Any], requested_sources: list[str] | None = None)
     else:
         display_provider = providers.display_provider_name(requested_provider)
     return {
+        "availability_check": "configuration only; no provider execution verified",
         "providers": providers_status,
         "local_mode": not any(providers_status.values()),
         "reasoning_provider": display_provider if providers_status["aisa"] else requested_provider,
@@ -156,6 +162,8 @@ def run(
     def _stage_log(label: str) -> None:
         print(f"[Pipeline] {label} @ {time.time() - started_at:.2f}s", file=sys.stderr)
 
+    if not 1 <= lookback_days <= 365:
+        raise ValueError("lookback_days must be between 1 and 365")
     settings = DEPTH_SETTINGS[depth]
     requested_sources = normalize_requested_sources(requested_sources)
     from_date, to_date = dates.get_date_range(lookback_days)
@@ -175,6 +183,10 @@ def run(
     if web_backend == "none":
         available = [s for s in available if s != "grounding"]
     elif web_backend == "aisa" and "grounding" not in available:
+        if requested_sources and "grounding" not in requested_sources:
+            raise ValueError("web_backend=aisa conflicts with the requested source restriction")
+        if not mock and not config.get("AISA_API_KEY"):
+            raise ValueError("web_backend=aisa requires AISA_API_KEY")
         available.append("grounding")
     if not available:
         raise RuntimeError("No sources are available for this run.")
@@ -209,6 +221,10 @@ def run(
 
     _stage_log("bundle init")
     bundle = schema.RetrievalBundle(artifacts={"grounding": []})
+    attempted_sources: set[str] = set()
+    requested_set = set(requested_sources or available)
+    planned_sources = {source for sq in plan.subqueries for source in sq.sources}
+    retrieved_counts: dict[str, int] = {}
 
     # Project-mode or person-mode GitHub: run once before the main subquery loop
     _github_custom_done = False
@@ -262,6 +278,7 @@ def run(
     futures = {}
     # Per-source fetch budget prevents redundant API calls
     source_fetch_count: dict[str, int] = {}
+    seen_requests: set[tuple[str, str]] = set()
     stream_count = sum(
         1
         for subquery in plan.subqueries
@@ -277,6 +294,10 @@ def run(
                 # Skip GitHub keyword search if person-mode already ran
                 if source == "github" and (_github_person_done or _github_custom_done):
                     continue
+                request_key = (source, subquery.search_query.strip())
+                if request_key in seen_requests:
+                    continue
+                seen_requests.add(request_key)
                 # Enforce per-source fetch cap
                 cap = MAX_SOURCE_FETCHES.get(source)
                 if cap is not None:
@@ -284,6 +305,7 @@ def run(
                     if current >= cap:
                         continue
                     source_fetch_count[source] = current + 1
+                attempted_sources.add(source)
                 futures[
                     executor.submit(
                         _retrieve_stream,
@@ -318,7 +340,7 @@ def run(
                     bundle.errors_by_source[source] = str(exc)
                     continue
                 # Retry once for transient 5xx errors
-                if _is_transient_error(exc):
+                if source in {"reddit", "hackernews", "github"} and _is_transient_error(exc):
                     time.sleep(3)
                     try:
                         raw_items, artifact = _retrieve_stream(
@@ -340,6 +362,7 @@ def run(
                 else:
                     bundle.errors_by_source[source] = str(exc)
                     continue
+            retrieved_counts[source] = retrieved_counts.get(source, 0) + len(raw_items)
             normalized = _normalize_score_dedupe(
                 source, raw_items, from_date, to_date,
                 freshness_mode=plan.freshness_mode,
@@ -347,8 +370,7 @@ def run(
             )
             normalized = normalized[: settings["per_stream_limit"]]
             bundle.add_items(subquery.label, source, normalized)
-            if artifact:
-                bundle.artifacts.setdefault("grounding", []).append(artifact)
+            _record_stream_artifact(bundle, source, artifact)
 
     _stage_log("collect done")
 
@@ -392,12 +414,7 @@ def run(
     )
     _stage_log("retry thin done")
 
-    # Clear errors for sources that returned items despite partial failures.
-    # A source that 429'd on one subquery but succeeded on another is not "errored".
-    for source in list(bundle.errors_by_source):
-        if bundle.items_by_source.get(source):
-            del bundle.errors_by_source[source]
-
+    # Keep partial failures even when another query from the source succeeded.
     _stage_log("finalize items start")
     items_by_source = _finalize_items_by_source(bundle.items_by_source)
     _stage_log("finalize items done")
@@ -447,6 +464,30 @@ def run(
     clusters = cluster_candidates(ranked_candidates, plan)
     _stage_log("cluster done")
     warnings = _warnings(items_by_source, ranked_candidates, bundle.errors_by_source)
+    coverage = {}
+    for source in sorted(requested_set | planned_sources | set(items_by_source) | set(bundle.errors_by_source)):
+        count = len(items_by_source.get(source, []))
+        if source not in available:
+            status = "unavailable" if not (source == "grounding" and web_backend == "none") else "excluded"
+        elif source in bundle.errors_by_source:
+            status = "partial" if count else "failed"
+        elif count:
+            status = "ok"
+        elif source in attempted_sources or source in items_by_source:
+            status = "empty"
+        else:
+            status = "not_selected"
+        coverage[source] = {"status": status, "retained_items": count}
+        if source in retrieved_counts:
+            coverage[source]["primary_raw_items"] = retrieved_counts[source]
+    bundle.artifacts["source_coverage"] = coverage
+    unavailable = [source for source, entry in coverage.items() if entry["status"] == "unavailable"]
+    if unavailable:
+        warnings.append("Requested sources unavailable: " + ", ".join(unavailable))
+    if any(item.metadata.get("date_kind") == "market_observation" for items in items_by_source.values() for item in items):
+        warnings.append("Polymarket entries are current market snapshots observed during this run, not posts published in the research window or historical price changes.")
+    if any(item.metadata.get("retrieval_method") == "web_discovery" for items in items_by_source.values() for item in items):
+        warnings.append("Some social entries were discovered through indexed web results; native engagement measurements may be unavailable.")
 
     return schema.Report(
         topic=topic,
@@ -462,6 +503,20 @@ def run(
         warnings=warnings,
         artifacts=bundle.artifacts,
     )
+
+
+
+def _record_source_error(bundle: schema.RetrievalBundle, source: str, message: str) -> None:
+    previous = bundle.errors_by_source.get(source)
+    bundle.errors_by_source[source] = f"{previous}; {message}" if previous else message
+
+
+def _record_stream_artifact(bundle: schema.RetrievalBundle, source: str, artifact: dict) -> None:
+    if not artifact:
+        return
+    bundle.artifacts.setdefault(source, []).append(artifact)
+    for message in artifact.get("partial_errors") or []:
+        _record_source_error(bundle, source, str(message))
 
 
 def _normalize_score_dedupe(
@@ -512,7 +567,7 @@ def _warnings(
         warnings.append("Top evidence is highly concentrated in one source.")
     if errors_by_source:
         warnings.append(f"Some sources failed: {', '.join(sorted(errors_by_source))}")
-    if not items_by_source:
+    if not any(items_by_source.values()):
         warnings.append("No source returned usable items.")
     return warnings
 
@@ -549,7 +604,7 @@ def _run_supplemental_searches(
     x_related: list[str] | None = None,
 ) -> None:
     """Phase 2: extract entities from Phase 1 results, run targeted supplemental searches."""
-    if depth == "quick" or mock:
+    if depth == "quick" or mock or not any("x" in sq.sources for sq in plan.subqueries):
         return
 
     from_date, to_date = date_range
@@ -619,24 +674,23 @@ def _run_supplemental_searches(
     ranking_query = plan.subqueries[0].ranking_query if plan.subqueries else topic
     primary_label = plan.subqueries[0].label if plan.subqueries else "primary"
 
-    # Search primary handles (full weight)
+    # Keep successful handles when a later request fails; cost refusal ends
+    # this batch and the related-handle batch without discarding evidence.
+    stop_supplemental = False
     if handles:
-        try:
-            raw_items = []
-            for handle in handles:
-                handle_query = f"from:{handle} {topic}"
+        raw_items = []
+        for handle in handles:
+            handle_query = f"from:{handle} {topic}"
+            try:
                 response = aisa.search_twitter(
-                    config["AISA_API_KEY"],
-                    handle_query,
-                    from_date,
-                    depth=depth,
+                    config["AISA_API_KEY"], handle_query, from_date, depth=depth,
                 )
                 raw_items.extend(aisa.parse_twitter_response(response, query=handle_query))
-        except Exception as exc:
-            print(f"[Pipeline] Phase 2 handle search failed: {exc}", file=sys.stderr)
-            if not bundle.items_by_source.get("x"):
-                bundle.errors_by_source["x"] = f"Phase 2 handle search: {exc}"
-            raw_items = []
+            except Exception as exc:
+                _record_source_error(bundle, "x", f"Handle @{handle} failed: {type(exc).__name__}: {exc}")
+                if isinstance(exc, costs.CostControlError):
+                    stop_supplemental = True
+                    break
 
         if raw_items:
             normalized = _normalize_score_dedupe(
@@ -653,22 +707,23 @@ def _run_supplemental_searches(
                     if item.url:
                         existing_urls.add(item.url)
 
-    # Search related handles with lower weight (0.3)
+    if stop_supplemental:
+        return
+
+    # Search related handles with lower weight (0.3).
     if related_handles:
-        try:
-            raw_items = []
-            for handle in related_handles:
-                handle_query = f"from:{handle} {topic}"
+        raw_items = []
+        for handle in related_handles:
+            handle_query = f"from:{handle} {topic}"
+            try:
                 response = aisa.search_twitter(
-                    config["AISA_API_KEY"],
-                    handle_query,
-                    from_date,
-                    depth=depth,
+                    config["AISA_API_KEY"], handle_query, from_date, depth=depth,
                 )
                 raw_items.extend(aisa.parse_twitter_response(response, query=handle_query))
-        except Exception as exc:
-            print(f"[Pipeline] Phase 2 related handle search failed: {exc}", file=sys.stderr)
-            raw_items = []
+            except Exception as exc:
+                _record_source_error(bundle, "x", f"Related handle @{handle} failed: {type(exc).__name__}: {exc}")
+                if isinstance(exc, costs.CostControlError):
+                    break
 
         if raw_items:
             normalized = _normalize_score_dedupe(
@@ -712,7 +767,7 @@ def _retry_thin_sources(
     skip_sources: set[str] | None = None,
 ) -> None:
     """Retry sources with thin results using simplified core subject query."""
-    if depth == "quick":
+    if depth == "quick" or mock:
         return
 
     planned_sources: list[str] = []
@@ -751,8 +806,8 @@ def _retry_thin_sources(
         weight=0.3,
     )
 
-    def _retry_one_source(source: str) -> tuple[str, list[schema.SourceItem]]:
-        raw_items, _artifact = _retrieve_stream(
+    def _retry_one_source(source: str) -> tuple[str, list[schema.SourceItem], dict]:
+        raw_items, artifact = _retrieve_stream(
             topic=topic,
             subquery=retry_subquery,
             source=source,
@@ -774,9 +829,10 @@ def _retry_thin_sources(
             freshness_mode=plan.freshness_mode,
             ranking_query=retry_subquery.ranking_query,
         )
-        return source, normalized[:settings["per_stream_limit"]]
+        return source, normalized[:settings["per_stream_limit"]], artifact
 
-    retryable = [s for s in thin_sources if s not in rate_limited_sources]
+    already_queried = {(source, sq.search_query.strip()) for sq in plan.subqueries for source in sq.sources}
+    retryable = [s for s in thin_sources if s not in rate_limited_sources and (s, core.strip()) not in already_queried]
 
     from concurrent.futures import ThreadPoolExecutor, as_completed
     with ThreadPoolExecutor(max_workers=min(4, len(retryable) or 1)) as executor:
@@ -784,7 +840,8 @@ def _retry_thin_sources(
         for future in as_completed(futures):
             source = futures[future]
             try:
-                source, normalized = future.result()
+                source, normalized, artifact = future.result()
+                _record_stream_artifact(bundle, source, artifact)
                 existing_urls = {item.url for item in bundle.items_by_source.get(source, []) if item.url}
                 new_items = [item for item in normalized if item.url not in existing_urls]
 
@@ -793,6 +850,7 @@ def _retry_thin_sources(
                     primary_label = plan.subqueries[0].label if plan.subqueries else "primary"
                     bundle.items_by_source_and_query.setdefault((primary_label, source), []).extend(new_items)
             except Exception as exc:
+                bundle.errors_by_source[source] = f"Supplemental retry failed: {type(exc).__name__}: {exc}"
                 print(f"[Pipeline] Retry failed for {source}: {type(exc).__name__}: {exc}", file=sys.stderr)
 
 
@@ -825,9 +883,8 @@ def _retrieve_stream(
         return grounding.web_search(
             subquery.search_query, date_range, config, backend=web_backend)
     if source == "reddit":
-        # Use raw_topic so expand_reddit_queries() generates diverse variants
-        # from the original user topic, not the planner's narrowed search_query.
-        reddit_query = raw_topic or subquery.search_query
+        # Honor the planned query; adapters may expand that query locally.
+        reddit_query = subquery.search_query
         return reddit_public.search_reddit_public(
             reddit_query, from_date, to_date, depth=depth, subreddits=subreddits
         ), {}
@@ -843,16 +900,15 @@ def _retrieve_stream(
             return aisa.parse_twitter_response(result, query=subquery.search_query), {}
         raise RuntimeError("No X backend is available.")
     if source == "youtube":
-        # Use raw_topic so expand_youtube_queries() generates diverse variants
-        # from the original user topic, not the planner's narrowed search_query.
-        yt_query = raw_topic or subquery.search_query
+        # Honor the planned query; adapters may expand that query locally.
+        yt_query = subquery.search_query
         result = youtube_yt.search_and_transcribe(yt_query, from_date, to_date, depth=depth)
         items = youtube_yt.parse_youtube_response(result)
-        return items, {}
+        artifact = {"partial_errors": result["partial_errors"]} if result.get("partial_errors") else {}
+        return items, artifact
     if source == "tiktok":
-        # Use raw_topic so expand_tiktok_queries() generates diverse variants
-        # from the original user topic, not the planner's narrowed search_query.
-        tiktok_query = raw_topic or subquery.search_query
+        # Honor the planned query; adapters may expand that query locally.
+        tiktok_query = subquery.search_query
         result = tiktok.search_and_enrich(
             tiktok_query,
             from_date,
@@ -864,9 +920,8 @@ def _retrieve_stream(
         )
         return tiktok.parse_tiktok_response(result), {}
     if source == "instagram":
-        # Use raw_topic so expand_instagram_queries() generates diverse variants
-        # from the original user topic, not the planner's narrowed search_query.
-        ig_query = raw_topic or subquery.search_query
+        # Honor the planned query; adapters may expand that query locally.
+        ig_query = subquery.search_query
         result = instagram.search_and_enrich(
             ig_query,
             from_date,
