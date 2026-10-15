@@ -5,12 +5,13 @@ from __future__ import annotations
 Twitter OAuth client for local authorization and tweet publishing through AIsa API.
 
 Commands:
-    python twitter_oauth_client.py authorize [--callback-url <url>] [--open-browser]
-    python twitter_oauth_client.py post [--text "Hello"] [--media-id <id> ...] [--media-file <path> ...] [--type <quote|reply>] [--quote-tweet-url <url>] [--in-reply-to-tweet-id <id>]
+    python twitter_oauth_client.py authorize [--open-browser] [--quote]
+    python twitter_oauth_client.py post --text "Hello" [--thread] [--dry-run]
     python twitter_oauth_client.py status
 """
 
 import argparse
+import importlib.util
 import json
 import mimetypes
 import os
@@ -22,16 +23,38 @@ import urllib.request
 import unicodedata
 import uuid
 import webbrowser
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 
 DEFAULT_TIMEOUT = 30
 DEFAULT_BASE_URL = "https://api.aisa.one/apis/v1"
-DEFAULT_CHROME_USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/136.0.0.0 Safari/537.36"
-)
+DEFAULT_CHROME_USER_AGENT = "AIsa-Twitter-OAuth/2.0"
+
+
+def get_transport():
+    """Load the shipped helper relative to this file, including importlib callers."""
+    path = Path(__file__).resolve().with_name("aisa_transport.py")
+    module_name = "_aisa_twitter_transport"
+    if module_name not in sys.modules:
+        spec = importlib.util.spec_from_file_location(module_name, path)
+        if spec is None or spec.loader is None:
+            raise RelayConfigError("The bundled aisa_transport.py helper is missing.")
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        script_dir = str(path.parent)
+        inserted = script_dir not in sys.path
+        if inserted:
+            sys.path.insert(0, script_dir)
+        try:
+            spec.loader.exec_module(module)
+        except Exception:
+            sys.modules.pop(module_name, None)
+            raise
+        finally:
+            if inserted:
+                sys.path.remove(script_dir)
+    return sys.modules[module_name]
 
 
 
@@ -142,18 +165,62 @@ def load_config(args: argparse.Namespace) -> Dict[str, Any]:
             "AISA_API_KEY=<key> to ~/.aisa/credentials."
         )
 
+    transport = get_transport()
+    try:
+        budget = transport.budget_from_args(args)
+    except (transport.costs.CostControlError, OSError) as exc:
+        raise RelayConfigError(str(exc)) from exc
     return {
         "base_url": base_url,
         "aisa_api_key": aisa_api_key,
         "timeout": timeout,
+        "budget": budget,
+        "quote_only": bool(getattr(args, "quote", False)),
     }
 
 
 def parse_response_body(raw: str, status: Any, default_message: str) -> Dict[str, Any]:
     try:
-        return json.loads(raw) if raw else {"code": status, "msg": default_message, "data": None}
-    except json.JSONDecodeError:
-        return {"code": status, "msg": raw or default_message, "data": None}
+        result = json.loads(raw)
+    except (json.JSONDecodeError, TypeError):
+        result = None
+    if not isinstance(result, dict):
+        return {"ok": False, "success": False, "status": status,
+                "error": {"code": "INVALID_RESPONSE", "message": "Expected a JSON object from AIsa."}}
+    if isinstance(status, int) and not 200 <= status < 300:
+        return {"ok": False, "success": False, "status": status, "payload": result}
+    return result
+
+
+def redact_secrets(value: Any, api_key: str = "") -> Any:
+    """Do not expose credentials, even if an upstream error echoes the request."""
+    if isinstance(value, dict):
+        return {key: ("[REDACTED]" if str(key).lower() in {"aisa_api_key", "authorization"}
+                      else redact_secrets(item, api_key)) for key, item in value.items()}
+    if isinstance(value, list):
+        return [redact_secrets(item, api_key) for item in value]
+    if isinstance(value, str) and api_key:
+        return value.replace(api_key, "[REDACTED]")
+    return value
+
+
+def print_result(result: Dict[str, Any], api_key: str = "") -> None:
+    output = get_transport().sanitize(redact_secrets(result, api_key), api_key)
+    try:
+        print(json.dumps(output, indent=2, ensure_ascii=False))
+    except UnicodeEncodeError:
+        print(json.dumps(output, indent=2, ensure_ascii=True))
+
+
+def response_failed(result: Any) -> bool:
+    if not isinstance(result, dict):
+        return True
+    if result.get("ok") is False or result.get("success") is False:
+        return True
+    if result.get("error") or result.get("errors"):
+        return True
+    code = result.get("code")
+    return code is not None and str(code) not in {"200", "201"}
 
 
 def build_auth_headers(aisa_api_key: str, extra_headers: Optional[Dict[str, str]] = None) -> Dict[str, str]:
@@ -171,30 +238,14 @@ def send_json_request(
     payload: Dict[str, Any],
     timeout: int,
     aisa_api_key: str,
+    budget: Any = None,
+    quote_only: bool = False,
 ) -> Dict[str, Any]:
-    request = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers=build_auth_headers(
-            aisa_api_key,
-            {"Content-Type": "application/json", "Accept": "application/json"},
-        ),
-        method="POST",
+    return get_transport().request(
+        "POST", url, aisa_api_key, json_data=payload,
+        headers={"User-Agent": DEFAULT_CHROME_USER_AGENT}, timeout=timeout,
+        budget=budget, quote_only=quote_only,
     )
-    try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            raw = response.read().decode("utf-8")
-            return parse_response_body(raw, response.status, "ok")
-    except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8")
-        payload = parse_response_body(body, exc.code, exc.reason)
-        return {"ok": False, "status": exc.code, "payload": payload}
-    except urllib.error.URLError as exc:
-        return {
-            "ok": False,
-            "status": "NETWORK_ERROR",
-            "payload": {"code": 503, "msg": str(exc.reason), "data": None},
-        }
 
 
 def encode_multipart_form_data(
@@ -205,6 +256,8 @@ def encode_multipart_form_data(
     body = bytearray()
 
     def append_text_part(name: str, value: Any) -> None:
+        if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
+            raise RelayConfigError("Invalid multipart field name.")
         body.extend(f"--{boundary}\r\n".encode("utf-8"))
         body.extend(f'Content-Disposition: form-data; name="{name}"\r\n\r\n'.encode("utf-8"))
         body.extend(str(value).encode("utf-8"))
@@ -222,9 +275,13 @@ def encode_multipart_form_data(
     for file_payload in files:
         field_name = file_payload["field_name"]
         filename = file_payload["filename"]
-        ascii_filename = "".join(ch if ord(ch) < 128 and ch not in {'"', "\\"} else "_" for ch in filename) or "upload.bin"
+        if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", field_name):
+            raise RelayConfigError("Invalid multipart file field name.")
+        ascii_filename = "".join(ch if 32 <= ord(ch) < 127 and ch not in {'"', "\\"} else "_" for ch in filename) or "upload.bin"
         quoted_filename = urllib.parse.quote(filename, safe="")
         content_type = file_payload["content_type"]
+        if "\r" in content_type or "\n" in content_type:
+            raise RelayConfigError("Invalid media content type.")
 
         body.extend(f"--{boundary}\r\n".encode("utf-8"))
         body.extend(
@@ -247,34 +304,16 @@ def send_multipart_request(
     files: list[Dict[str, Any]],
     timeout: int,
     aisa_api_key: str,
+    budget: Any = None,
+    quote_only: bool = False,
 ) -> Dict[str, Any]:
     body, boundary = encode_multipart_form_data(fields, files)
-    request = urllib.request.Request(
-        url,
-        data=body,
-        headers=build_auth_headers(
-            aisa_api_key,
-            {
-                "Content-Type": f"multipart/form-data; boundary={boundary}",
-                "Accept": "application/json",
-            },
-        ),
-        method="POST",
+    return get_transport().request(
+        "POST", url, aisa_api_key, data=body,
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}",
+                 "User-Agent": DEFAULT_CHROME_USER_AGENT},
+        timeout=timeout, budget=budget, quote_only=quote_only,
     )
-    try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            raw = response.read().decode("utf-8")
-            return parse_response_body(raw, response.status, "ok")
-    except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8")
-        payload = parse_response_body(body, exc.code, exc.reason)
-        return {"ok": False, "status": exc.code, "payload": payload}
-    except urllib.error.URLError as exc:
-        return {
-            "ok": False,
-            "status": "NETWORK_ERROR",
-            "payload": {"code": 503, "msg": str(exc.reason), "data": None},
-        }
 
 
 TWITTER_MAX_WEIGHT = 280
@@ -307,12 +346,17 @@ def twitter_weight_len(text: str) -> int:
     return total
 
 
+def text_fits(text: str, max_len: int = TWITTER_MAX_WEIGHT) -> bool:
+    # The relay additionally enforces a literal 280-codepoint content limit.
+    return len(text) <= max_len and twitter_weight_len(text) <= max_len
+
+
 def split_by_twitter_weight(text: str, max_len: int) -> list[str]:
     parts: list[str] = []
     current = ""
     for ch in text:
         candidate = current + ch
-        if twitter_weight_len(candidate) <= max_len:
+        if text_fits(candidate, max_len):
             current = candidate
             continue
         if current:
@@ -327,14 +371,16 @@ def split_text_for_twitter(text: str, max_len: int = TWITTER_MAX_WEIGHT) -> list
     normalized = text.strip()
     if not normalized:
         return []
-    if twitter_weight_len(normalized) <= max_len:
+    if text_fits(normalized, max_len):
         return [normalized]
 
     words = normalized.split()
     chunks: list[str] = []
     current = ""
     for word in words:
-        if twitter_weight_len(word) > max_len:
+        if not text_fits(word, max_len):
+            if URL_PATTERN.fullmatch(word):
+                raise RelayConfigError("A URL exceeds the relay's 280-character content limit; shorten it before posting.")
             if current:
                 chunks.append(current)
                 current = ""
@@ -342,7 +388,7 @@ def split_text_for_twitter(text: str, max_len: int = TWITTER_MAX_WEIGHT) -> list
             continue
 
         candidate = word if not current else f"{current} {word}"
-        if twitter_weight_len(candidate) <= max_len:
+        if text_fits(candidate, max_len):
             current = candidate
         else:
             chunks.append(current)
@@ -360,7 +406,7 @@ def extract_tweet_id_from_url(url: str) -> str:
     if parsed.netloc.lower() not in {"twitter.com", "www.twitter.com", "x.com", "www.x.com"}:
         raise RelayConfigError("Quote tweet URL must point to twitter.com or x.com.")
 
-    match = re.search(r"/status/(\d+)", parsed.path)
+    match = re.fullmatch(r"/(?:[A-Za-z0-9_]+|i/web)/status/([0-9]{1,64})/?", parsed.path)
     if not match:
         raise RelayConfigError("Quote tweet URL must contain a valid /status/<tweet_id> path.")
     return match.group(1)
@@ -382,8 +428,14 @@ def extract_tweet_id(result: Dict[str, Any]) -> Optional[str]:
     data = result.get("data") if isinstance(result, dict) else None
     if not isinstance(data, dict):
         return None
-    tweet_id = data.get("tweet_id")
-    return str(tweet_id) if tweet_id else None
+    nested_data = data.get("data")
+    tweet_id = data.get("tweet_id") or data.get("id")
+    if not tweet_id and isinstance(nested_data, dict):
+        tweet_id = nested_data.get("id")
+    if isinstance(tweet_id, (str, int)) and not isinstance(tweet_id, bool):
+        text = str(tweet_id).strip()
+        return text if re.fullmatch(r"[0-9]{1,64}", text) else None
+    return None
 
 
 def publish_chunks(
@@ -392,7 +444,7 @@ def publish_chunks(
     media_ids: Optional[list[str]] = None,
     media_files: Optional[list[Dict[str, Any]]] = None,
     initial_parent_tweet_id: Optional[str] = None,
-    post_type: str = "quote",
+    post_type: Optional[str] = None,
 ) -> Dict[str, Any]:
     should_thread = len(chunks) > 1
     previous_tweet_id = initial_parent_tweet_id
@@ -407,7 +459,7 @@ def publish_chunks(
             media_ids=current_media_ids,
             media_files=current_media_files,
             parent_tweet_id=previous_tweet_id,
-            post_type=post_type,
+            post_type=post_type if index == 0 else "reply",
         )
         publish_results.append(
             {
@@ -417,13 +469,14 @@ def publish_chunks(
                 "result": result,
             }
         )
-        if result.get("ok") is False or result.get("code") != 200:
+        if response_failed(result):
             return {
                 "ok": False,
-                "aisa_api_key": config["aisa_api_key"],
                 "is_thread": should_thread,
                 "total_chunks": len(chunks),
                 "failed_at_chunk": index + 1,
+                "confirmed_posts": index,
+                "retry_guidance": "Do not replay the thread. Inspect the failed request and the account before retrying an uncertain write.",
                 "results": publish_results,
             }
 
@@ -431,20 +484,21 @@ def publish_chunks(
         if not latest_tweet_id:
             return {
                 "ok": False,
-                "aisa_api_key": config["aisa_api_key"],
                 "is_thread": should_thread,
                 "total_chunks": len(chunks),
                 "failed_at_chunk": index + 1,
-                "error": "Missing tweet_id in relay response.",
+                "confirmed_posts": index,
+                "outcome_unknown": True,
+                "error": "The relay did not return a valid tweet ID; the post may already exist. Check the account before retrying.",
                 "results": publish_results,
             }
         previous_tweet_id = latest_tweet_id
 
     return {
         "ok": True,
-        "aisa_api_key": config["aisa_api_key"],
         "is_thread": should_thread,
         "total_chunks": len(chunks),
+        "confirmed_posts": len(chunks),
         "results": publish_results,
     }
 
@@ -463,8 +517,6 @@ def post_single_tweet(
     }
     if content:
         payload["content"] = content
-    if post_type:
-        payload["type"] = post_type
     if media_ids:
         payload["media_ids"] = media_ids
     if parent_tweet_id:
@@ -473,22 +525,18 @@ def post_single_tweet(
 
     endpoint = f"{config['base_url']}/twitter/post_twitter"
     if media_files:
-        return send_multipart_request(
-            endpoint,
-            payload,
-            media_files,
-            timeout=config["timeout"],
-            aisa_api_key=config["aisa_api_key"],
-        )
+        raise RelayConfigError("Upload local files with upload_media before publishing their media IDs.")
     return send_json_request(
         endpoint,
         payload,
         timeout=config["timeout"],
         aisa_api_key=config["aisa_api_key"],
+        budget=config.get("budget"),
+        quote_only=config.get("quote_only", False),
     )
 
 
-def load_media_files(paths: Optional[list[str]]) -> list[Dict[str, Any]]:
+def load_media_files(paths: Optional[list[str]], read_contents: bool = True) -> list[Dict[str, Any]]:
     if not paths:
         return []
 
@@ -497,7 +545,7 @@ def load_media_files(paths: Optional[list[str]]) -> list[Dict[str, Any]]:
     seen_paths: set[str] = set()
 
     for raw_path in paths:
-        resolved_path = os.path.abspath(os.path.expanduser(raw_path))
+        resolved_path = os.path.realpath(os.path.expanduser(raw_path))
         normalized_path = os.path.normcase(resolved_path)
         if normalized_path in seen_paths:
             continue
@@ -510,14 +558,22 @@ def load_media_files(paths: Optional[list[str]]) -> list[Dict[str, Any]]:
 
         mime_type = mimetypes.guess_type(resolved_path)[0] or "application/octet-stream"
         media_kind = mime_type.split("/", 1)[0]
-        if media_kind not in {"image", "video"}:
+        if mime_type not in {"image/png", "image/jpeg", "image/gif", "video/mp4"}:
             raise RelayConfigError(
-                f"Unsupported media type for {raw_path}: {mime_type}. Only image and video files are supported."
+                f"Unsupported media type for {raw_path}: {mime_type}. Use PNG, JPEG, GIF, or MP4."
             )
         media_kinds.add(media_kind)
 
-        with open(resolved_path, "rb") as file_handle:
-            content = file_handle.read()
+        try:
+            size = os.path.getsize(resolved_path)
+            if not size:
+                raise RelayConfigError(f"Media file is empty: {raw_path}")
+            content = None
+            if read_contents:
+                with open(resolved_path, "rb") as file_handle:
+                    content = file_handle.read()
+        except OSError as exc:
+            raise RelayConfigError(f"Cannot read media file: {raw_path}") from exc
 
         media_files.append(
             {
@@ -525,6 +581,7 @@ def load_media_files(paths: Optional[list[str]]) -> list[Dict[str, Any]]:
                 "filename": os.path.basename(resolved_path),
                 "content_type": mime_type,
                 "content": content,
+                "size_bytes": size,
             }
         )
 
@@ -534,28 +591,73 @@ def load_media_files(paths: Optional[list[str]]) -> list[Dict[str, Any]]:
     return media_files
 
 
+def upload_media(config: Dict[str, Any], media_files: list[Dict[str, Any]]) -> Dict[str, Any]:
+    """Upload each file once; never post after an unconfirmed upload."""
+    media_ids = []
+    results = []
+    for index, media_file in enumerate(media_files):
+        result = send_multipart_request(
+            f"{config['base_url']}/twitter/upload_media", {}, [media_file],
+            timeout=config["timeout"], aisa_api_key=config["aisa_api_key"],
+            budget=config.get("budget"), quote_only=config.get("quote_only", False),
+        )
+        results.append({"index": index + 1, "filename": media_file["filename"], "result": result})
+        if response_failed(result):
+            return {"ok": False, "failed_at_upload": index + 1, "results": results,
+                    "media_ids": media_ids, "post_attempted": False}
+        if config.get("quote_only"):
+            continue
+        data = result.get("data")
+        media_id = data.get("media_id") if isinstance(data, dict) else None
+        if not isinstance(media_id, (str, int)) or isinstance(media_id, bool) or not re.fullmatch(r"[0-9]{1,64}", str(media_id)):
+            return {"ok": False, "failed_at_upload": index + 1, "outcome_unknown": True,
+                    "error": "Upload returned no valid media ID. No post was attempted; inspect the upload before retrying.",
+                    "media_ids": media_ids, "results": results, "post_attempted": False}
+        media_ids.append(str(media_id))
+    return {"ok": True, "media_ids": media_ids, "results": results, "post_attempted": False}
+
+
 def command_authorize(args: argparse.Namespace) -> None:
+    if args.open_browser and getattr(args, "quote", False):
+        raise RelayConfigError("--open-browser cannot be combined with --quote.")
+    scopes = list(dict.fromkeys((scope or "").strip() for scope in (getattr(args, "scope", None) or ["tweet.read", "tweet.write", "users.read"])))
+    if any(not scope or any(ch.isspace() for ch in scope) for scope in scopes):
+        raise RelayConfigError("OAuth scopes must be nonempty individual scope names.")
+    if getattr(args, "media", False) and "media.write" not in scopes:
+        scopes.append("media.write")
     config = load_config(args)
-    payload = {"aisa_api_key": config["aisa_api_key"]}
+    payload = {"aisa_api_key": config["aisa_api_key"],
+               "scopes": scopes}
     result = send_json_request(
         f"{config['base_url']}/twitter/auth_twitter",
         payload,
         timeout=config["timeout"],
         aisa_api_key=config["aisa_api_key"],
+        budget=config.get("budget"),
+        quote_only=config.get("quote_only", False),
     )
 
-    if result.get("ok") is False:
-        print(json.dumps(result, indent=2, ensure_ascii=False))
+    if response_failed(result):
+        print_result(result, config["aisa_api_key"])
         sys.exit(1)
 
-    auth_url = (result.get("data") or {}).get("auth_url")
+    if config.get("quote_only"):
+        print_result({"ok": True, "quote_only": True, "authorization_requested": False, "result": result}, config["aisa_api_key"])
+        return
+    data = result.get("data")
+    auth_url = result.get("auth_url") or (data.get("auth_url") if isinstance(data, dict) else None)
+    valid_url = False
+    if isinstance(auth_url, str):
+        parsed = urllib.parse.urlparse(auth_url)
+        valid_url = parsed.scheme == "https" and bool(parsed.netloc) and not parsed.username and not parsed.password
     output = {
-        "ok": result.get("code") == 200 and bool(auth_url),
-        "aisa_api_key": config["aisa_api_key"],
-        "authorization_url": auth_url,
+        "ok": valid_url,
+        "authorization_url": auth_url if valid_url else None,
         "raw_response": result,
     }
-    print(json.dumps(output, indent=2, ensure_ascii=False))
+    if not valid_url:
+        output["error"] = "The relay returned no valid HTTPS authorization URL."
+    print_result(output, config["aisa_api_key"])
 
     if output["ok"] and args.open_browser:
         webbrowser.open(auth_url)
@@ -565,87 +667,149 @@ def command_authorize(args: argparse.Namespace) -> None:
 
 
 def command_post(args: argparse.Namespace) -> None:
-    """Split oversized content locally, then publish chunks through the relay."""
-    config = load_config(args)
-    media_ids = getattr(args, "media_id", None) or []
-    media_files = load_media_files(getattr(args, "media_file", None))
+    """Validate before credentials/network, then preview, quote, or publish."""
+    media_ids = list(dict.fromkeys((value or "").strip() for value in (getattr(args, "media_id", None) or [])))
+    if any(not re.fullmatch(r"[0-9]{1,64}", value) for value in media_ids):
+        raise RelayConfigError("Media IDs must be numeric IDs of 1 to 64 digits.")
+    dry_run = bool(getattr(args, "dry_run", False))
+    quote_only = bool(getattr(args, "quote", False))
+    if dry_run and quote_only:
+        raise RelayConfigError("Choose --dry-run for an offline preview or --quote for a gateway quote.")
     normalized_text = (args.text or "").strip()
     quote_tweet_url = (getattr(args, "quote_tweet_url", None) or "").strip()
     initial_parent_tweet_id = None
 
-    if not normalized_text and not media_ids and not media_files:
-        print(
-            json.dumps(
-                {"ok": False, "error": "Post content must not be empty unless media files or media IDs are provided."},
-                indent=2,
-                ensure_ascii=False,
-            )
-        )
-        sys.exit(1)
-
-    if args.type == "quote":
-        if args.in_reply_to_tweet_id:
+    if quote_tweet_url:
+        if args.type == "reply" or args.in_reply_to_tweet_id:
             raise RelayConfigError(
-                "Quote posts that reference another tweet must use --quote-tweet-url. "
-                "The published post will include that link in its content."
+                "A quote URL cannot be combined with a reply parent or --type reply."
             )
-        if quote_tweet_url:
-            initial_parent_tweet_id = extract_tweet_id_from_url(quote_tweet_url)
-            normalized_text = append_quote_url_to_content(normalized_text, quote_tweet_url)
+        initial_parent_tweet_id = extract_tweet_id_from_url(quote_tweet_url)
+        normalized_text = append_quote_url_to_content(normalized_text, quote_tweet_url)
+        effective_post_type = "quote"
+    elif args.in_reply_to_tweet_id:
+        if args.type == "quote":
+            raise RelayConfigError("Quote references require --quote-tweet-url; reply parents require --type reply.")
+        initial_parent_tweet_id = args.in_reply_to_tweet_id.strip()
+        if not re.fullmatch(r"[0-9]{1,64}", initial_parent_tweet_id):
+            raise RelayConfigError("The reply tweet ID must contain 1 to 64 digits.")
+        effective_post_type = "reply"
     else:
-        if quote_tweet_url:
-            raise RelayConfigError("--quote-tweet-url can only be used together with --type quote.")
-        initial_parent_tweet_id = args.in_reply_to_tweet_id
+        if args.type == "quote":
+            raise RelayConfigError("--type quote requires --quote-tweet-url.")
+        if args.type == "reply":
+            raise RelayConfigError("--type reply requires --in-reply-to-tweet-id. Omit --type for a new top-level post or thread.")
+        effective_post_type = None
+
+    media_paths = getattr(args, "media_file", None) or []
+    if media_ids and media_paths:
+        raise RelayConfigError("Use either --media-file or --media-id in one post, not both.")
+    if quote_tweet_url and (media_ids or media_paths):
+        raise RelayConfigError("The relay does not support combining a quote reference with media.")
+    if not normalized_text and not media_ids and not media_paths:
+        raise RelayConfigError("Post content must not be empty unless media files or media IDs are provided.")
+    if not text_fits(normalized_text) and not getattr(args, "thread", False):
+        raise RelayConfigError("Content exceeds the single-post limit. Use --thread --dry-run to review an explicit thread before publishing.")
 
     chunks = split_text_for_twitter(normalized_text) if normalized_text else [""]
-    should_use_post_type = len(chunks) > 1 or bool(initial_parent_tweet_id)
-    effective_post_type = None
-    if should_use_post_type:
-        effective_post_type = args.type
+    media_files = load_media_files(media_paths, read_contents=not dry_run)
+    if len(media_ids) + len(media_files) > 4:
+        raise RelayConfigError("A post supports at most four media attachments.")
+    if dry_run:
+        print_result({"ok": True, "dry_run": True, "network_requests": 0,
+                      "total_chunks": len(chunks), "is_thread": len(chunks) > 1,
+                      "chunks": [{"index": index + 1, "content": chunk,
+                                  "characters": len(chunk), "estimated_weight": twitter_weight_len(chunk),
+                                  "relationship": effective_post_type if index == 0 else "reply",
+                                  "parent_tweet_id": initial_parent_tweet_id if index == 0 else None}
+                                 for index, chunk in enumerate(chunks)],
+                      "media_ids": media_ids,
+                      "uploads": [{key: item[key] for key in ("filename", "content_type", "size_bytes")}
+                                  for item in media_files],
+                      "cost": "Not quoted; this preview is offline."})
+        return
+
+    config = load_config(args)
+    uploads = None
+    if media_files:
+        uploads = upload_media(config, media_files)
+        if not uploads["ok"]:
+            print_result(uploads, config["aisa_api_key"])
+            sys.exit(1)
+        if quote_only:
+            print_result({"ok": True, "quote_only": True, "partial_quote": True,
+                          "uploads": uploads["results"], "total_chunks": len(chunks),
+                          "unquoted_posts": len(chunks), "post_attempted": False,
+                          "reason": "Only uploads were quoted. Post requests need media IDs returned by actual uploads; their cost is not included."}, config["aisa_api_key"])
+            return
+        media_ids.extend(uploads["media_ids"])
+
+    if quote_only:
+        result = post_single_tweet(config, content=chunks[0], media_ids=media_ids,
+                                   parent_tweet_id=initial_parent_tweet_id, post_type=effective_post_type)
+        output = {"ok": not response_failed(result), "quote_only": True,
+                  "post_attempted": False, "quoted_chunks": 1, "total_chunks": len(chunks),
+                  "remaining_chunks_unquoted": len(chunks) - 1, "partial_quote": len(chunks) > 1,
+                  "result": result}
+        if len(chunks) > 1:
+            output["reason"] = "Later reply IDs do not yet exist; this quote covers only the first post."
+        print_result(output, config["aisa_api_key"])
+        if not output["ok"]:
+            sys.exit(1)
+        return
+
     output = publish_chunks(
         config,
         chunks,
         media_ids=media_ids,
-        media_files=media_files,
         post_type=effective_post_type,
         initial_parent_tweet_id=initial_parent_tweet_id,
     )
-    print(json.dumps(output, indent=2, ensure_ascii=False))
+    if uploads:
+        output["uploads"] = uploads["results"]
+    print_result(output, config["aisa_api_key"])
     if not output["ok"]:
         sys.exit(1)
 
 
 def command_status(args: argparse.Namespace) -> None:
-    config = load_config(args)
     response = {
         "ok": True,
-        "relay_base_url": config["base_url"],
-        "aisa_api_key_present": bool(config["aisa_api_key"]),
-        "timeout": config["timeout"],
+        "relay_base_url": DEFAULT_BASE_URL,
+        "aisa_api_key_present": bool(_resolve_aisa_api_key()),
+        "timeout": DEFAULT_TIMEOUT,
         "supported_commands": ["authorize", "post", "status"],
-        "supported_endpoints": ["/twitter/auth_twitter", "/twitter/post_twitter"],
+        "supported_endpoints": ["/twitter/auth_twitter", "/twitter/upload_media", "/twitter/post_twitter"],
         "media_upload": {
             "field_name": "media_files",
             "transport": "multipart/form-data",
-            "supported_media_types": ["image/*", "video/*"],
+            "supported_media_types": ["image/png", "image/jpeg", "image/gif", "video/mp4"],
+            "flow": "upload_media returns media IDs, then post_twitter receives JSON",
         },
     }
-    print(json.dumps(response, indent=2, ensure_ascii=False))
+    print_result(response)
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Twitter OAuth client for local AIsa posting flows",
     )
+    get_transport().add_cost_arguments(parser)
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     authorize = subparsers.add_parser("authorize", help="Request an authorization URL from the AIsa service")
     authorize.add_argument("--open-browser", action="store_true", help="Open the authorization URL in the default browser")
+    authorize.add_argument("--scope", action="append", help="Explicit OAuth scope override; repeat for each scope. Defaults to tweet.read, tweet.write, users.read.")
+    authorize.add_argument("--media", action="store_true", help="Also request media.write for local file uploads.")
+    get_transport().add_cost_arguments(authorize)
     authorize.set_defaults(func=command_authorize)
 
     post = subparsers.add_parser("post", help="Publish a post through the AIsa service")
     post.add_argument("--text", default="", help="Post content. Optional when media is provided.")
+    post.add_argument("--thread", action="store_true", help="Allow oversized text to be split into a reply thread.")
+    post.add_argument("--dry-run", action="store_true", help="Preview validated chunks and attachments offline without credentials.")
+    get_transport().add_cost_arguments(post)
     post.add_argument(
         "--media-id",
         action="append",
@@ -654,13 +818,13 @@ def build_parser() -> argparse.ArgumentParser:
     post.add_argument(
         "--media-file",
         action="append",
-        help="Local image or video path to upload. Repeat the flag to attach multiple files of the same media kind.",
+        help="Local PNG, JPEG, GIF, or MP4 path. Uploads first, then attaches the returned media ID.",
     )
     post.add_argument(
         "--type",
         choices=["quote", "reply"],
-        default="quote",
-        help="Relationship used to continue multi-chunk posts. Use quote to publish quote-style chains or reply for reply-style threading.",
+        default=None,
+        help="Relationship to the first external parent. Thread continuation always uses replies.",
     )
     post.add_argument(
         "--quote-tweet-url",
@@ -687,7 +851,7 @@ def main() -> None:
     try:
         args.func(args)
     except RelayConfigError as exc:
-        print(json.dumps({"ok": False, "error": str(exc)}, indent=2, ensure_ascii=False))
+        print_result({"ok": False, "error": str(exc)})
         sys.exit(1)
 
 

@@ -79,7 +79,7 @@ This catalog contains **47 skills**.
 
 | Skill | Version | Description |
 |---|---|---|
-| [aisa-twitter-api](./social-media/aisa-twitter-api/) | 1.0.5 | Twitter/X research, monitoring, watchlists, and OAuth-approved posting through AIsa. Use when: the user needs one flagship Twitter skill for trend tracking, competitor monitoring, timeline analysis, or approved posting without sharing passwords. Supports search, watchlists, relay-based reads, and OAuth-gated text or media posting. |
+| [aisa-twitter-api](./social-media/aisa-twitter-api/) | 1.1.0 | Search and inspect Twitter/X posts, profiles, timelines, communities, and trends through AIsa, or publish user-authorized posts with OAuth. Use for recent X research, account comparisons, conversation review, and approved text or media posting. |
 | [aisa-twitter-command-center](./social-media/aisa-twitter-command-center/) | 1.0.3 | Search X/Twitter profiles, tweets, trends, lists, communities, and Spaces through the AIsa relay, then support approved posting workflows with OAuth. Use when the user asks for Twitter research, monitoring, or posting without sharing passwords. |
 | [aisa-twitter-post-engage](./social-media/aisa-twitter-post-engage/) | 1.0.3 | Search X/Twitter profiles, tweets, trends, and approved engagement actions through the AIsa relay. Use when the user asks for Twitter/X research, posting, likes, follows, or related workflows without sharing passwords. |
 | [aisa-youtube-search](./social-media/aisa-youtube-search/) | 1.0.1 | Search YouTube videos, channels, and playlists through the AIsa YouTube relay with one API key. Use when the user asks for YouTube discovery, query expansion, or pagination without managing Google credentials. |
