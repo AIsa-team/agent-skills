@@ -1,46 +1,31 @@
 # AIsa Twitter API
 
-Flagship Twitter/X command center for research, monitoring, watchlists, and OAuth-approved posting through the AIsa relay.
-
-## What it does
-
-- Search Twitter/X profiles, tweets, trends, lists, communities, and Spaces
-- Inspect timelines, mentions, replies, quotes, and thread context
-- Support watchlist-style monitoring and approved posting workflows through OAuth
-- Relay API requests, OAuth approval, and approved media uploads through `https://api.aisa.one`
-
-## Best fit
-
-- Use this as the primary Twitter/X skill when the user wants one general-purpose surface for research, monitoring, watchlists, and approved posting.
-- Use `aisa-twitter-engagement-suite` when the task is mainly likes, follows, replies, or other engagement actions.
-- Use `aisa-twitter-command-center` when the task is mainly watchlists, trend scanning, and monitoring.
-
-## Setup
+Search and inspect X posts, profiles, timelines, communities, and trends through
+AIsa. Publish authorized text or media posts using an OAuth-linked X account.
+Requires Python 3.11+, POSIX, and an AIsa API key; runtime uses the standard library.
 
 ```bash
-export AISA_API_KEY="your-key"
+# Free quote without retrieving data
+python3 scripts/twitter_client.py search --query "AI agents" --quote
+
+# Offline preview without credentials or publishing
+python3 scripts/twitter_oauth_client.py post --text "Shipping today." --dry-run
+
+# Run offline tests
+python3 -m unittest discover -s tests -v
 ```
 
-Requires:
+Executed requests require an approved budget and durable ledger. Quotes are
+estimates, not guaranteed final costs; unknown charges block further requests.
+Provider data remains intact with `_aisa` HTTP/billing metadata. Commands fetch a
+single page and do not schedule monitoring.
 
-- `python3`
-- `AISA_API_KEY`
-- network access to `https://api.aisa.one`
-- explicit OAuth approval before posting
-- user-provided media files for image or video uploads
+See [SKILL.md](SKILL.md) for research and authorization,
+[posting and media](references/post_twitter.md) for publishing, and
+[cost controls](references/cost-control.md) for budgets and recovery.
 
-## Common Commands
+## API reference
 
-```bash
-python3 scripts/twitter_client.py search --query "AI agents" --type Latest
-python3 scripts/twitter_oauth_client.py authorize
-python3 scripts/twitter_oauth_client.py post --text "Hello from AIsa"
-```
-
-## Security & Trust
-
-- Requires only `AISA_API_KEY` as the declared environment secret.
-- Uses a relay-based flow to `https://api.aisa.one` for reads, OAuth handling, and approved uploads.
-- External writes happen only after explicit OAuth approval.
-- Does not require passwords or browser cookies.
-- Do not claim posting succeeded until the relay returns success.
+See the [AIsa API Reference](https://aisa.one/docs/api-reference) for current
+operation contracts. The suite's contract snapshot supports offline validation;
+production retrieval and posting require separately authorized live tests.

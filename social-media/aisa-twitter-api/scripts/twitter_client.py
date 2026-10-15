@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-OpenClaw Twitter - AIsa API Client
+AIsa Twitter API Client
 Twitter/X read APIs for autonomous agents.
 
 Read operations use GET with Authorization: Bearer AISA_API_KEY.
@@ -19,14 +19,13 @@ import sys
 import urllib.error
 import urllib.parse
 import urllib.request
-import unicodedata
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
+
+import aisa_transport
+import costs
 
 
 REQUEST_TIMEOUT = 60
-TWITTER_MAX_WEIGHT = 280
-TWITTER_URL_WEIGHT = 23
-URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
 
 
 def _resolve_aisa_api_key() -> str:
@@ -108,12 +107,14 @@ def _resolve_aisa_api_key() -> str:
 
 
 class TwitterClient:
-    """OpenClaw Twitter - Twitter/X API Client."""
+    """AIsa Twitter/X API client with explicit request accounting."""
 
     BASE_URL = "https://api.aisa.one/apis/v1"
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, *, budget=None, quote_only: bool = False):
         """Initialize the client with an API key."""
+        self.budget = budget
+        self.quote_only = quote_only
         self.api_key = api_key or _resolve_aisa_api_key()
         if not self.api_key:
             raise ValueError(
@@ -128,38 +129,21 @@ class TwitterClient:
         params: Optional[Dict[str, Any]] = None,
         data: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """Make an HTTP request to the AIsa API."""
+        """Send one quoted/accounted request; preserve provider data and costs."""
+        values = {}
+        for name, value in (params or {}).items():
+            if value is None or (name == "cursor" and value == ""):
+                continue
+            if isinstance(value, str) and not value.strip():
+                raise ValueError(f"{name} must not be blank")
+            values[name] = value
         url = f"{self.BASE_URL}{endpoint}"
-
-        if params:
-            query_string = urllib.parse.urlencode(
-                {k: v for k, v in params.items() if v is not None}
-            )
-            url = f"{url}?{query_string}"
-
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-            "User-Agent": "OpenClaw-Twitter/1.0",
-        }
-
-        request_data = None
-        if method == "POST":
-            request_data = json.dumps(data or {}).encode("utf-8")
-
-        req = urllib.request.Request(url, data=request_data, headers=headers, method=method)
-
-        try:
-            with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as response:
-                return json.loads(response.read().decode("utf-8"))
-        except urllib.error.HTTPError as e:
-            error_body = e.read().decode("utf-8")
-            try:
-                return json.loads(error_body)
-            except json.JSONDecodeError:
-                return {"success": False, "error": {"code": str(e.code), "message": error_body}}
-        except urllib.error.URLError as e:
-            return {"success": False, "error": {"code": "NETWORK_ERROR", "message": str(e.reason)}}
+        if values:
+            url += "?" + urllib.parse.urlencode(values)
+        return aisa_transport.request(
+            method, url, self.api_key, json_data=data, timeout=REQUEST_TIMEOUT,
+            budget=self.budget, quote_only=self.quote_only,
+        )
 
     # ==================== User Read APIs ====================
 
@@ -181,7 +165,8 @@ class TwitterClient:
 
     def user_mentions(self, username: str, cursor: str = None) -> Dict[str, Any]:
         """Get mentions of a user."""
-        return self._request("GET", "/twitter/user/mentions", params={"userName": username, "cursor": cursor})
+        self._check_unverified_cursor(cursor, "mentions")
+        return self._request("GET", "/twitter/user/mentions", params={"userName": username})
 
     def followers(self, username: str, cursor: str = None) -> Dict[str, Any]:
         """Get user followers."""
@@ -205,12 +190,14 @@ class TwitterClient:
 
     def user_search(self, query: str, cursor: str = None) -> Dict[str, Any]:
         """Search for Twitter users by keyword."""
-        return self._request("GET", "/twitter/user/search", params={"query": query, "cursor": cursor})
+        self._check_unverified_cursor(cursor, "user-search")
+        return self._request("GET", "/twitter/user/search", params={"query": query})
 
     # ==================== Tweet Read APIs ====================
 
     def search(self, query: str, query_type: str = "Latest", cursor: str = None) -> Dict[str, Any]:
         """Search for tweets matching a query."""
+        self._check_query_type(query_type)
         return self._request(
             "GET",
             "/twitter/tweet/advanced_search",
@@ -227,7 +214,8 @@ class TwitterClient:
 
     def tweet_quotes(self, tweet_id: str, cursor: str = None) -> Dict[str, Any]:
         """Get quotes of a tweet."""
-        return self._request("GET", "/twitter/tweet/quotes", params={"tweetId": tweet_id, "cursor": cursor})
+        self._check_unverified_cursor(cursor, "quotes")
+        return self._request("GET", "/twitter/tweet/quotes", params={"tweetId": tweet_id})
 
     def tweet_retweeters(self, tweet_id: str, cursor: str = None) -> Dict[str, Any]:
         """Get retweeters of a tweet."""
@@ -245,6 +233,8 @@ class TwitterClient:
 
     def trends(self, woeid: int = 1) -> Dict[str, Any]:
         """Get current Twitter trending topics by WOEID (1 = worldwide)."""
+        if type(woeid) is not int or woeid < 1:
+            raise ValueError("woeid must be a positive integer")
         return self._request("GET", "/twitter/trends", params={"woeid": woeid})
 
     def list_members(self, list_id: str, cursor: str = None) -> Dict[str, Any]:
@@ -277,27 +267,39 @@ class TwitterClient:
             "GET", "/twitter/community/tweets", params={"community_id": community_id, "cursor": cursor}
         )
 
-    def community_search(self, query: str, cursor: str = None) -> Dict[str, Any]:
+    def community_search(self, query: str, cursor: str = None, query_type: str = "Latest") -> Dict[str, Any]:
         """Search tweets from all communities."""
+        self._check_query_type(query_type)
         return self._request(
             "GET",
             "/twitter/community/get_tweets_from_all_community",
-            params={"query": query, "cursor": cursor},
+            params={"query": query, "queryType": query_type, "cursor": cursor},
         )
 
     def space_detail(self, space_id: str) -> Dict[str, Any]:
         """Get Space detail by ID."""
         return self._request("GET", "/twitter/spaces/detail", params={"space_id": space_id})
 
+    @staticmethod
+    def _check_query_type(query_type: str) -> None:
+        if query_type not in {"Latest", "Top"}:
+            raise ValueError("query type must be Latest or Top")
+
+    @staticmethod
+    def _check_unverified_cursor(cursor: Optional[str], command: str) -> None:
+        if cursor:
+            raise ValueError(f"{command} cursor support is not declared by the current API contract; no request sent")
 
 
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        description="OpenClaw Twitter - Twitter/X read APIs",
+        description="AIsa Twitter/X read APIs",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
+    aisa_transport.add_cost_arguments(parser)
+    parser.set_defaults(quote=False)
     subparsers = parser.add_subparsers(dest="command", help="Command")
 
     # ---- User Read Commands ----
@@ -402,12 +404,16 @@ def main():
 
     p = subparsers.add_parser("community-search", help="Search all community tweets")
     p.add_argument("--query", "-q", required=True)
+    p.add_argument("--type", "-t", choices=["Latest", "Top"], default="Latest")
     p.add_argument("--cursor", help="Pagination cursor")
 
     # ---- Spaces ----
 
     p = subparsers.add_parser("space-detail", help="Get Space detail")
     p.add_argument("--space-id", required=True)
+
+    for command_parser in subparsers.choices.values():
+        aisa_transport.add_cost_arguments(command_parser)
 
     args = parser.parse_args()
 
@@ -416,10 +422,27 @@ def main():
         sys.exit(1)
 
     try:
-        client = TwitterClient()
-    except ValueError as e:
-        print(json.dumps({"success": False, "error": {"code": "AUTH_ERROR", "message": str(e)}}))
-        sys.exit(1)
+        return _run_command(args)
+    except (ValueError, costs.CostControlError, OSError) as exc:
+        print(json.dumps({"success": False, "ok": False, "error": {"code": "INPUT_OR_COST_ERROR", "message": str(exc)}}))
+        return 1
+
+
+def _run_command(args):
+    # Validate command input before loading credentials, creating a ledger, or I/O.
+    if args.command in {"mentions", "user-search", "quotes"}:
+        TwitterClient._check_unverified_cursor(getattr(args, "cursor", None), args.command)
+    for name in ("username", "query", "user_id", "user_ids", "tweet_id", "tweet_ids",
+                 "list_id", "community_id", "space_id", "source", "target"):
+        value = getattr(args, name, None)
+        if isinstance(value, str) and not value.strip():
+            raise ValueError(f"{name} must not be blank")
+    if args.command == "trends" and args.woeid < 1:
+        raise ValueError("woeid must be a positive integer")
+    if args.command == "space-detail":
+        raise ValueError("Space detail has no verified quote/admission capability; no request sent")
+    client = TwitterClient(quote_only=args.quote)
+    client.budget = aisa_transport.budget_from_args(args)
 
     result = None
     cmd = args.command
@@ -473,18 +496,17 @@ def main():
     elif cmd == "community-tweets":
         result = client.community_tweets(args.community_id, getattr(args, "cursor", None))
     elif cmd == "community-search":
-        result = client.community_search(args.query, getattr(args, "cursor", None))
+        result = client.community_search(args.query, getattr(args, "cursor", None), args.type)
     elif cmd == "space-detail":
         result = client.space_detail(args.space_id)
 
-    if result:
-        output = json.dumps(result, indent=2, ensure_ascii=False)
-        try:
-            print(output)
-        except UnicodeEncodeError:
-            print(json.dumps(result, indent=2, ensure_ascii=True))
-        sys.exit(0 if result.get("success", True) else 1)
+    output = json.dumps(result, indent=2, ensure_ascii=False)
+    try:
+        print(output)
+    except UnicodeEncodeError:
+        print(json.dumps(result, indent=2, ensure_ascii=True))
+    return 1 if aisa_transport.is_failure(result) else 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

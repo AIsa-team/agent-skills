@@ -1,0 +1,1368 @@
+{
+  "schema_version": 1,
+  "retrieved_on": "2026-10-15",
+  "source": "https://aisa.one/openapi.yaml",
+  "source_sha256": "564fc5afa483600d6bea4cb99f3496c83dfce8b310aa05e382a68d60670dd1b9",
+  "billing_source": "https://aisa.one/docs/guides/pricing",
+  "notes": [
+    "Offline contract snapshot; no API request or paid call was used to generate it.",
+    "Reference estimates are not authenticated quotes, maximum prices, or settled charges.",
+    "X-AISA-Max-Price-USD checks the execution estimate before admission; it does not cap the final charge.",
+    "Quote preserves the exact operation, HTTP method, URL, parameters and supported body; it does not call the upstream provider or debit balance.",
+    "Idempotency headers are declared per operation; generic Twitter replay/409 behavior is not specified by the billing guide.",
+    "Spaces inherits the https://api.aisa.one/apis/v1 server and has no declared cost-control capabilities."
+  ],
+  "operations": {
+    "user-info": {
+      "operation_id": "get_twitter_user_info",
+      "method": "GET",
+      "path": "/apis/v1/twitter/user/info",
+      "url": "https://api.aisa.one/apis/v1/twitter/user/info",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-user-info",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "fixed_success",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.00018,
+        "estimate_source": "profile_seed",
+        "evidence_source": "request_snapshot"
+      },
+      "query_parameters": {
+        "userName": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "user-about": {
+      "operation_id": "get_twitter_user_about",
+      "method": "GET",
+      "path": "/apis/v1/twitter/user_about",
+      "url": "https://api.aisa.one/apis/v1/twitter/user_about",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-user-about",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "fixed_success",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.00018,
+        "estimate_source": "profile_seed",
+        "evidence_source": "request_snapshot"
+      },
+      "query_parameters": {
+        "userName": {
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "batch-users": {
+      "operation_id": "get_twitter_user_batch_info_by_ids",
+      "method": "GET",
+      "path": "/apis/v1/twitter/user/batch_info_by_ids",
+      "url": "https://api.aisa.one/apis/v1/twitter/user/batch_info_by_ids",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-user-batch-info-by-ids",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "request_formula",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.00018,
+        "estimate_source": "profile_seed",
+        "evidence_source": "request_snapshot"
+      },
+      "query_parameters": {
+        "userIds": {
+          "required": true,
+          "schema": {
+            "type": "string",
+            "x-aisa-delimiter": ",",
+            "x-aisa-maxItems": 100000,
+            "x-aisa-minItems": 1
+          }
+        }
+      }
+    },
+    "tweets": {
+      "operation_id": "get_twitter_user_last_tweets",
+      "method": "GET",
+      "path": "/apis/v1/twitter/user/last_tweets",
+      "url": "https://api.aisa.one/apis/v1/twitter/user/last_tweets",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-user-last-tweets",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "response_count",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.003,
+        "estimate_source": "profile_seed",
+        "evidence_source": "response_body",
+        "minimum_cost_usd": 0.00015
+      },
+      "query_parameters": {
+        "count": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "cursor": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "includeReplies": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "userId": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "userName": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "mentions": {
+      "operation_id": "get_twitter_user_mentions",
+      "method": "GET",
+      "path": "/apis/v1/twitter/user/mentions",
+      "url": "https://api.aisa.one/apis/v1/twitter/user/mentions",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-user-mentions",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "response_count",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.003,
+        "estimate_source": "profile_seed",
+        "evidence_source": "response_body",
+        "minimum_cost_usd": 0.00015
+      },
+      "query_parameters": {
+        "userName": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "contract_note": "Narrative describes pagination, but the current query schema does not declare cursor; do not assume it is accepted."
+    },
+    "followers": {
+      "operation_id": "get_twitter_user_followers",
+      "method": "GET",
+      "path": "/apis/v1/twitter/user/followers",
+      "url": "https://api.aisa.one/apis/v1/twitter/user/followers",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-user-followers",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "response_count",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.00326,
+        "estimate_source": "profile_seed",
+        "evidence_source": "response_body",
+        "minimum_cost_usd": 0.0006
+      },
+      "query_parameters": {
+        "cursor": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "userName": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "followings": {
+      "operation_id": "get_twitter_user_followings",
+      "method": "GET",
+      "path": "/apis/v1/twitter/user/followings",
+      "url": "https://api.aisa.one/apis/v1/twitter/user/followings",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-user-followings",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "response_count",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.0036,
+        "estimate_source": "profile_seed",
+        "evidence_source": "response_body",
+        "minimum_cost_usd": 0.0006
+      },
+      "query_parameters": {
+        "cursor": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "userName": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "verified-followers": {
+      "operation_id": "get_twitter_user_verified_followers",
+      "method": "GET",
+      "path": "/apis/v1/twitter/user/verifiedFollowers",
+      "url": "https://api.aisa.one/apis/v1/twitter/user/verifiedFollowers",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-user-verifiedfollowers",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "response_count",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.006,
+        "estimate_source": "profile_seed",
+        "evidence_source": "response_body",
+        "minimum_cost_usd": 0.00015
+      },
+      "query_parameters": {
+        "cursor": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "user_id": {
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "check-follow": {
+      "operation_id": "get_twitter_user_check_follow_relationship",
+      "method": "GET",
+      "path": "/apis/v1/twitter/user/check_follow_relationship",
+      "url": "https://api.aisa.one/apis/v1/twitter/user/check_follow_relationship",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-user-check-follow-relationship",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "fixed_success",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.001,
+        "estimate_source": "profile_seed",
+        "evidence_source": "request_snapshot"
+      },
+      "query_parameters": {
+        "source_user_name": {
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "target_user_name": {
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "search": {
+      "operation_id": "get_twitter_tweet_advanced_search",
+      "method": "GET",
+      "path": "/apis/v1/twitter/tweet/advanced_search",
+      "url": "https://api.aisa.one/apis/v1/twitter/tweet/advanced_search",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-tweet-advanced-search",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": true
+      },
+      "pricing": {
+        "cost_contract": "response_count",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.003,
+        "estimate_source": "profile_seed",
+        "evidence_source": "response_body",
+        "minimum_cost_usd": 0.00015
+      },
+      "query_parameters": {
+        "count": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "cursor": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "max_results": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "query": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "queryType": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "start_time": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "user-search": {
+      "operation_id": "get_twitter_user_search",
+      "method": "GET",
+      "path": "/apis/v1/twitter/user/search",
+      "url": "https://api.aisa.one/apis/v1/twitter/user/search",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-user-search",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "response_count",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.0036,
+        "estimate_source": "profile_seed",
+        "evidence_source": "response_body",
+        "minimum_cost_usd": 0.00015
+      },
+      "query_parameters": {
+        "query": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "contract_note": "Narrative describes pagination, but the current query schema does not declare cursor; do not assume it is accepted."
+    },
+    "detail": {
+      "operation_id": "get_twitter_tweets",
+      "method": "GET",
+      "path": "/apis/v1/twitter/tweets",
+      "url": "https://api.aisa.one/apis/v1/twitter/tweets",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-tweets",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "response_count",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.0075,
+        "estimate_source": "profile_seed",
+        "evidence_source": "response_body",
+        "minimum_cost_usd": 0.00015
+      },
+      "query_parameters": {
+        "tweet_ids": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "replies": {
+      "operation_id": "get_twitter_tweet_replies",
+      "method": "GET",
+      "path": "/apis/v1/twitter/tweet/replies",
+      "url": "https://api.aisa.one/apis/v1/twitter/tweet/replies",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-tweet-replies",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "response_count",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.01335,
+        "estimate_source": "profile_seed",
+        "evidence_source": "response_body",
+        "minimum_cost_usd": 0.00015
+      },
+      "query_parameters": {
+        "cursor": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "tweetId": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "quotes": {
+      "operation_id": "get_twitter_tweet_quotes",
+      "method": "GET",
+      "path": "/apis/v1/twitter/tweet/quotes",
+      "url": "https://api.aisa.one/apis/v1/twitter/tweet/quotes",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-tweet-quotes",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "response_count",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.003,
+        "estimate_source": "profile_seed",
+        "evidence_source": "response_body",
+        "minimum_cost_usd": 0.00015
+      },
+      "query_parameters": {
+        "tweetId": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "contract_note": "Narrative describes pagination, but the current query schema does not declare cursor; do not assume it is accepted."
+    },
+    "retweeters": {
+      "operation_id": "get_twitter_tweet_retweeters",
+      "method": "GET",
+      "path": "/apis/v1/twitter/tweet/retweeters",
+      "url": "https://api.aisa.one/apis/v1/twitter/tweet/retweeters",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-tweet-retweeters",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "response_count",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.0036,
+        "estimate_source": "profile_seed",
+        "evidence_source": "response_body",
+        "minimum_cost_usd": 0.00015
+      },
+      "query_parameters": {
+        "cursor": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "tweetId": {
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "thread": {
+      "operation_id": "get_twitter_tweet_thread_context",
+      "method": "GET",
+      "path": "/apis/v1/twitter/tweet/thread_context",
+      "url": "https://api.aisa.one/apis/v1/twitter/tweet/thread_context",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-tweet-thread-context",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "response_count",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.00555,
+        "estimate_source": "profile_seed",
+        "evidence_source": "response_body",
+        "minimum_cost_usd": 0.00015
+      },
+      "query_parameters": {
+        "cursor": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "tweetId": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "article": {
+      "operation_id": "get_twitter_article",
+      "method": "GET",
+      "path": "/apis/v1/twitter/article",
+      "url": "https://api.aisa.one/apis/v1/twitter/article",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-article",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "fixed_success",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.001,
+        "estimate_source": "profile_seed",
+        "evidence_source": "request_snapshot"
+      },
+      "query_parameters": {
+        "tweet_id": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "trends": {
+      "operation_id": "get_twitter_trends",
+      "method": "GET",
+      "path": "/apis/v1/twitter/trends",
+      "url": "https://api.aisa.one/apis/v1/twitter/trends",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-trends",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "plan_units",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.00015,
+        "estimate_source": "profile_seed",
+        "evidence_source": "request_snapshot",
+        "request_cost_drivers": {
+          "kind": "plan_units",
+          "formula": {
+            "fixed_units": 15
+          },
+          "inputs": []
+        },
+        "unit": "provider_credit",
+        "unit_rate_usd": 1e-05
+      },
+      "query_parameters": {
+        "count": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "woeid": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "list-members": {
+      "operation_id": "get_twitter_list_members",
+      "method": "GET",
+      "path": "/apis/v1/twitter/list/members",
+      "url": "https://api.aisa.one/apis/v1/twitter/list/members",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-list-members",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "fixed_success",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.0015,
+        "estimate_source": "profile_seed",
+        "evidence_source": "request_snapshot"
+      },
+      "query_parameters": {
+        "cursor": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "list_id": {
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "list-followers": {
+      "operation_id": "get_twitter_list_followers",
+      "method": "GET",
+      "path": "/apis/v1/twitter/list/followers",
+      "url": "https://api.aisa.one/apis/v1/twitter/list/followers",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-list-followers",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "fixed_success",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.0015,
+        "estimate_source": "profile_seed",
+        "evidence_source": "request_snapshot"
+      },
+      "query_parameters": {
+        "cursor": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "list_id": {
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "community-info": {
+      "operation_id": "get_twitter_community_info",
+      "method": "GET",
+      "path": "/apis/v1/twitter/community/info",
+      "url": "https://api.aisa.one/apis/v1/twitter/community/info",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-community-info",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "fixed_success",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.0002,
+        "estimate_source": "profile_seed",
+        "evidence_source": "request_snapshot"
+      },
+      "query_parameters": {
+        "community_id": {
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "community-members": {
+      "operation_id": "get_twitter_community_members",
+      "method": "GET",
+      "path": "/apis/v1/twitter/community/members",
+      "url": "https://api.aisa.one/apis/v1/twitter/community/members",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-community-members",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "response_count",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.0036,
+        "estimate_source": "profile_seed",
+        "evidence_source": "response_body",
+        "minimum_cost_usd": 0.00015
+      },
+      "query_parameters": {
+        "community_id": {
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "cursor": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "community-moderators": {
+      "operation_id": "get_twitter_community_moderators",
+      "method": "GET",
+      "path": "/apis/v1/twitter/community/moderators",
+      "url": "https://api.aisa.one/apis/v1/twitter/community/moderators",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-community-moderators",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "response_count",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.0036,
+        "estimate_source": "profile_seed",
+        "evidence_source": "response_body",
+        "minimum_cost_usd": 0.00015
+      },
+      "query_parameters": {
+        "community_id": {
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "cursor": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "community-tweets": {
+      "operation_id": "get_twitter_community_tweets",
+      "method": "GET",
+      "path": "/apis/v1/twitter/community/tweets",
+      "url": "https://api.aisa.one/apis/v1/twitter/community/tweets",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-community-tweets",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "response_count",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.003,
+        "estimate_source": "profile_seed",
+        "evidence_source": "response_body",
+        "minimum_cost_usd": 0.00015
+      },
+      "query_parameters": {
+        "community_id": {
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "cursor": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "community-search": {
+      "operation_id": "get_twitter_community_tweets_all",
+      "method": "GET",
+      "path": "/apis/v1/twitter/community/get_tweets_from_all_community",
+      "url": "https://api.aisa.one/apis/v1/twitter/community/get_tweets_from_all_community",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-community-get-tweets-from-all-community",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "response_count",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.003,
+        "estimate_source": "profile_seed",
+        "evidence_source": "response_body",
+        "minimum_cost_usd": 0.00015
+      },
+      "query_parameters": {
+        "cursor": {
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "query": {
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "queryType": {
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "Latest",
+              "Top"
+            ],
+            "default": "Latest"
+          }
+        }
+      }
+    },
+    "space-detail": {
+      "operation_id": "get_twitter_spaces_detail",
+      "method": "GET",
+      "path": "/apis/v1/twitter/spaces/detail",
+      "url": "https://api.aisa.one/apis/v1/twitter/spaces/detail",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/get_twitter-spaces-detail",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {},
+      "pricing": {
+        "model": "per_request",
+        "cost_tier": "low"
+      },
+      "query_parameters": {
+        "space_id": {
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "authorize": {
+      "operation_id": "authTwitterUser",
+      "method": "POST",
+      "path": "/apis/v1/twitter/auth_twitter",
+      "url": "https://api.aisa.one/apis/v1/twitter/auth_twitter",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/post_twitter-auth-twitter",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "explicit_zero",
+        "customer_pricing": "fixed_success",
+        "default_request_estimate_usd": 1e-06,
+        "estimate_source": "profile_seed",
+        "evidence_source": "request_snapshot"
+      },
+      "query_parameters": {},
+      "request": {
+        "content_types": [
+          "application/json"
+        ],
+        "required_body_fields": [
+          "aisa_api_key"
+        ],
+        "optional_body_fields": [
+          "scopes"
+        ],
+        "body_and_bearer_required": true,
+        "default_scopes": [
+          "follows.write",
+          "tweet.read",
+          "users.read",
+          "tweet.write",
+          "like.write",
+          "dm.read",
+          "dm.write"
+        ]
+      },
+      "response": {
+        "http_status": 200,
+        "required_fields": [
+          "auth_url",
+          "state"
+        ],
+        "authorization_url_path": "auth_url",
+        "state_path": "state",
+        "optional_fields": [
+          "expires_at"
+        ],
+        "example": {
+          "auth_url": "https://twitter.com/i/oauth2/authorize?response_type=code&client_id=AIsa&redirect_uri=https%3A%2F%2Fapi.aisa.one%2Fapis%2Fv1%2Ftwitter%2Foauth_callback&scope=follows.write%20tweet.read%20users.read&state=0c2...d1f&code_challenge=...&code_challenge_method=S256",
+          "state": "0c2ad1f...",
+          "expires_at": "2026-04-18T07:00:00Z"
+        },
+        "compatibility_note": "Current documented success is top-level auth_url/state; older relay responses may wrap auth_url in data with code/msg."
+      }
+    },
+    "post": {
+      "operation_id": "postTwitter",
+      "method": "POST",
+      "path": "/apis/v1/twitter/post_twitter",
+      "url": "https://api.aisa.one/apis/v1/twitter/post_twitter",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/post_twitter-post-twitter",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "request_formula",
+        "customer_multiplier": 1.0,
+        "customer_pricing": "provider_cost_multiplier",
+        "default_request_estimate_usd": 0.015,
+        "estimate_source": "profile_seed",
+        "evidence_source": "request_snapshot"
+      },
+      "query_parameters": {},
+      "request": {
+        "content_types": [
+          "application/json",
+          "application/x-www-form-urlencoded",
+          "multipart/form-data"
+        ],
+        "json_fields": [
+          "aisa_api_key",
+          "card_uri",
+          "content",
+          "in_reply_to_tweet_id",
+          "media",
+          "media_files",
+          "media_ids",
+          "poll",
+          "quote_tweet_id",
+          "reply",
+          "reply_settings",
+          "text"
+        ],
+        "json_additional_properties": false,
+        "content_max_length": 280,
+        "related_id_max_length": 64,
+        "body_key_max_length": 64,
+        "unsupported_legacy_fields": [
+          "type"
+        ],
+        "json_media_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mutually_exclusive_fields": [
+          "media",
+          "poll",
+          "quote_tweet_id",
+          "card_uri"
+        ],
+        "multipart": {
+          "description": "Each field is a single text/plain part; repeated fields and JSON object/array parts are not supported.",
+          "media_files_schema": {
+            "type": "string"
+          },
+          "encoding": {
+            "aisa_api_key": {
+              "contentType": "text/plain"
+            },
+            "card_uri": {
+              "contentType": "text/plain"
+            },
+            "content": {
+              "contentType": "text/plain"
+            },
+            "in_reply_to_tweet_id": {
+              "contentType": "text/plain"
+            },
+            "media_files": {
+              "contentType": "text/plain"
+            },
+            "quote_tweet_id": {
+              "contentType": "text/plain"
+            },
+            "reply_settings": {
+              "contentType": "text/plain"
+            },
+            "text": {
+              "contentType": "text/plain"
+            }
+          },
+          "binary_upload_declared": false,
+          "unsupported_fields": [
+            "media",
+            "media_ids",
+            "poll",
+            "reply"
+          ]
+        },
+        "required_oauth_scopes": [
+          "tweet.read",
+          "tweet.write",
+          "users.read"
+        ],
+        "media_ids_count_from_narrative": {
+          "minimum": 1,
+          "maximum": 4
+        }
+      },
+      "response": {
+        "required_fields": [
+          "code",
+          "msg"
+        ],
+        "code": "integer",
+        "data": "optional object or null; nested fields opaque",
+        "documentation_conflict": "Narrative shows HTTP 201 with data.id; owning-service schema shows ApiResponse with code, msg, data."
+      }
+    },
+    "upload-media": {
+      "operation_id": "uploadTwitterMedia",
+      "method": "POST",
+      "path": "/apis/v1/twitter/upload_media",
+      "url": "https://api.aisa.one/apis/v1/twitter/upload_media",
+      "docs_url": "https://aisa.one/docs/api-reference/twitter/post_twitter-upload-media",
+      "authorization": "Bearer {AISA_API_KEY}",
+      "capabilities": {
+        "idempotency": "Idempotency-Key",
+        "max_price": "X-AISA-Max-Price-USD",
+        "quote": {
+          "header": "X-AISA-Cost-Mode",
+          "value": "quote"
+        },
+        "mpp": false,
+        "mpp_methods": [],
+        "x402": false
+      },
+      "pricing": {
+        "cost_contract": "explicit_zero",
+        "customer_pricing": "fixed_success",
+        "default_request_estimate_usd": 1e-06,
+        "estimate_source": "profile_seed",
+        "evidence_source": "request_snapshot"
+      },
+      "query_parameters": {},
+      "request": {
+        "content_types": [
+          "multipart/form-data"
+        ],
+        "required": true,
+        "required_body_fields": [
+          "media_files"
+        ],
+        "optional_body_fields": [
+          "aisa_api_key"
+        ],
+        "body_key_required": false,
+        "media_files": {
+          "type": "string",
+          "format": "binary",
+          "single_file_per_request": true,
+          "field_aliases": [
+            "media",
+            "file"
+          ],
+          "content_types": [
+            "image/png",
+            "image/jpeg",
+            "image/gif",
+            "video/mp4"
+          ]
+        },
+        "limits": {
+          "image_single_shot_threshold_mb": 8,
+          "larger_images_and_video_chunked_by_service": true,
+          "maximum_file_size_documented": false
+        },
+        "required_oauth_scopes": [
+          "media.write",
+          "tweet.read",
+          "users.read"
+        ]
+      },
+      "response": {
+        "http_status": 200,
+        "media_id_path": "data.media_id",
+        "media_id_type": "string",
+        "example": {
+          "data": {
+            "media_id": "2099415764780605440"
+          }
+        },
+        "unattached_media_expiry": "approximately 24 hours",
+        "prose_example": {
+          "code": 200,
+          "msg": "Media uploaded successfully",
+          "data": {
+            "media_id": "2099415764780605440"
+          }
+        }
+      },
+      "contract_note": "Upload one file, then pass returned data.media_id in the JSON post_twitter media_ids/media.media_ids array. Upload quote does not perform the upload. The upload page narrative claims inline post_twitter file parts also work, but the current post_twitter schema declares only text/plain parts. The two-step path has an explicit binary upload contract."
+    }
+  }
+}

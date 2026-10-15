@@ -9,16 +9,29 @@
   },
   "entrypoints": [
     "scripts/twitter_client.py",
-    "scripts/twitter_oauth_client.py"
+    "scripts/twitter_oauth_client.py",
+    "scripts/aisa_transport.py",
+    "scripts/costs.py"
   ],
   "checks": {
     "lint": [],
     "typecheck": [],
     "build": [],
-    "test": []
+    "test": [
+      [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ]
+    ]
   },
   "upstreams": [
     "aisa-authentication",
-    "aisa-api-social-media"
+    "aisa-api-social-media",
+    "doc-128752d84419"
   ]
 }
