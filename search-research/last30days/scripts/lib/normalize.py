@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from typing import Any
 from urllib.parse import urlparse
 
@@ -12,16 +13,20 @@ def filter_by_date_range(
     items: list[schema.SourceItem],
     from_date: str,
     to_date: str,
-    require_date: bool = False,
+    require_date: bool = True,
 ) -> list[schema.SourceItem]:
     """Keep only items within the requested window."""
     filtered: list[schema.SourceItem] = []
     for item in items:
-        if not item.published_at:
+        date_value = item.published_at
+        if item.source == "polymarket" and item.metadata.get("date_kind") == "market_observation":
+            observation = dates.parse_date(item.metadata.get("observed_at"))
+            date_value = observation.date().isoformat() if observation else None
+        if not date_value:
             if not require_date:
                 filtered.append(item)
             continue
-        if item.published_at < from_date or item.published_at > to_date:
+        if date_value < from_date or date_value > to_date:
             continue
         filtered.append(item)
     return filtered
@@ -34,7 +39,11 @@ def normalize_source_items(
     to_date: str,
     freshness_mode: str = "balanced_recent",
 ) -> list[schema.SourceItem]:
-    """Normalize raw source items, filter by date range, with evergreen fallback for how_to queries."""
+    """Normalize evidence and require a verified date within the requested window.
+
+    freshness_mode remains accepted for planner compatibility; it never relaxes
+    the research window. Markets are dated observations, not publications.
+    """
     source = source.lower()
     normalizers = {
         "reddit": _normalize_reddit,
@@ -54,15 +63,9 @@ def normalize_source_items(
     if normalizer is None:
         raise ValueError(f"Unsupported source: {source}")
     normalized = [normalizer(source, item, index, from_date, to_date) for index, item in enumerate(items)]
-    require_date = source == "grounding"
-    filtered = filter_by_date_range(normalized, from_date, to_date, require_date=require_date)
-    if filtered:
-        return filtered
-    if freshness_mode == "evergreen_ok" and source == "youtube":
-        if require_date:
-            return [item for item in normalized if item.published_at]
-        return normalized
-    return filtered
+    for raw, item in zip(items, normalized):
+        item.metadata = {**(raw.get("metadata") or {}), **item.metadata}
+    return filter_by_date_range(normalized, from_date, to_date, require_date=True)
 
 
 def _domain_from_url(url: str) -> str | None:
@@ -98,6 +101,11 @@ def _source_item(
     snippet: str = "",
     metadata: dict[str, Any] | None = None,
 ) -> schema.SourceItem:
+    parsed_date = dates.parse_date(published_at)
+    published_at = parsed_date.date().isoformat() if parsed_date else None
+    engagement = {key: value for key, value in (engagement or {}).items()
+                  if isinstance(value, (int, float)) and not isinstance(value, bool)
+                  and math.isfinite(value) and value >= 0}
     return schema.SourceItem(
         item_id=item_id,
         source=source,
@@ -107,7 +115,7 @@ def _source_item(
         author=(author or "").strip() or None,
         container=(container or "").strip() or None,
         published_at=published_at,
-        date_confidence=date_confidence,
+        date_confidence=date_confidence if published_at else "low",
         engagement=engagement or {},
         relevance_hint=max(0.0, min(1.0, float(relevance_hint or 0.0))),
         why_relevant=why_relevant.strip(),
@@ -344,10 +352,7 @@ def _normalize_polymarket(
 ) -> schema.SourceItem:
     title = str(item.get("title") or "").strip()
     question = str(item.get("question") or "").strip()
-    engagement = {
-        "volume": item.get("volume1mo") or item.get("volume24hr") or 0,
-        "liquidity": item.get("liquidity") or 0,
-    }
+    engagement = {"volume": item.get("volume"), "liquidity": item.get("liquidity")}
     return _source_item(
         item_id=str(item.get("id") or f"PM{index + 1}"),
         source=source,
@@ -356,15 +361,18 @@ def _normalize_polymarket(
         url=str(item.get("url") or ""),
         author=None,
         container="Polymarket",
-        published_at=item.get("date"),
-        date_confidence=_date_confidence(item, from_date, to_date, default="high"),
+        published_at=None,
+        date_confidence="low",
         engagement=engagement,
         relevance_hint=item.get("relevance", 0.5),
         why_relevant=str(item.get("why_relevant") or ""),
         snippet=str(item.get("price_movement") or ""),
         metadata={
             "question": question,
+            "date_kind": "market_observation",
+            "observed_at": item.get("observed_at"),
             "end_date": item.get("end_date"),
+            "probability": item.get("probability"),
             "outcome_prices": item.get("outcome_prices") or [],
             "outcomes_remaining": item.get("outcomes_remaining"),
         },

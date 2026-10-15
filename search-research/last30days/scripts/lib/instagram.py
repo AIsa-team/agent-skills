@@ -16,7 +16,7 @@ from . import aisa, dates, http, log
 DEPTH_CONFIG = {
     "quick":   {"results_per_page": 10, "max_captions": 3},
     "default": {"results_per_page": 20, "max_captions": 5},
-    "deep":    {"results_per_page": 40, "max_captions": 8},
+    "deep":    {"results_per_page": 20, "max_captions": 8},
 }
 
 # Max words to keep from each caption
@@ -28,7 +28,7 @@ def _search_via_aisa(topic: str, from_date: str, to_date: str, depth: str, token
     """Use the AISA proxy as the preferred Instagram discovery path."""
     config = DEPTH_CONFIG.get(depth, DEPTH_CONFIG["default"])
     query = f"site:instagram.com/reel OR site:instagram.com/p {topic}"
-    result = aisa.search_tavily(token, query, limit=config["results_per_page"])
+    result = aisa.search_tavily(token, query, date_range=(from_date, to_date), topic="general", limit=config["results_per_page"])
     web_items, _ = aisa.parse_tavily_response(result, date_range=(from_date, to_date))
     items: List[Dict[str, Any]] = []
     for idx, entry in enumerate(web_items, start=1):
@@ -45,7 +45,8 @@ def _search_via_aisa(topic: str, from_date: str, to_date: str, depth: str, token
             "url": url,
             "author_name": "",
             "date": date_str,
-            "engagement": {"views": 0, "likes": 0, "comments": 0},
+            "engagement": {},
+            "metadata": {"retrieval_method": "web_discovery", "provider": "aisa-tavily"},
             "hashtags": [],
             "duration": None,
             "relevance": entry.get("relevance", 0.5),

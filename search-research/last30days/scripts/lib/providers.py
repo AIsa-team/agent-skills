@@ -147,18 +147,19 @@ def resolve_runtime(config: dict[str, Any], depth: str) -> tuple[schema.Provider
     provider_name = (config.get("LAST30DAYS_REASONING_PROVIDER") or "auto").lower()
     warn_if_legacy_provider_alias(provider_name)
     aisa_key = config.get("AISA_API_KEY")
-
+    shared = config.get("AISA_MODEL")
+    planner_pin = config.get("LAST30DAYS_PLANNER_MODEL") or shared
+    rerank_pin = config.get("LAST30DAYS_RERANK_MODEL") or shared
+    if not aisa_key or not planner_pin or not rerank_pin:
+        return schema.ProviderRuntime(
+            reasoning_provider="local",
+            planner_model="deterministic",
+            rerank_model="local-score",
+            x_search_backend=_resolve_x_backend(config),
+            fun_model="local-score",
+        ), None
     if provider_name == "auto":
-        if aisa_key:
-            provider_name = "aisa"
-        else:
-            return schema.ProviderRuntime(
-                reasoning_provider="local",
-                planner_model="deterministic",
-                rerank_model="local-score",
-                x_search_backend=_resolve_x_backend(config),
-                fun_model="local-score",
-            ), None
+        provider_name = "aisa"
 
     provider_name = _normalize_provider_name(provider_name)
     planner_model, rerank_model, fun_model = _resolve_model_pins(config, depth, provider_name)
@@ -191,12 +192,15 @@ def extract_json(text: str) -> dict[str, Any]:
     if not text:
         raise ValueError("Expected JSON response, got empty text")
     try:
-        return json.loads(text)
+        payload = json.loads(text)
     except json.JSONDecodeError:
         match = re.search(r"\{[\s\S]*\}", text)
         if not match:
             raise
-        return json.loads(match.group(0))
+        payload = json.loads(match.group(0))
+    if not isinstance(payload, dict):
+        raise ValueError("Expected a JSON object from reasoning model")
+    return payload
 
 
 def extract_gemini_text(payload: dict[str, Any]) -> str:

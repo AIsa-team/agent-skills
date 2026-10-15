@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 
-from . import http, providers, query, schema
+from . import costs, http, providers, query, schema
 
 ALLOWED_INTENTS = {
     "factual",
@@ -103,6 +104,13 @@ def plan_query(
             plan = _sanitize_plan(raw, topic, available_sources, requested_sources, depth)
             if plan.subqueries:
                 return plan
+        except costs.CostControlError as exc:
+            import sys
+            print(f"[Planner] Hosted planning refused; using deterministic fallback: {exc}", file=sys.stderr)
+            return _fallback_plan(
+                topic, available_sources, requested_sources, depth,
+                note="fallback-plan (hosted planning refused by cost controls)",
+            )
         except (ValueError, KeyError, json.JSONDecodeError, OSError, http.HTTPError) as exc:
             import sys
             error_class = http.classify_error(exc)
@@ -169,6 +177,59 @@ Rules:
 """.strip()
 
 
+def validate_external_plan(raw: object, known_sources: list[str]) -> dict:
+    """Reject malformed user plans before any hosted planning or retrieval."""
+    if not isinstance(raw, dict):
+        raise ValueError("--plan must be a JSON object")
+    subqueries = raw.get("subqueries")
+    if not isinstance(subqueries, list) or not subqueries:
+        raise ValueError("--plan.subqueries must be a nonempty array")
+    for index, subquery in enumerate(subqueries, start=1):
+        prefix = f"--plan.subqueries[{index}]"
+        if not isinstance(subquery, dict):
+            raise ValueError(f"{prefix} must be an object")
+        for key in ("search_query", "ranking_query"):
+            if not isinstance(subquery.get(key), str) or not subquery[key].strip():
+                raise ValueError(f"{prefix}.{key} must be a nonempty string")
+        if "label" in subquery and (not isinstance(subquery["label"], str) or not subquery["label"].strip()):
+            raise ValueError(f"{prefix}.label must be a nonempty string")
+        if "sources" in subquery:
+            sources = subquery["sources"]
+            if not isinstance(sources, list) or not sources or any(
+                not isinstance(source, str) or source not in known_sources for source in sources
+            ):
+                raise ValueError(f"{prefix}.sources must be a nonempty array of supported source names")
+        _validate_plan_weight(subquery.get("weight", 1), f"{prefix}.weight", positive=True)
+    weights = raw.get("source_weights", {})
+    if not isinstance(weights, dict):
+        raise ValueError("--plan.source_weights must be an object")
+    for source, weight in weights.items():
+        if source not in known_sources:
+            raise ValueError(f"--plan.source_weights has unsupported source: {source}")
+        _validate_plan_weight(weight, f"--plan.source_weights.{source}", positive=False)
+    for field, choices in (
+        ("intent", ALLOWED_INTENTS),
+        ("cluster_mode", ALLOWED_CLUSTER_MODES),
+        ("freshness_mode", {"strict_recent", "balanced_recent", "evergreen_ok"}),
+    ):
+        if field in raw and (not isinstance(raw[field], str) or raw[field] not in choices):
+            raise ValueError(f"--plan.{field} must be one of {', '.join(sorted(choices))}")
+    if "notes" in raw and (not isinstance(raw["notes"], list) or any(not isinstance(note, str) for note in raw["notes"])):
+        raise ValueError("--plan.notes must be an array of strings")
+    return raw
+
+
+def _validate_plan_weight(value: object, field: str, *, positive: bool) -> None:
+    try:
+        valid = not isinstance(value, bool) and isinstance(value, (int, float)) and math.isfinite(value)
+    except OverflowError:
+        valid = False
+    if not valid:
+        raise ValueError(f"{field} must be a finite number")
+    if value < 0 or (positive and value == 0):
+        raise ValueError(f"{field} must be {'positive' if positive else 'nonnegative'}")
+
+
 def _sanitize_plan(
     raw: dict,
     topic: str,
@@ -176,6 +237,12 @@ def _sanitize_plan(
     requested_sources: list[str] | None,
     depth: str,
 ) -> schema.QueryPlan:
+    if not isinstance(raw, dict):
+        raise ValueError("Planner response must be a JSON object")
+    if not isinstance(raw.get("source_weights", {}), dict) or not isinstance(raw.get("subqueries", []), list):
+        raise ValueError("Planner source_weights must be an object and subqueries an array")
+    if not isinstance(raw.get("notes", []), list):
+        raise ValueError("Planner notes must be an array")
     intent_hint = str(raw.get("intent") or _infer_intent(topic)).strip()
     if intent_hint not in ALLOWED_INTENTS:
         intent_hint = _infer_intent(topic)
@@ -193,7 +260,9 @@ def _sanitize_plan(
         if source not in available:
             continue
         try:
-            source_weights[source] = float(weight)
+            numeric_weight = float(weight)
+            if math.isfinite(numeric_weight) and numeric_weight >= 0:
+                source_weights[source] = numeric_weight
         except (TypeError, ValueError):
             continue
     if requested:
@@ -215,7 +284,10 @@ def _sanitize_plan(
     for index, subquery in enumerate((raw.get("subqueries") or [])[:_max_subqueries(intent_hint)], start=1):
         if not isinstance(subquery, dict):
             continue
-        sources = [source for source in subquery.get("sources") or [] if source in source_weights]
+        source_values = subquery.get("sources") or []
+        if not isinstance(source_values, list):
+            continue
+        sources = [source for source in source_values if isinstance(source, str) and source in source_weights]
         if requested:
             sources = [source for source in sources if source in requested]
         if not sources:
@@ -227,6 +299,8 @@ def _sanitize_plan(
         # A bad weight on this one subquery shouldn't drop the whole plan.
         try:
             weight = max(0.05, float(subquery.get("weight") or 1.0))
+            if not math.isfinite(weight):
+                weight = 1.0
         except (TypeError, ValueError):
             weight = 1.0
         subqueries.append(

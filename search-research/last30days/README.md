@@ -1,9 +1,9 @@
 # last30days
 
 Multi-source research skill for the last 30 days. One command pulls a
-ranked, clustered brief on any topic across eight sources: Reddit, X,
+ranked, clustered brief on any topic across public and hosted sources: Reddit, X,
 YouTube, TikTok, Instagram, Hacker News, Polymarket, and grounded web
-search — in ~40 seconds.
+search. Runtime depends on source coverage and provider latency.
 
 ## Quick start
 
@@ -15,17 +15,18 @@ export AISA_API_KEY=sk-...
 bash scripts/run-last30days.sh setup
 
 # 3. Research a topic
-bash scripts/run-last30days.sh "OpenAI Agents SDK"
+bash scripts/run-last30days.sh "OpenAI Agents SDK" \
+  --budget-usd "$APPROVED_BUDGET_USD" --cost-ledger research-costs.json
 ```
 
 ## Examples
 
 ```bash
-last30days "OpenAI Agents SDK"
-last30days "Claude Code vs Codex"
-last30days "Peter Steinberger"
-last30days "bitcoin price" --quick
-last30days "Perplexity" --emit=json
+bash scripts/run-last30days.sh --cost-ledger research-costs.json "OpenAI Agents SDK"
+bash scripts/run-last30days.sh --cost-ledger research-costs.json "Claude Code vs Codex"
+bash scripts/run-last30days.sh --cost-ledger research-costs.json "Peter Steinberger"
+bash scripts/run-last30days.sh --cost-ledger research-costs.json "bitcoin price" --quick
+bash scripts/run-last30days.sh --cost-ledger research-costs.json "Perplexity" --emit=json
 ```
 
 ## Compatibility
@@ -36,7 +37,7 @@ harness: **Claude Code**, **Claude**, **OpenAI Codex**, **Cursor**,
 others that implement the
 [Agent Skills specification](https://agentskills.io/specification).
 
-Requires Python 3, a POSIX shell, and `AISA_API_KEY`.
+Requires Python 3.11+ and a POSIX shell. Hosted retrieval needs `AISA_API_KEY` and an authorized budget.
 
 ## What it returns
 
@@ -54,31 +55,25 @@ fields — suitable for feeding into another agent.
 
 ## Requirements
 
-- **Python 3.12+**
-- **`AISA_API_KEY`** — powers the planner, reranker, fun-scorer, and
-  hosted retrieval for X, YouTube, TikTok, Instagram, Polymarket, and
-  grounded web search. Get one at [aisa.one](https://aisa.one).
+- **Python 3.11+**
+- **`AISA_API_KEY`** — enables hosted retrieval. TikTok and Instagram use indexed web discovery, not native engagement APIs. Get a key at [aisa.one](https://aisa.one).
 - **`GH_TOKEN` or `GITHUB_TOKEN`** *(optional)* — enables the GitHub
-  source. Without it the other seven sources still work.
+  source. Without it the GitHub source is unavailable.
 
 Reddit and Hacker News use public endpoints and need no credentials.
 
-## Per-role model configuration
+## Costs and reasoning
 
-The skill makes three LLM calls per run: planner (query structure),
-reranker (relevance ranking), fun-scorer (quirkiness). Each can be pinned
-independently:
+Use one durable ledger for each authorized task. Exact quotes are compared with
+remaining budget, and actual charges are recorded separately. Unknown charges
+block further paid work; paid requests are never automatically retried.
+Variable estimates need `--allow-variable-cost` only when the user accepted that
+final charges may exceed estimates. See [cost controls and recovery](references/cost-control.md).
 
-```bash
-# ~/.config/last30days/.env
-LAST30DAYS_PLANNER_MODEL=qwen-flash           # fast + reliable JSON
-LAST30DAYS_RERANK_MODEL=qwen-plus-2025-12-01  # quality ranking
-LAST30DAYS_FUN_MODEL=qwen-flash               # cheap vibes
-```
-
-Or set `AISA_MODEL=...` for a single model across all three. The
-interactive `setup` flow walks you through picking from the live
-[AIsa model catalog](https://aisa.one/docs/guides/models).
+Public-source/local runs and `--mock` need no paid authorization. Planning and
+ranking have local fallbacks. Hosted chat calls are currently blocked because
+the chat contract does not declare the quote/admission support required by this
+release; retained model pins do not imply execution.
 
 ## Flags
 
@@ -88,11 +83,14 @@ interactive `setup` flow walks you through picking from the live
 | `--deep` | Higher-recall retrieval profile |
 | `--emit=json` | Machine-readable output (default: markdown) |
 | `--search=reddit,x,hackernews` | Restrict to specific sources |
-| `--diagnose` | Print provider / source availability |
+| `--diagnose` | Inspect configured providers/sources; no live availability guarantee |
+| `--budget-usd` | Authorize an exact estimate budget for a new ledger |
+| `--cost-ledger` | Share/reuse a durable task budget and request records |
+| `--allow-variable-cost` | Accept quotes whose final charge may exceed the estimate |
 | `--save-dir=out/` | Persist the rendered brief to disk |
 | `--store` | Persist findings to the local SQLite research store |
 
-Run `last30days --help` for the full list.
+Run `bash scripts/run-last30days.sh --help` for the full list.
 
 ## API Reference
 
@@ -101,4 +99,8 @@ complete catalog of endpoints this skill can call.
 
 ## License
 
-MIT — see [LICENSE](../LICENSE) at the repo root.
+MIT — see [LICENSE](../LICENSE) at the category root.
+
+## Tests
+
+Run `bash scripts/run-tests.sh` for the offline regression suite. No pytest or live API key is required.

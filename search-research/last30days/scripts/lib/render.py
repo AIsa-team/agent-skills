@@ -84,6 +84,7 @@ def render_compact(report: schema.Report, cluster_limit: int = 8, fun_level: str
         lines.extend([""] + best_takes)
 
     lines.extend(_render_source_coverage(report))
+    lines.extend(_render_costs(report))
     return "\n".join(lines).strip() + "\n"
 
 
@@ -142,7 +143,7 @@ def render_full(report: schema.Report) -> str:
         lines.append("")
         for item in items:
             score = item.local_rank_score if item.local_rank_score is not None else 0
-            lines.append(f"**{item.item_id}** (score:{score:.0f}) {item.author or ''} ({item.published_at or 'date unknown'}) [{_format_item_engagement(item)}]")
+            lines.append(f"**{item.item_id}** (score:{score:.0f}) {item.author or ''} ({_format_date(item)}) [{_format_item_engagement(item)}]")
             lines.append(f"  {item.title}")
             if item.url:
                 lines.append(f"  {item.url}")
@@ -198,6 +199,7 @@ def render_full(report: schema.Report) -> str:
 
     lines.extend(_render_stats(report))
     lines.extend(_render_source_coverage(report))
+    lines.extend(_render_costs(report))
     return "\n".join(lines).strip() + "\n"
 
 
@@ -235,7 +237,7 @@ def render_context(report: schema.Report, cluster_limit: int = 6) -> str:
             detail_parts = [
                 schema.candidate_source_label(candidate),
                 candidate.title,
-                schema.candidate_best_published_at(candidate) or "date unknown",
+                _format_date(schema.candidate_primary_item(candidate)),
                 candidate.url,
             ]
             lines.append(f"  - {' | '.join(detail_parts)}")
@@ -244,6 +246,7 @@ def render_context(report: schema.Report, cluster_limit: int = 6) -> str:
     if report.warnings:
         lines.append("Warnings:")
         lines.extend(f"- {warning}" for warning in report.warnings)
+    lines.extend(_render_costs(report))
     return "\n".join(lines).strip() + "\n"
 
 
@@ -263,6 +266,8 @@ def _render_candidate(candidate: schema.Candidate, prefix: str) -> list[str]:
         f"   - {details}",
         f"   - URL: {candidate.url}",
     ]
+    if primary and primary.metadata.get("retrieval_method") == "web_discovery":
+        lines.append("   - Retrieval: indexed web discovery; native engagement unavailable unless reported")
     corroboration = _format_corroboration(candidate)
     if corroboration:
         lines.append(f"   - {corroboration}")
@@ -339,8 +344,13 @@ def _render_source_coverage(report: schema.Report) -> list[str]:
         "## Source Coverage",
         "",
     ]
-    for source, items in sorted(report.items_by_source.items()):
-        lines.append(f"- {_source_label(source)}: {len(items)} item{'s' if len(items) != 1 else ''}")
+    coverage = report.artifacts.get("source_coverage", {})
+    if coverage:
+        for source, entry in sorted(coverage.items()):
+            lines.append(f"- {_source_label(source)}: {entry['status']}; {entry['retained_items']} retained items")
+    else:
+        for source, items in sorted(report.items_by_source.items()):
+            lines.append(f"- {_source_label(source)}: {len(items)} items")
     if report.errors_by_source:
         lines.append("")
         lines.append("## Source Errors")
@@ -421,6 +431,8 @@ def _assess_data_freshness(report: schema.Report) -> str | None:
 
 
 def _format_date(item: schema.SourceItem | None) -> str:
+    if item and item.metadata.get("date_kind") == "market_observation":
+        return f"observed {item.metadata.get('observed_at', 'unknown')} (current market snapshot)"
     if not item or not item.published_at:
         return "date unknown [date:low]"
     if item.date_confidence == "high":
@@ -650,3 +662,20 @@ def _truncate(text: str, limit: int) -> str:
     if len(text) <= limit:
         return text
     return text[: limit - 3].rstrip() + "..."
+
+
+def _render_costs(report: schema.Report) -> list[str]:
+    costs = report.artifacts.get("costs")
+    if not isinstance(costs, dict):
+        return []
+    known = costs.get("known_cost_micros_usd")
+    def usd(value):
+        return f"${value // 1_000_000}.{value % 1_000_000:06d}" if type(value) is int and value >= 0 else "unknown"
+    lines = ["", "## Request Costs", "", f"- Known actual charges in ledger: {usd(known)}"]
+    unknown = costs.get("unknown_requests") or []
+    if unknown:
+        lines.append(f"- Unresolved requests: {len(unknown) if isinstance(unknown, list) else unknown}; further paid work is blocked pending reconciliation.")
+    if costs.get("ledger_path"):
+        lines.append(f"- Ledger: {costs['ledger_path']}")
+        lines.append("- Budget checks constrain admission estimates; final charges can exceed those estimates.")
+    return lines

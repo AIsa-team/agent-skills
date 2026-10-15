@@ -1,0 +1,32 @@
+{
+  "description": "Synthetic values using public AIsa response shapes checked 2026-10-15; no live paid data or credentials.",
+  "sources": {
+    "twitter": "https://aisa.one/docs/api-reference/twitter/get_twitter-tweet-advanced-search",
+    "youtube": "https://aisa.one/docs/api-reference/search/get_youtube-search",
+    "polymarket": "https://aisa.one/docs/api-reference/polymarket-gamma/any_polymarket_data_apis_v1_polymarket_public_search",
+    "markets": "https://aisa.one/docs/api-reference/prediction-market/get_polymarket-markets",
+    "tavily": "https://aisa.one/docs/api-reference/search/post_tavily-search"
+  },
+  "twitter": {
+    "tweets": [{"id": "123", "url": "https://x.com/example/status/123", "text": "Example launch discussion", "createdAt": "Thu Oct 15 08:00:00 +0000 2026", "author": {"userName": "example"}, "likeCount": 23, "retweetCount": 4, "replyCount": 3, "quoteCount": 0}]
+  },
+  "youtube": {
+    "_observed_at": "2026-10-15T12:00:00+00:00",
+    "videos": [
+      {"id": "recent", "link": "https://www.youtube.com/watch?v=recent", "title": "Example review", "description": "A recent example", "channel": {"title": "Example Channel"}, "published_time": "2 days ago", "views": 42, "length": "12:30"},
+      {"id": "old", "link": "https://www.youtube.com/watch?v=old", "title": "Older example", "channel": {"title": "Example Channel"}, "published_time": "2 years ago"},
+      {"id": "unknown", "link": "https://www.youtube.com/watch?v=unknown", "title": "Undated example", "channel": {"title": "Example Channel"}}
+    ]
+  },
+  "polymarket": {
+    "_observed_at": "2026-10-15T12:00:00+00:00",
+    "events": [{"id": "event1", "slug": "example-event", "title": "Example event", "markets": [
+      {"id": "market1", "question": "Will the example happen?", "slug": "example-question", "conditionId": "0xexample", "active": true, "closed": false, "outcomes": "[\"Yes\", \"No\"]", "outcomePrices": "[\"0.75\", \"0.25\"]", "endDate": "2026-12-31T00:00:00Z", "volume": "1000", "volumeNum": 1000, "liquidity": "25"}
+    ]}],
+    "pagination": {"hasMore": false, "totalResults": 1}
+  },
+  "tavily": {
+    "query": "example",
+    "results": [{"title": "Example post", "url": "https://www.tiktok.com/@example/video/123", "content": "Example excerpt", "published_date": "Wed, 14 Oct 2026 19:28:36 GMT", "score": 0.92}]
+  }
+}

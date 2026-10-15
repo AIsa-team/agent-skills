@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from . import http, providers, schema
+from . import costs, http, providers, schema
 
 INTENT_SCORING_HINTS: dict[str, str] = {
     "comparison": (
@@ -64,7 +64,7 @@ def rerank_candidates(
         try:
             response = provider.generate_json(model, _build_prompt(topic, plan, shortlisted))
             _apply_llm_scores(shortlisted, response)
-        except (ValueError, KeyError, json.JSONDecodeError, OSError, http.HTTPError) as exc:
+        except (ValueError, KeyError, json.JSONDecodeError, OSError, http.HTTPError, costs.CostControlError) as exc:
             import sys
             print(f"[Rerank] LLM reranking failed, using local fallback: {type(exc).__name__}: {exc}", file=sys.stderr)
             _apply_fallback_scores(shortlisted)
@@ -230,7 +230,7 @@ def score_fun(
         try:
             response = provider.generate_json(model, _build_fun_prompt(topic, pool))
             _apply_fun_scores(pool, response)
-        except (ValueError, KeyError, json.JSONDecodeError, OSError, http.HTTPError) as exc:
+        except (ValueError, KeyError, json.JSONDecodeError, OSError, http.HTTPError, costs.CostControlError) as exc:
             import sys
             print(f"[FunJudge] LLM scoring failed: {type(exc).__name__}: {exc}", file=sys.stderr)
             _apply_fun_fallback(pool)

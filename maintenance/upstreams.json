@@ -241,5 +241,9 @@
   "aisa-api-similarweb": {
     "type": "openapi",
     "url": "https://aisa.one/docs/openapi/similarweb.json"
+  },
+  "aisa-polymarket-public-search": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/polymarket-gamma/any_polymarket_data_apis_v1_polymarket_public_search.md"
   }
 }

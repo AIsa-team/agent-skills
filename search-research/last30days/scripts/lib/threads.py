@@ -12,7 +12,7 @@ from .relevance import token_overlap_relevance as _compute_relevance
 DEPTH_CONFIG = {
     "quick":   {"results": 10},
     "default": {"results": 20},
-    "deep":    {"results": 40},
+    "deep":    {"results": 20},
 }
 
 
@@ -21,7 +21,7 @@ def _log(msg: str):
 
 def _search_via_aisa(topic: str, from_date: str, to_date: str, depth: str, token: str) -> Dict[str, Any]:
     config = DEPTH_CONFIG.get(depth, DEPTH_CONFIG["default"])
-    result = aisa.search_tavily(token, f"site:threads.net {topic}", limit=config["results"])
+    result = aisa.search_tavily(token, f"site:threads.net {topic}", date_range=(from_date, to_date), topic="general", limit=config["results"])
     web_items, _ = aisa.parse_tavily_response(result, date_range=(from_date, to_date))
     items: List[Dict[str, Any]] = []
     for idx, entry in enumerate(web_items, start=1):
@@ -39,7 +39,8 @@ def _search_via_aisa(topic: str, from_date: str, to_date: str, depth: str, token
             "text": text,
             "url": url,
             "date": date_str,
-            "engagement": {"likes": 0, "replies": 0, "reposts": 0, "quotes": 0},
+            "engagement": {},
+            "metadata": {"retrieval_method": "web_discovery", "provider": "aisa-tavily"},
             "relevance": entry.get("relevance", 0.5),
             "why_relevant": "Threads web result via AISA",
         })
