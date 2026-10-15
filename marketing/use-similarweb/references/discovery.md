@@ -1,57 +1,56 @@
-# Discovering the contract at runtime
+# Discovering the live contract
 
-This skill never hardcodes routes' parameters. Everything below was verified on 2026-09-13 across all
-23 Similarweb routes.
+Use the public [Similarweb OpenAPI contract](https://aisa.one/docs/openapi/similarweb.json) for current
+routes, request schemas, constraints, examples, and response declarations. Its route count and structure
+can change; successful discovery is not proof that every route has been executed or is accessible to the key.
 
-## Sources
+## Commands and paths
 
-| Source | Access | Use it for |
-|---|---|---|
-| `https://aisa.one/docs/openapi/similarweb.json` | Public, no key | **Primary.** OpenAPI 3 for the Similarweb family only: routes, parameters, schemas, descriptions, server URL |
-| `tools/list` on `https://mcp.aisa.one/similarweb/mcp` | Bearer key | The same schemas as MCP tools — use when the agent already works through MCP |
-| MCP `get_details` with an `operation_id` | Bearer key | One route's full schema on demand |
-| `https://aisa.one/openapi.yaml` | Public, no key | Fallback: the full AIsa contract; keep paths starting with `/similarweb` |
+`discover` lists the available GET operations. `describe ROUTE` exposes the selected operation's parameters,
+`constraints`, examples, `responses`, referenced `response_definitions`, and `response_pending` metadata.
 
-To reach Similarweb tools over MCP, connect to the Similarweb module endpoint above and use its `tools/list`.
+The client accepts short paths such as `/website/traffic-engagement`, legacy `/similarweb/...` paths,
+and full `/apis/v1/similarweb/...` paths. It combines the contract's server URL with the actual path;
+do not prepend another `/apis/v1` when it is already present.
 
-## Caching
+## Reading a route
 
-The contract responds with `ETag`, `Last-Modified` and `Cache-Control: max-age=1800, must-revalidate`.
+- Include the required parameters and use the schema's types, enums, bounds, and defaults.
+- Read `x-aisa-constraints` as well as operation and parameter descriptions. Important rules may appear
+  only in extension fields, even when the operation description is empty.
+- Parameter examples and code samples show request shape. Replace example domains and account-specific
+  identifiers; do not treat example dates as the latest available data month.
+- Use response schemas and examples to interpret returned fields. A `response_pending` declaration means
+  an authoritative public success schema is still missing; inspect the actual response without inventing fields.
 
-1. Store the body with its ETag.
-2. Within `max-age`, use the cached copy.
-3. After it, revalidate with `If-None-Match: <ETag>` → `304 Not Modified` (no body, about a second) means the
-   copy is current; `200` delivers a new contract.
+`check ROUTE name=value …` performs the client's supported local schema checks. It may fetch or refresh
+the public contract, but does not execute a Similarweb request. Passing this check or receiving a quote
+does not verify account entitlement, provider data availability, or every upstream date rule.
 
-`similarweb_client.py discover` does this automatically (cache: `$AISA_SIMILARWEB_CACHE` or `~/.cache/aisa-similarweb`).
+## Dates and availability
 
-## Building a request from an operation
+Preserve explicit user dates. If the user asks for the latest data and no confirmed availability is known,
+`window` returns `candidate_month` as the previous complete UTC calendar month, `latest_month: null`, and
+`availability: "unverified"`, along with relevant contract constraints and default policies.
 
-For the route's `get` operation:
+This command does not send an authenticated or paid request. The candidate may be newer than the provider's
+available data. Do not intentionally execute an invalid paid request to discover an allowed date range.
+If an authorized request returns a date or availability error, use that evidence to explain the limitation;
+changing the user's requested period still requires that the resulting task remain within their intent.
 
-- Include every parameter with `required: true`.
-- Use `schema.enum` for allowed values, `schema.default` for defaults and `schema.maximum` for limits.
-- Parameter descriptions give formats (for example `YYYY-MM`) and examples (`e.g. …`).
-- The operation `description` states date-window rules — how many months a request may span, or that it must
-  use the latest month.
-- Add optional parameters only when the question needs them.
+## Caching and changes
 
-`similarweb_client.py check ROUTE name=value …` compares a request against the contract without calling the API:
-missing required parameters, parameters the contract does not declare, enum violations and maximums.
+The cache lives at `$AISA_SIMILARWEB_CACHE` or `~/.cache/aisa-similarweb`. The client respects the contract's
+cache lifetime and revalidates cached content with its ETag when available. `discover --refresh` requests
+a new copy. If a network failure causes use of a cached copy, the client warns that discovery is stale.
 
-Verified: requests built from the contract alone were accepted on 23/23 routes; removing any one required
-parameter was rejected on 78/78; adding every declared optional parameter was accepted on 23/23.
+A rejected request does not necessarily mean the contract changed. Inspect the actual error, refresh once
+when drift is plausible, and compare the request with the refreshed schema and constraints. Do not loop
+through refreshes or paid retries when the rejection is an access or data-availability problem.
 
-## What the contract does not carry, and where to get it
+## MCP alternative
 
-| Need | How |
-|---|---|
-| Latest complete data month | Find the route whose description requires the latest month, send it an old month (`2000-01`) with its other required parameters, and read the allowed month from `meta.error_message` in the 400. Free. `similarweb_client.py window` does this |
-| Whether a date window is valid | Quotes validate parameters but not date windows. A real call that breaks a window returns a free 400 whose `meta.error_message` states the rule — fix the dates and retry |
-| Valid values after a rejected request | Routes that return `error.supported` list the valid values and name the parameter in `error.message` |
-
-## Keeping in step with the contract
-
-- Revalidate the contract at session start.
-- If a request built from the contract is rejected at quote time, re-fetch the contract (`discover --refresh`)
-  and rebuild — the contract has changed. `quote` and `call` in the client do this re-check automatically.
+The Similarweb module endpoint is `https://mcp.aisa.one/similarweb/mcp`. If using an existing MCP connection,
+inspect its current `tools/list` rather than assuming tool names or schema parity. This skill's client uses
+REST so it can preserve response billing headers and request records; apply the same authorization and
+uncertain-outcome handling to any alternative client.

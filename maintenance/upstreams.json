@@ -194,10 +194,6 @@
     "type": "docs",
     "url": "https://aisa.one/docs/api-reference/similarweb/get_similarweb-website-traffic-engagement.md"
   },
-  "doc-2dd0e1856974": {
-    "type": "docs",
-    "url": "https://aisa.one/docs/openapi/similarweb.json.md"
-  },
   "doc-13b1056e5acd": {
     "type": "docs",
     "url": "https://aisa.one/docs/agent-quickstart.md"
@@ -241,5 +237,9 @@
   "doc-88a6c019a244": {
     "type": "docs",
     "url": "https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar.md"
+  },
+  "aisa-api-similarweb": {
+    "type": "openapi",
+    "url": "https://aisa.one/docs/openapi/similarweb.json"
   }
 }
