@@ -8,7 +8,7 @@ with a few house-level requirements on top.
 
 1. Skills live in `<category>/<skill-name>/`, where `<category>` is one of
    `financial`, `search-research`, `social-media`, `ai-models`, `marketing`,
-   `creative`, or `platform`. The generic AIsa Skill is `platform/aisa/`
+   `e-commerce`, `creative`, or `platform`. The generic AIsa Skill is `platform/aisa/`
    (slug `aisa`). Do not add extra root-level Skills.
 2. `SKILL.md` frontmatter must be **spec-compliant** (validate with
    [`skills-ref`](https://github.com/agentskills/agentskills/tree/main/skills-ref)

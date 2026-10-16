@@ -245,5 +245,12 @@
   "aisa-polymarket-public-search": {
     "type": "docs",
     "url": "https://aisa.one/docs/api-reference/polymarket-gamma/any_polymarket_data_apis_v1_polymarket_public_search.md"
+  },
+  "aisa-amazon-merchant": {
+    "type": "openapi",
+    "url": "https://aisa.one/docs/openapi/dataforseo.json",
+    "paths": [
+      "dataforseo/merchant/amazon/(products|asin)/live/advanced"
+    ]
   }
 }
