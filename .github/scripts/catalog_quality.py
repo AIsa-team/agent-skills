@@ -18,6 +18,7 @@ from skills_ref import validate as validate_skill
 CATEGORY_NAMES = (
     "ai-models",
     "creative",
+    "e-commerce",
     "financial",
     "marketing",
     "platform",

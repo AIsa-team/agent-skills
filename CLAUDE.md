@@ -15,6 +15,7 @@ self-contained skill:
 - `social-media/` — Twitter/X and YouTube workflows
 - `ai-models/` — provider setup and LLM routing
 - `marketing/` — SEO and creator discovery
+- `e-commerce/` — product selection, product pricing, and product tracking
 - `creative/` — image and video generation
 
 Skills are consumed by any [agentskills.io](https://agentskills.io)-

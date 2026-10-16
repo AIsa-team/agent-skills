@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "owner": "unassigned",
+  "languages": ["python"],
+  "runtime": {"python": "3.10"},
+  "entrypoints": ["scripts/track.py"],
+  "checks": {
+    "lint": [],
+    "typecheck": [],
+    "build": [],
+    "test": [["{python}", "-m", "unittest", "discover", "-s", "tests", "-v"]]
+  },
+  "upstreams": ["aisa-mcp", "aisa-mcp-catalog", "aisa-amazon-merchant"]
+}
