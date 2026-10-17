@@ -4,7 +4,7 @@
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -29,14 +29,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-ai-models": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "f39c28c0095ca1066947bec7826740ee91a48975dc4ee7bf27b25142794e6a5e"
+    "notification_digest": "61816dbb1ddd9888077fde3273721b35535e710dc18ae73f8d2e91d54c2607cd"
   },
   {
     "skill": "ai-models/cn-llm",
     "owner": "@chaimengphp",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -60,14 +60,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-ai-models": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "ba95caf2a05a5558cc9b8d202f839635c065e158cf2a41200edd398c9778cb6b"
+    "notification_digest": "f100917749d637fcf9349a0ea91dd15a4254b730f538980c8e0c4bd15c369444"
   },
   {
     "skill": "ai-models/llm-router",
     "owner": "@chaimengphp",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -91,14 +91,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-ai-models": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "fa9098c637ae0a7cc0588fceb2ce4a1fc9375157fddb9ea115c7efec4b7fdd59"
+    "notification_digest": "d0aacef1b5f1f0b6f6f2e28db22a78aefc6e371c54f88322567190cebd7f8acc"
   },
   {
     "skill": "creative/media-gen",
     "owner": "@chaimengphp",
     "version": "1.0.0",
     "updated_at": "2026-07-22T11:27:08+08:00",
-    "update_age_days": 85,
+    "update_age_days": 86,
     "verified_at": null,
     "review_age_days": null,
     "status": "no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -140,14 +140,78 @@
       "doc-f697a7378919": "https://aisa.one/docs/api-reference/video/get_services-aigc-tasks.md",
       "doc-6a92ff29b53e": "https://aisa.one/docs/api-reference/video/post_services-aigc-video-generation-video-synthesis.md"
     },
-    "notification_digest": "e6f85758f882d459fd70bd7878118e4a20bcd8a989cdf5b889fd4fae2d7c8244"
+    "notification_digest": "bf2e16ed08fd2a6ad26775d9df885da2d9b4c561cbbd017b700bde88d91af43a"
+  },
+  {
+    "skill": "e-commerce/product-selection",
+    "owner": "unassigned",
+    "version": "1.0.1",
+    "updated_at": "2026-10-16T17:02:58+08:00",
+    "update_age_days": 0,
+    "verified_at": null,
+    "review_age_days": null,
+    "status": "owner unassigned; review overdue; upstream change pending; monitoring unavailable",
+    "warnings": [
+      "owner unassigned",
+      "review overdue",
+      "upstream change pending",
+      "monitoring unavailable"
+    ],
+    "changed_upstreams": [
+      "aisa-mcp-catalog"
+    ],
+    "unavailable_upstreams": [
+      "aisa-api-marketing",
+      "aisa-api-search-research"
+    ],
+    "unreviewed_upstreams": [
+      "aisa-mcp-catalog",
+      "aisa-api-marketing",
+      "aisa-api-search-research"
+    ],
+    "upstream_links": {
+      "aisa-mcp-catalog": "https://mcp.aisa.one/servers",
+      "aisa-api-marketing": "https://aisa.one/openapi.yaml",
+      "aisa-api-search-research": "https://aisa.one/openapi.yaml"
+    },
+    "notification_digest": "d4199816a645674ee6373637aac07c16cab5f5f18a2926a408d6da64083c0e91"
+  },
+  {
+    "skill": "e-commerce/product-tracking",
+    "owner": "unassigned",
+    "version": "1.0.0",
+    "updated_at": "2026-10-16T17:02:58+08:00",
+    "update_age_days": 0,
+    "verified_at": null,
+    "review_age_days": null,
+    "status": "owner unassigned; review overdue; upstream change pending",
+    "warnings": [
+      "owner unassigned",
+      "review overdue",
+      "upstream change pending"
+    ],
+    "changed_upstreams": [
+      "aisa-mcp-catalog"
+    ],
+    "unavailable_upstreams": [],
+    "unreviewed_upstreams": [
+      "aisa-mcp",
+      "aisa-mcp-catalog",
+      "aisa-amazon-merchant"
+    ],
+    "upstream_links": {
+      "aisa-mcp": "https://tools.aisa.one/mcp",
+      "aisa-mcp-catalog": "https://mcp.aisa.one/servers",
+      "aisa-amazon-merchant": "https://aisa.one/docs/openapi/dataforseo.json"
+    },
+    "notification_digest": "b5691377c30dc16b9e53723a521dbde048aa60fb9eb9792779672908b768f442"
   },
   {
     "skill": "financial/crypto-market-data",
     "owner": "@karensheng",
     "version": "1.0.0",
     "updated_at": "2026-07-22T11:27:08+08:00",
-    "update_age_days": 85,
+    "update_age_days": 86,
     "verified_at": null,
     "review_age_days": null,
     "status": "no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -237,14 +301,14 @@
       "doc-616307c7391b": "https://aisa.one/docs/api-reference/coingecko/supported-currencies.md",
       "doc-964e2886206e": "https://aisa.one/docs/api-reference/coingecko/trending-search.md"
     },
-    "notification_digest": "3ed38890225930278257218db2cb664b4135c9995dd977f0dd4f0754bd8a6860"
+    "notification_digest": "8b190b7324f7db84e40b03d26207e6c8dc21827732d3bc019162b8f5fe805078"
   },
   {
     "skill": "financial/market",
     "owner": "@chaimengphp",
     "version": "1.0.1",
     "updated_at": "2026-07-22T11:27:08+08:00",
-    "update_age_days": 85,
+    "update_age_days": 86,
     "verified_at": null,
     "review_age_days": null,
     "status": "no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -268,14 +332,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-financial": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "54128f381d1a3b4c3a43c9f89d87f8117a0d4eceb6c63866e47a21a0723f2268"
+    "notification_digest": "0e885623e4b21f5425f24fe81b5dd181bde1e21e2719eb5c2543f5dcc5bf52b0"
   },
   {
     "skill": "financial/marketpulse",
     "owner": "@chaimengphp",
     "version": "1.0.0",
     "updated_at": "2026-07-27T12:44:01+08:00",
-    "update_age_days": 80,
+    "update_age_days": 81,
     "verified_at": null,
     "review_age_days": null,
     "status": "no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -302,14 +366,14 @@
       "aisa-api-financial": "https://aisa.one/openapi.yaml",
       "doc-e4638a7a5d8b": "https://aisa.one/docs/api-reference.md"
     },
-    "notification_digest": "7c59f1b1925fc098343c86b38a73274ed18c4932730ad8ddad1c2b8cbd85ac09"
+    "notification_digest": "fb79d2cc71d9879075e3fec1818c1a2396809c7f2c29e5fd81f166455fd4e1c4"
   },
   {
     "skill": "financial/prediction-market-arbitrage",
     "owner": "@karensheng",
     "version": "1.0.0",
     "updated_at": "2026-07-22T11:27:08+08:00",
-    "update_age_days": 85,
+    "update_age_days": 86,
     "verified_at": null,
     "review_age_days": null,
     "status": "no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -336,14 +400,14 @@
       "aisa-api-financial": "https://aisa.one/openapi.yaml",
       "doc-e4638a7a5d8b": "https://aisa.one/docs/api-reference.md"
     },
-    "notification_digest": "6be4e7979a92ad58b0893f25115c55528472cf52a51e55bf2d6d5244aa3207c4"
+    "notification_digest": "2c0364588613c815c918c19fd1bf0115f6216d4433e7544d0527b37da22ea1ab"
   },
   {
     "skill": "financial/prediction-market-arbitrage-zh",
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -368,14 +432,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-financial": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "3a6b8f4d54839e8c022d02b5ca248975dad3c88421f6c8b8aac5f6808302ba4a"
+    "notification_digest": "61a0b7c95f58565d16d4ea7b0063a3973580acb88ef3a02db0db3699c22218f1"
   },
   {
     "skill": "financial/prediction-market-data",
     "owner": "@karensheng",
     "version": "1.0.0",
     "updated_at": "2026-07-27T12:44:01+08:00",
-    "update_age_days": 80,
+    "update_age_days": 81,
     "verified_at": null,
     "review_age_days": null,
     "status": "no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -402,14 +466,14 @@
       "aisa-api-financial": "https://aisa.one/openapi.yaml",
       "doc-e4638a7a5d8b": "https://aisa.one/docs/api-reference.md"
     },
-    "notification_digest": "f9f580c65d230878c3cbd22b93a6be6e385f8d6a4d4acc19ee8c92d5904bc055"
+    "notification_digest": "64dc3d69e016f5256e16086170c2944886d7ea1ac3b4d451a6fd7f51917d5463"
   },
   {
     "skill": "financial/prediction-market-data-zh",
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -434,14 +498,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-financial": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "16e700a8f6d3067c7cb7a07ce0fad431ed46e43469d2d7dc518fa961b71efe56"
+    "notification_digest": "6e37ce7a17a4777418d857a0c050c907feb7cc8cd587b0b5e868dfe024127801"
   },
   {
     "skill": "financial/stock-analysis",
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -466,14 +530,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-financial": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "8dffd7b118aae781dd1636aca888e1e7f05c904a9fc3cc191f242132df4b8a2e"
+    "notification_digest": "e0bccdac2af5e5ab295e285afb1c9fcad014e5f958fcab6fe991842694c04177"
   },
   {
     "skill": "financial/stock-dividend",
     "owner": "unassigned",
     "version": "1.0.2",
     "updated_at": "2026-07-22T11:27:08+08:00",
-    "update_age_days": 85,
+    "update_age_days": 86,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -498,14 +562,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-financial": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "4312589b2120ed8dc020b036801b0c51c9f9473e45182a9b8901b557d37882f5"
+    "notification_digest": "a4fb2dab0788ca914b37d483b8fc2dcc9c1bbe9310ac505c03f8fb4acd1c7752"
   },
   {
     "skill": "financial/stock-hot",
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -530,14 +594,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-financial": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "5ae90f0d3bc2b92d6a1193607db9c9704120a187ba93f0811618e31e55257f68"
+    "notification_digest": "85e86f3dfe8f65a6b5b4e3ba637902d672d5eb38f95c9b8a8f6b6c68a72a1b72"
   },
   {
     "skill": "financial/stock-portfolio",
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -562,14 +626,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-financial": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "f5ab7bef25799bf61585360d262dc8ad1542e90034ee8040bc12c8cb9ef7344a"
+    "notification_digest": "1b816f1b3861d5889bb6e1af081756122d98a7935a4665ed27b996971c87510d"
   },
   {
     "skill": "financial/stock-rumors",
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -594,14 +658,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-financial": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "df71ab798aca6cf62a6051702dbae342a8b7d2cc5d9a3351c10a1e5998a229cb"
+    "notification_digest": "fa2573831db940525f330ab89dae6f0f144f823726d85c2fce6aa3e4bf10d5b0"
   },
   {
     "skill": "financial/stock-watchlist",
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -626,14 +690,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-financial": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "f920513140111eb30e8be6e94656652a6a481aeb46ba46ee4dd9c6946f53f764"
+    "notification_digest": "43f71a3c0afa3f50b768dcb0098be673a6454374fd29fcd2d6476e1ccfe24d37"
   },
   {
     "skill": "financial/trend-forecast",
     "owner": "@drowecode",
     "version": "1.0.0",
     "updated_at": "2026-10-10T11:46:22+08:00",
-    "update_age_days": 5,
+    "update_age_days": 6,
     "verified_at": null,
     "review_age_days": null,
     "status": "review overdue; upstream change pending; monitoring unavailable",
@@ -662,14 +726,14 @@
       "doc-e4638a7a5d8b": "https://aisa.one/docs/api-reference.md",
       "doc-128752d84419": "https://aisa.one/docs/guides/pricing.md"
     },
-    "notification_digest": "e90db2226576b56328dcb07b86ea018fd66dcc37fc6712fca7caa044f0b7f1c1"
+    "notification_digest": "1e9d0332980caac8202d05a4b6508e787402965560fbbe29918154656d26d528"
   },
   {
     "skill": "financial/us-stock-analyst",
     "owner": "unassigned",
     "version": "1.0.1",
     "updated_at": "2026-10-10T11:46:22+08:00",
-    "update_age_days": 5,
+    "update_age_days": 6,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; review overdue; upstream change pending; monitoring unavailable",
@@ -693,14 +757,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-financial": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "cebdd04ffe21a2e517c13f1cc5afd74c445b07e64426d7d554c4e59e0bb991f4"
+    "notification_digest": "aec7ecff9353dbc71afa3331209562d18763516b7c9dee6b3193ff2e8b32b777"
   },
   {
     "skill": "marketing/article-seo-geo-review",
     "owner": "@zhenlonghe",
     "version": "1.0.0",
     "updated_at": "2026-09-07T12:55:44+08:00",
-    "update_age_days": 38,
+    "update_age_days": 39,
     "verified_at": null,
     "review_age_days": null,
     "status": "no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -733,14 +797,14 @@
       "doc-3a2e9f558130": "https://aisa.one/docs/api-reference/chat/post_chat-completions.md",
       "doc-1b009da4568c": "https://aisa.one/docs/api-reference/search/post_oxylabs-ai-search.md"
     },
-    "notification_digest": "a15f04a18e160e365e738c1fedbae28e1bc70a621bbd5696856b18a2f22e244a"
+    "notification_digest": "f039374e41066dbf43b829c3797f3977e26ad559546259c826971770bf5106c5"
   },
   {
     "skill": "marketing/creator-marketing",
     "owner": "@fatflowers",
     "version": "0.0.1",
     "updated_at": "2026-10-10T11:46:22+08:00",
-    "update_age_days": 5,
+    "update_age_days": 6,
     "verified_at": null,
     "review_age_days": null,
     "status": "review overdue; upstream change pending; monitoring unavailable",
@@ -768,14 +832,14 @@
       "aisa-mcp-catalog": "https://mcp.aisa.one/servers",
       "aisa-mcp": "https://tools.aisa.one/mcp"
     },
-    "notification_digest": "e9677e9643eaeeee7f69dfa639f645ecb908dd6ec9071ab623818cbb76af5c7e"
+    "notification_digest": "aa701d52a319eef7c455a4c6d74e83d8ae8bf4f18435d40f7125dc207256c614"
   },
   {
     "skill": "marketing/kol-creator-discovery",
     "owner": "@lijing-22",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -808,48 +872,14 @@
       "doc-6f956086f479": "https://aisa.one/docs/api-reference/waveinflu/post_waveinflu-email-lookup.md",
       "doc-83e0cf0008f7": "https://aisa.one/docs/api-reference/waveinflu/post_waveinflu-similar.md"
     },
-    "notification_digest": "42e8d87ae5ea4a6feeccd9dc23250c6d34f426fd26fccb45915abd1ad6889e4a"
-  },
-  {
-    "skill": "marketing/product-selection",
-    "owner": "unassigned",
-    "version": "1.0.0",
-    "updated_at": "2026-10-13T17:11:33+08:00",
-    "update_age_days": 2,
-    "verified_at": null,
-    "review_age_days": null,
-    "status": "owner unassigned; review overdue; upstream change pending; monitoring unavailable",
-    "warnings": [
-      "owner unassigned",
-      "review overdue",
-      "upstream change pending",
-      "monitoring unavailable"
-    ],
-    "changed_upstreams": [
-      "aisa-mcp-catalog"
-    ],
-    "unavailable_upstreams": [
-      "aisa-api-marketing",
-      "aisa-api-search-research"
-    ],
-    "unreviewed_upstreams": [
-      "aisa-mcp-catalog",
-      "aisa-api-marketing",
-      "aisa-api-search-research"
-    ],
-    "upstream_links": {
-      "aisa-mcp-catalog": "https://mcp.aisa.one/servers",
-      "aisa-api-marketing": "https://aisa.one/openapi.yaml",
-      "aisa-api-search-research": "https://aisa.one/openapi.yaml"
-    },
-    "notification_digest": "58f01a2db1290ed6651d38c16e21ae50cc159837cb34b9e479ab7ae8d4be5f4c"
+    "notification_digest": "7e811b3f25dcdf3918d072c1088a6e88dcfcb3632be9f00d579a90c467fede36"
   },
   {
     "skill": "marketing/seo-keyword-research",
     "owner": "@lijing-22",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -873,14 +903,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-marketing": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "8487ff9629f7e99d7152c2195420dbc4fdc152e3a80932513073264dc9b4f6d7"
+    "notification_digest": "3e064411733c384009e08b9d0aaf46b78718eba9f5171fc9d40f5183173b2dc6"
   },
   {
     "skill": "marketing/use-similarweb",
     "owner": "@lhymmEU",
     "version": "1.1.0",
     "updated_at": "2026-10-15T12:50:05+08:00",
-    "update_age_days": 0,
+    "update_age_days": 1,
     "verified_at": null,
     "review_age_days": null,
     "status": "review overdue; upstream change pending",
@@ -914,14 +944,14 @@
       "aisa-api-similarweb": "https://aisa.one/docs/openapi/similarweb.json",
       "doc-128752d84419": "https://aisa.one/docs/guides/pricing.md"
     },
-    "notification_digest": "036b493f1def35fb9bac009c5ee22c75268d081b071bf58ad162f696c2172433"
+    "notification_digest": "7df5ef2f1b879be89f57f5f73221f67916360ec710f8177eede42782117acd3c"
   },
   {
     "skill": "platform/aisa",
     "owner": "@eddiearc",
     "version": "1.0.0",
     "updated_at": "2026-09-30T19:27:59+08:00",
-    "update_age_days": 15,
+    "update_age_days": 16,
     "verified_at": null,
     "review_age_days": null,
     "status": "no update in 14 days; review overdue; upstream change pending",
@@ -954,14 +984,14 @@
       "aisa-agent-quickstart": "https://aisa.one/docs/agent-quickstart.md",
       "doc-13b1056e5acd": "https://aisa.one/docs/agent-quickstart.md"
     },
-    "notification_digest": "6bb4e44e2f22834333bc0f2b22bae25132cb31e9a82f6b95d3c2932dee71dbe4"
+    "notification_digest": "b9660f24f8e11d010899326fbc035f3dcf58a856e6ca61c0e26148b778c52ea6"
   },
   {
     "skill": "search-research/aisa-tavily",
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -986,14 +1016,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-search-research": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "fc0e2a1b9005809bc30fabbc165ca1dafd8e9481ab70d2bda691e08559b3bc8f"
+    "notification_digest": "5dff293e01e26137498c762eaff9822f42fa5d08a67dc23ec4d0473a592a28d2"
   },
   {
     "skill": "search-research/last30days",
     "owner": "@karensheng",
     "version": "1.1.0",
     "updated_at": "2026-10-15T15:43:32+08:00",
-    "update_age_days": 0,
+    "update_age_days": 1,
     "verified_at": null,
     "review_age_days": null,
     "status": "review overdue; upstream change pending; monitoring unavailable",
@@ -1010,6 +1040,7 @@
       "doc-9d06e8e0638b",
       "doc-d779cca5b3fd",
       "doc-14a02dd5df8a",
+      "aisa-polymarket-public-search",
       "doc-128752d84419"
     ],
     "unavailable_upstreams": [
@@ -1039,14 +1070,14 @@
       "aisa-polymarket-public-search": "https://aisa.one/docs/api-reference/polymarket-gamma/any_polymarket_data_apis_v1_polymarket_public_search.md",
       "doc-128752d84419": "https://aisa.one/docs/guides/pricing.md"
     },
-    "notification_digest": "c24e9511d35b0c8c0a0130f9171e4425891d80e93740f5a2ffbb5eb2fe4a7e74"
+    "notification_digest": "d5036a72a6f568da7220480637da53d1e3bb7597b7493df1fc331fe0950dba0f"
   },
   {
     "skill": "search-research/last30days-zh",
     "owner": "unassigned",
     "version": "1.0.9",
     "updated_at": "2026-07-22T11:27:08+08:00",
-    "update_age_days": 85,
+    "update_age_days": 86,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1071,14 +1102,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-search-research": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "568cbb14444f1672be0c03b2159828b9ff5b2bfad0de94a2f26f94f9b5052e94"
+    "notification_digest": "e2b4099b79378135fd1dd477a9e410e1792c1601267f64c495f2ae3df56bb1c2"
   },
   {
     "skill": "search-research/multi-search",
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1103,14 +1134,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-search-research": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "0386027936c893335ffceca30d4d9a40ea9067eb28ec81eaf2921fac8b8e96f3"
+    "notification_digest": "199d653e0da1ec43206d9f0728fd918cd7691dc6bebd06ca4c0bd7cf7f70515d"
   },
   {
     "skill": "search-research/multi-source-search",
     "owner": "@chaimengphp",
     "version": "1.0.0",
     "updated_at": "2026-07-27T12:44:01+08:00",
-    "update_age_days": 80,
+    "update_age_days": 81,
     "verified_at": null,
     "review_age_days": null,
     "status": "no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1149,14 +1180,14 @@
       "doc-467059f41128": "https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-reasoning-pro.md",
       "doc-88a6c019a244": "https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar.md"
     },
-    "notification_digest": "d1b0d91811698e73b19a4436a4f4b7fb48eca89120c41fab9918b5c80f473d3e"
+    "notification_digest": "79da430f9a09d9b9b5284639dc940ee4330e328163c962a803375a9e522c9dcf"
   },
   {
     "skill": "search-research/perplexity-research",
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1181,14 +1212,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-search-research": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "9c288050a388b98447f51eee87a07ad3a44172510bb548eb8e9599ec8aa4ce25"
+    "notification_digest": "6a99ba908ad268fb545a31c8ee8264a35af6a34af54d9353b6fbebd8de8d8f66"
   },
   {
     "skill": "search-research/perplexity-search",
     "owner": "@chaimengphp",
     "version": "1.0.0",
     "updated_at": "2026-07-22T11:27:08+08:00",
-    "update_age_days": 85,
+    "update_age_days": 86,
     "verified_at": null,
     "review_age_days": null,
     "status": "no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1224,14 +1255,14 @@
       "doc-467059f41128": "https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar-reasoning-pro.md",
       "doc-88a6c019a244": "https://aisa.one/docs/api-reference/perplexity/post_perplexity-sonar.md"
     },
-    "notification_digest": "c3e1c665e5926bdce5a91d682c54b539b30c136bbfae02caed34a7952273bcbf"
+    "notification_digest": "4fb46074ed2f1b377a9b59d575024abf35a383a57f952859bf9c86af69f8f40a"
   },
   {
     "skill": "search-research/scholar-search",
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1256,14 +1287,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-search-research": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "0da47a66756d1234c9f1caff9fab88deaaee6939fa219a18cdfb5d664bc1ed17"
+    "notification_digest": "d80207d09868bd4c65d649a3b271aca02181c7c33a9aa521b6859cd9afdb6ba3"
   },
   {
     "skill": "search-research/smart-search",
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1288,14 +1319,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-search-research": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "28a395b6a02e32f065be916f86ecdbf5acd12f6a737b1ba388124117949736e3"
+    "notification_digest": "fabae32b52d38fb124f9c9469e540814dacaa3540a5a2387c48a679e6727a8d0"
   },
   {
     "skill": "search-research/tavily-extract",
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1320,14 +1351,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-search-research": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "f73e3146686c973b41643bf5fcbeaa2deb7e31c3f471f799995e89b0b1e918c8"
+    "notification_digest": "4313b55ce96cacc27d335027115bad6cce0eeca3c02c874bae2994ba2fc8e549"
   },
   {
     "skill": "search-research/tavily-search",
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1352,14 +1383,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-search-research": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "198a36a50103f582d0dcd2d635a70025a16a15998f037d920694feb642063482"
+    "notification_digest": "dd279e832e94fbf3c697afde975e753535548d2beae9ce40868de934a77e7169"
   },
   {
     "skill": "search-research/web-search",
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1384,14 +1415,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-search-research": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "2a4d4828dcdf0c0072240a54c9ebbfa6b78a0046e00ec680ae6d18bcfd7eebc0"
+    "notification_digest": "23e3b629b453ad3b637769325544054d56158a3e5d9ab8b8b30034dc24c15658"
   },
   {
     "skill": "social-media/aisa-twitter-api",
     "owner": "unassigned",
     "version": "1.1.0",
     "updated_at": "2026-10-15T16:09:18+08:00",
-    "update_age_days": 0,
+    "update_age_days": 1,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; review overdue; upstream change pending; monitoring unavailable",
@@ -1418,14 +1449,14 @@
       "aisa-api-social-media": "https://aisa.one/openapi.yaml",
       "doc-128752d84419": "https://aisa.one/docs/guides/pricing.md"
     },
-    "notification_digest": "13ae2ae32fa0c79c6ed9c3c7b1f7ad804bc0586078367e069220240ab9a03345"
+    "notification_digest": "b7b74c5d7781d5b2ec440b47288fdc8e7af3bfae17c008b4179da7456e704462"
   },
   {
     "skill": "social-media/aisa-twitter-command-center",
     "owner": "unassigned",
     "version": "1.0.3",
     "updated_at": "2026-07-22T11:27:08+08:00",
-    "update_age_days": 85,
+    "update_age_days": 86,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1450,14 +1481,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-social-media": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "bb11b6f1b7fcdc3137ad62562ffc5628769967b07219d2608e20ee001c1fdbec"
+    "notification_digest": "2dcbeaefd99932b1ff363d6ab81dec682bb0791d22eb71e304fbf9fed06a6a7f"
   },
   {
     "skill": "social-media/aisa-twitter-post-engage",
     "owner": "unassigned",
     "version": "1.0.3",
     "updated_at": "2026-07-22T11:27:08+08:00",
-    "update_age_days": 85,
+    "update_age_days": 86,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1482,14 +1513,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-social-media": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "70a319b58c558679997114521c8e91004aaf116ad500613db0b272ad18c22f55"
+    "notification_digest": "53e43473e660d712510441bcc1f65dc951747ea2be03b10bee17a51f51c9940d"
   },
   {
     "skill": "social-media/aisa-youtube-search",
     "owner": "unassigned",
     "version": "1.0.1",
     "updated_at": "2026-07-22T11:27:08+08:00",
-    "update_age_days": 85,
+    "update_age_days": 86,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1514,14 +1545,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-social-media": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "cc1a1a8360854e43f0cbfb6c38540214ec85e37c18242c6c22519852466a9b9e"
+    "notification_digest": "78e4261acba6d411ca7e54083e4f5f6f263902cd81fe52a5f18d270fc100b616"
   },
   {
     "skill": "social-media/twitter-autopilot",
     "owner": "@chaimengphp",
     "version": "1.0.0",
     "updated_at": "2026-07-22T11:27:08+08:00",
-    "update_age_days": 85,
+    "update_age_days": 86,
     "verified_at": null,
     "review_age_days": null,
     "status": "no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1548,14 +1579,14 @@
       "aisa-api-social-media": "https://aisa.one/openapi.yaml",
       "doc-e4638a7a5d8b": "https://aisa.one/docs/api-reference.md"
     },
-    "notification_digest": "147670308c56fd9c60345d2412eb38f79c16b6594f0e27e41bf21ff53ed7d48d"
+    "notification_digest": "7ad5d279582107ff838ef33901c042d953c78546fe125724deec029be608b246"
   },
   {
     "skill": "social-media/twitter-command-center-search-post",
     "owner": "@chaimengphp",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1579,14 +1610,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-social-media": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "a803f3ae87f47efbfd9301e12f8efc9d91486aca7ee3a008d414953a242c53bc"
+    "notification_digest": "55caa5ea71fccd678585a88a1a0ac93fd2dc26af30057b43eb99100e3820c054"
   },
   {
     "skill": "social-media/x-intelligence-automation",
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1611,14 +1642,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-social-media": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "26cdb4908e14c96d53e914ec012974214e7a11d5616bfaff1ced94bfb37c16c5"
+    "notification_digest": "3cdfea99e0b9bf2d5e0ab80e50e8222521b1b000df3c0d480a13a4c6c97a2191"
   },
   {
     "skill": "social-media/youtube-search",
     "owner": "unassigned",
     "version": "1.0.0",
     "updated_at": "2026-07-17T16:23:17+08:00",
-    "update_age_days": 90,
+    "update_age_days": 91,
     "verified_at": null,
     "review_age_days": null,
     "status": "owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1643,14 +1674,14 @@
       "aisa-authentication": "https://aisa.one/docs/guides/authentication.md",
       "aisa-api-social-media": "https://aisa.one/openapi.yaml"
     },
-    "notification_digest": "19770706ff7ab7e656d132c1ac123b4d390cf9e6a6bd5309ca0b74fb1344e606"
+    "notification_digest": "0dc4d30d585145acf8eeb331b3ebdc6ee3938ec028ce7ef250aa39765480a560"
   },
   {
     "skill": "social-media/youtube-serp",
     "owner": "@chaimengphp",
     "version": "1.0.0",
     "updated_at": "2026-07-22T11:27:08+08:00",
-    "update_age_days": 85,
+    "update_age_days": 86,
     "verified_at": null,
     "review_age_days": null,
     "status": "no update in 14 days; review overdue; upstream change pending; monitoring unavailable",
@@ -1677,6 +1708,6 @@
       "aisa-api-social-media": "https://aisa.one/openapi.yaml",
       "doc-e4638a7a5d8b": "https://aisa.one/docs/api-reference.md"
     },
-    "notification_digest": "2f9e1a65a2047074aaf9d535907e1a7295cefb7815469b2a439b8124c4cb1780"
+    "notification_digest": "ba9a7e3143c9c6e1ef7f6c051e9ab2bb6b0919c0b9341a8bc69c689c7c938723"
   }
 ]
