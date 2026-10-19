@@ -40,7 +40,31 @@ Usage::
 
 Exit status is 1 when any failure remains (or a known-issue entry is stale),
 2 on a usage or download error, else 0. The report records the OpenAPI
-source and its SHA-256 so a run can be reproduced offline.
+source and its SHA-256 so a run can be reproduced offline. The download is
+capped (``--max-download-mib``, default 64) so a runaway response cannot
+exhaust CI memory.
+
+Known limitations (static analysis; a clean run is not proof of correctness):
+
+* Markdown and shell files are scanned for full ``https://api.aisa.one/...``
+  URLs, ``/apis/v1/...`` and ``/v1/...`` paths, and bare ``/<family>/...``
+  paths or ``$VAR/<family>/...`` references **only when the same file
+  declares an ``api.aisa.one`` base URL** (or assigns ``VAR`` to one). A
+  README or reference file that lists routes without any base is not
+  checked; ``SKILL.md`` is always covered because the shared rules block
+  declares the bases.
+* Method and body are inferred from curl flags and from Python call sites
+  that contain the path literal. A URL built first and used later
+  (``url = f"{BASE}/x"; requests.post(url, json=...)``), paths assembled with
+  ``"/".join(...)``, ``str.format`` or ``%``, and JavaScript/TypeScript
+  ``fetch`` calls are checked for the path only, with method ``ANY`` and no
+  body check.
+* Request and response **schemas** are not validated, only path, method and
+  the presence of a request body. Query parameter names are not checked.
+* Files under ``tests/``/``fixtures/`` are scanned for keys and
+  ``${CLAUDE_PLUGIN_ROOT}`` but not for paths (they use synthetic URLs).
+* Operations are matched on the server declared per operation; other hosts
+  (for example ``tools.aisa.one``) are out of scope.
 """
 
 from __future__ import annotations
@@ -61,7 +85,7 @@ import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable, Iterator
+from typing import Callable, Iterable, Iterator
 from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -103,7 +127,14 @@ DOCUMENTED_ROUTES: dict[tuple[str, str], str] = {
     ("GET", "/v1/video/generations/{task_id}"): "https://aisa.one/docs/guides/models.md (Endpoints by model type)",
 }
 
+MAX_DOWNLOAD_MIB = 64
 PATH_CHARS = r"A-Za-z0-9_\-./{}:<>$*"
+# $VAR/path or ${VAR}/path in shell and Markdown; VAR must be assigned an api.aisa.one URL
+# in the same file, or the path must start with a known API family.
+VAR_PATH_RE = re.compile(r"\$\{?(?P<var>[A-Za-z_][A-Za-z0-9_]*)\}?(?P<path>/[A-Za-z0-9_\-./{}:<>*]+)")
+VAR_ASSIGN_RE = re.compile(
+    r"(?m)^\s*(?:export\s+)?(?P<var>[A-Za-z_][A-Za-z0-9_]*)\s*=\s*[\"']?https?://api\.aisa\.one(?P<base>/[A-Za-z0-9_\-./]*)?"
+)
 FULL_URL_RE = re.compile(r"https?://" + re.escape(API_HOST) + r"(?P<path>/[" + PATH_CHARS + r"]*)?")
 BASE_PATH_RE = re.compile(r"(?<![\w./:-])(?P<path>/(?:apis/v1|v1beta|v1)(?:/[" + PATH_CHARS + r"]*)?)")
 TRAILING_PUNCTUATION = ".,;:)]}>*'\"`"
@@ -222,7 +253,8 @@ class Contract:
         return matches
 
 
-def load_contract(openapi: Path | None, url: str, timeout: float, cache_dir: Path | None) -> Contract:
+def load_contract(openapi: Path | None, url: str, timeout: float, cache_dir: Path | None,
+                  max_bytes: int = MAX_DOWNLOAD_MIB * 1024 * 1024) -> Contract:
     if openapi is not None:
         data = openapi.read_bytes()
         source = str(openapi)
@@ -230,7 +262,7 @@ def load_contract(openapi: Path | None, url: str, timeout: float, cache_dir: Pat
         target_dir = cache_dir or Path(tempfile.mkdtemp(prefix="aisa-openapi-"))
         target_dir.mkdir(parents=True, exist_ok=True)
         target = target_dir / "openapi.json"
-        data = _download(url, timeout)
+        data = _download(url, timeout, max_bytes=max_bytes)
         target.write_bytes(data)
         source = f"{url} (saved to {target})"
     digest = hashlib.sha256(data).hexdigest()
@@ -243,13 +275,21 @@ def load_contract(openapi: Path | None, url: str, timeout: float, cache_dir: Pat
     return Contract(document, source, digest)
 
 
-def _download(url: str, timeout: float, attempts: int = 3) -> bytes:
+def _download(url: str, timeout: float, attempts: int = 3, max_bytes: int = MAX_DOWNLOAD_MIB * 1024 * 1024) -> bytes:
     last_error: Exception | None = None
     for attempt in range(1, attempts + 1):
         try:
             request = urllib.request.Request(url, headers={"User-Agent": "aisa-skill-validator/1.0"})
             with urllib.request.urlopen(request, timeout=timeout) as response:
-                return response.read()
+                chunks: list[bytes] = []
+                received = 0
+                while chunk := response.read(1024 * 1024):
+                    received += len(chunk)
+                    if received > max_bytes:
+                        raise SystemExit(f"error: {url} exceeds the {max_bytes // (1024 * 1024)} MiB download cap; "
+                                         "download it yourself and pass --openapi, or raise --max-download-mib")
+                    chunks.append(chunk)
+                return b"".join(chunks)
         except (urllib.error.URLError, TimeoutError, OSError) as error:
             last_error = error
             if attempt < attempts:
@@ -371,6 +411,7 @@ def mentions_from_text(relative: str, text: str, contract: Contract, relative_pa
     seen: set[tuple[int, str, str | None, bool]] = set()
     lines = text.splitlines()
     bases = base_paths_in(text)
+    var_bases = variable_bases(text)
     family_pattern = _family_regex(contract, bases) if relative_paths else None
 
     def emit(mention: Mention) -> Iterator[Mention]:
@@ -380,8 +421,18 @@ def mentions_from_text(relative: str, text: str, contract: Contract, relative_pa
         seen.add(key)
         yield mention
 
+    def resolve_variable(var: str, path: str) -> list[str]:
+        """Join ``$VAR/path`` onto the base VAR is assigned to, else onto bases sharing the family."""
+        path = clean_path(path)
+        if not looks_like_api_path(path):
+            return []
+        if var in var_bases:
+            return join_base([var_bases[var]], path)
+        family = path.strip("/").split("/")[0]
+        return [base + path for base in bases if family in contract.families.get(base, set())]
+
     for command, line_number in curl_commands(lines):
-        for mention in curl_mention(command, relative, line_number):
+        for mention in curl_mention(command, relative, line_number, resolve_variable):
             yield from emit(mention)
 
     for index, line in enumerate(lines, 1):
@@ -405,6 +456,20 @@ def mentions_from_text(relative: str, text: str, contract: Contract, relative_pa
                 joins = [base + path for base in bases if family in contract.families.get(base, set())]
                 if joins:
                     yield from emit(Mention(relative, index, joins[0], method, False, "relative", tuple(joins[1:])))
+        for match in VAR_PATH_RE.finditer(line):
+            joins = resolve_variable(match.group("var"), match.group("path"))
+            if joins:
+                yield from emit(Mention(relative, index, joins[0], method, False, "variable", tuple(joins[1:])))
+
+
+def variable_bases(text: str) -> dict[str, str]:
+    """``VAR=https://api.aisa.one/<base>`` assignments in shell or Markdown."""
+    found: dict[str, str] = {}
+    for match in VAR_ASSIGN_RE.finditer(text):
+        base = clean_path(match.group("base") or "").rstrip("/")
+        if base in BASES or re.fullmatch(r"/apis/v1/[A-Za-z0-9_-]+", base) or base == "":
+            found.setdefault(match.group("var"), base)
+    return found
 
 
 def _known_family(contract: Contract, path: str) -> bool:
@@ -441,7 +506,8 @@ def curl_commands(lines: list[str]) -> Iterator[tuple[str, int]]:
         index += 1
 
 
-def curl_mention(command: str, relative: str, line_number: int) -> Iterator[Mention]:
+def curl_mention(command: str, relative: str, line_number: int,
+                 resolve_variable: Callable[[str, str], list[str]] | None = None) -> Iterator[Mention]:
     try:
         tokens = shlex.split(command)
     except ValueError:
@@ -450,6 +516,7 @@ def curl_mention(command: str, relative: str, line_number: int) -> Iterator[Ment
     has_body = False
     get_flag = False
     url = None
+    variable_url: re.Match[str] | None = None
     skip = False
     for position, token in enumerate(tokens):
         if skip:
@@ -470,13 +537,22 @@ def curl_mention(command: str, relative: str, line_number: int) -> Iterator[Ment
             get_flag = True
         elif url is None and (token.startswith("http://") or token.startswith("https://")):
             url = token
+        elif url is None and variable_url is None and token.startswith("$"):
+            variable_url = VAR_PATH_RE.match(token)
+    if method is None:
+        method = "GET" if get_flag or not has_body else "POST"
+    if get_flag:
+        has_body = False
     if url is None:
+        if variable_url is None or resolve_variable is None:
+            return
+        joins = resolve_variable(variable_url.group("var"), variable_url.group("path"))
+        if joins:
+            yield Mention(relative, line_number, joins[0], method, has_body, "curl-variable", tuple(joins[1:]))
         return
     match = FULL_URL_RE.search(url)
     if match is None:
         return
-    if method is None:
-        method = "GET" if get_flag or not has_body else "POST"
     if get_flag:
         has_body = False
     yield Mention(relative, line_number, clean_path(match.group("path") or "/"), method, has_body, "curl")
@@ -801,6 +877,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--openapi-url", default=DEFAULT_OPENAPI_URL, help="download URL used when --openapi is absent")
     parser.add_argument("--timeout", type=float, default=120.0, help="download timeout in seconds")
     parser.add_argument("--cache-dir", type=Path, help="where to store the downloaded OpenAPI (default: a temp dir)")
+    parser.add_argument("--max-download-mib", type=int, default=MAX_DOWNLOAD_MIB, help="abort when the OpenAPI download exceeds this size")
     parser.add_argument("--changed-from", metavar="REF", help="only check skills changed from this Git ref")
     parser.add_argument("--skill", action="append", help="check only this <category>/<skill> (repeatable)")
     parser.add_argument("--known-issues", type=Path, default=None, help=f"tracked issues file (default: {KNOWN_ISSUES} if present)")
@@ -810,7 +887,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     root = args.root.resolve()
-    contract = load_contract(args.openapi, args.openapi_url, args.timeout, args.cache_dir)
+    contract = load_contract(args.openapi, args.openapi_url, args.timeout, args.cache_dir,
+                             max_bytes=args.max_download_mib * 1024 * 1024)
     shared = shared_rules_text(root)
     skills = skill_directories(root)
     if args.changed_from:

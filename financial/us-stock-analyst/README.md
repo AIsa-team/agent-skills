@@ -168,8 +168,8 @@ Key endpoints:
 - Financial Metrics: `GET /financial/financial-metrics/snapshot`
 - Stock Prices: `GET /financial/prices`
 - Company News: `GET /financial/news`
-- Analyst Estimates: `GET /financial/analyst/eps`
-- Insider Trades: `GET /financial/insider/trades`
+- Analyst Estimates: `GET /financial/analyst-estimates`
+- Insider Trades: `GET /financial/insider-trades`
 - Twitter: `GET /twitter/tweet/advanced_search`
 - YouTube: `GET /youtube/search`
 - LLM: `POST /v1/chat/completions`
@@ -184,8 +184,8 @@ Compliant with: SEC Rule 15c2-1, FINRA regulations, GDPR
 
 ## Support
 
-- **Documentation**: https://aisa.mintlify.app
-- **API Reference**: https://aisa.mintlify.app/api-reference/introduction
+- **Documentation**: https://aisa.one/docs
+- **API Reference**: https://aisa.one/docs/api-reference
 - **Discord**: https://discord.gg/2mzptTkq
 - **Email**: developer@aisa.one
 

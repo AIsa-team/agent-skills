@@ -8,7 +8,7 @@ Usage:
     python market_client.py stock prices --ticker <ticker> --start <date> --end <date> [--interval day|week|month] [--multiplier 1]
     python market_client.py stock news --ticker <ticker> [--count <n>]
     python market_client.py stock statements --ticker <ticker> --type <all|income|balance|cash> [--period annual|quarterly|ttm]
-    python market_client.py stock metrics --ticker <ticker> [--historical]
+    python market_client.py stock metrics --ticker <ticker> [--historical] [--period annual|quarterly|ttm]
     python market_client.py stock analyst --ticker <ticker>
     python market_client.py stock insider --ticker <ticker>
     python market_client.py stock ownership --ticker <ticker>
@@ -145,9 +145,9 @@ class MarketClient:
         """Get real-time financial metrics snapshot."""
         return self._request("GET", "/financial/financial-metrics/snapshot", params={"ticker": ticker})
     
-    def metrics_historical(self, ticker: str) -> Dict[str, Any]:
-        """Get historical financial metrics."""
-        return self._request("GET", "/financial/financial-metrics", params={"ticker": ticker})
+    def metrics_historical(self, ticker: str, period: str = "annual") -> Dict[str, Any]:
+        """Get historical financial metrics (period is required by the contract)."""
+        return self._request("GET", "/financial/financial-metrics", params={"ticker": ticker, "period": period})
     
     def analyst_eps(self, ticker: str, period: str = "annual") -> Dict[str, Any]:
         """Get earnings per share estimates."""
@@ -315,6 +315,7 @@ Examples:
     metrics = stock_sub.add_parser("metrics", help="Get financial metrics")
     metrics.add_argument("--ticker", "-t", required=True, help="Stock ticker")
     metrics.add_argument("--historical", action="store_true", help="Get historical data")
+    metrics.add_argument("--period", "-p", choices=["annual", "quarterly", "ttm"], default="annual", help="Reporting period for --historical (default: annual)")
     
     # analyst
     analyst = stock_sub.add_parser("analyst", help="Get analyst estimates")
@@ -422,7 +423,7 @@ Examples:
                 result = client.statements_cash(args.ticker, args.period)
         elif args.command == "metrics":
             if args.historical:
-                result = client.metrics_historical(args.ticker)
+                result = client.metrics_historical(args.ticker, args.period)
             else:
                 result = client.metrics_snapshot(args.ticker)
         elif args.command == "analyst":

@@ -1,6 +1,6 @@
 # Platform Skills
 
-Generic AIsa CLI and MCP entry for published tools. Prefer native remote MCP at `https://tools.aisa.one/mcp` wherever supported. Use CLI for an explicit choice, non-interactive automation with an existing key, or when the client has no MCP mechanism.
+Generic AIsa CLI and MCP entry for published tools. Prefer native remote MCP at `https://mcp.aisa.one/mcp` wherever supported. Use CLI for an explicit choice, non-interactive automation with an existing key, or when the client has no MCP mechanism.
 
 <!-- category:start -->
 
