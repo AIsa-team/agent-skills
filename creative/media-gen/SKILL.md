@@ -1,6 +1,6 @@
 ---
 name: media-gen
-description: Generate images and videos with AIsa. Four image models (Google Gemini 3 Pro Image, Alibaba Wan 2.7 image + image-pro, ByteDance Seedream) and four Wan video variants (wan2.6/2.7 × t2v/i2v). One API key; the client routes each model to the correct endpoint automatically.
+description: DEPRECATED (bundled client targets removed routes; see SKILL.md banner). Generate images and videos with AIsa. Four image models (Google Gemini 3 Pro Image, Alibaba Wan 2.7 image + image-pro, ByteDance Seedream) and four Wan video variants (wan2.6/2.7 × t2v/i2v). One API key; the client routes each model to the correct endpoint automatically.
 license: MIT
 compatibility: Works with any agentskills.io-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires Python 3, a POSIX shell, and AISA_API_KEY.
 metadata:
@@ -27,6 +27,9 @@ metadata:
     - goose
 ---
 # Media Gen 🎬
+
+> **DEPRECATED (2026-10-20).** This skill's bundled client (`scripts/media_gen_client.py`) and the examples below target routes that are no longer in the published AIsa contract (https://aisa.one/openapi.json): `POST /v1/models/{model}:generateContent` (Gemini GenerateContent is served under `https://api.aisa.one/v1beta`), `POST /apis/v1/services/aigc/video-generation/video-synthesis` and `GET /apis/v1/services/aigc/tasks/{task_id}` (the model guide documents `POST /v1/video/generations` and `GET /v1/video/generations/{task_id}` instead). The listed model IDs may also be retired. Do not run this skill as-is: list the current image and video models with `GET /v1/models` (free) and call the route in each model's `aisa.routes`, following https://aisa.one/docs/guides/models. The skill stays in the catalog until its owner rewrites the client against the current contract; its stale routes are reported as warnings by `scripts/validate_skills.py`.
+<!-- aisa-deprecated: bundled client targets routes removed from the published contract; see the banner above -->
 
 <!-- aisa-rules:start -->
 ## AIsa agent rules (shared)

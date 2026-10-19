@@ -75,8 +75,10 @@ All clients hit `https://api.aisa.one` and authenticate with
   polymarket, kalshi, youtube, search, perplexity, etc.)
 - `/v1/...` — OpenAI-compatible surface (chat completions, models) used
   by `last30days` for planner/reranker/fun-scorer LLM calls, and
-  `/v1/models/{model}:generateContent` for the Gemini passthrough used
-  by `media-gen`.
+  `/v1beta/models/{model}:generateContent` for the Gemini passthrough.
+  (`media-gen` is deprecated: its bundled client targets the removed
+  `/v1/models/{model}:generateContent` and `/apis/v1/services/aigc/*`
+  routes.)
 
 ## Documentation
 
@@ -105,8 +107,9 @@ All doc links use **`aisa.one/docs/...`** (never `docs.aisa.one` or
   in `SKILL.md` and, if there's a supported-tickers list, keep it in a
   sibling `.md` file (see `financial/marketpulse/earnings-press-releases-tickers.md`).
 - Async task endpoints (video generation, OAuth) poll via a task-id GET —
-  follow the pattern in `creative/media-gen/scripts/media_gen_client.py` rather
-  than reinventing.
+  follow the polling pattern in `creative/media-gen/scripts/media_gen_client.py`
+  (the skill is deprecated, but the submit-then-poll shape is still the
+  reference) rather than reinventing.
 - When a Harness integration is actually verified, update only the Skills whose
   compatibility claims or vendor metadata are affected. Do not add a universal
   roster or a fixed body section to unrelated Skills.

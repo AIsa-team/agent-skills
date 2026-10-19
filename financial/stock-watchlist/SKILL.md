@@ -1,6 +1,6 @@
 ---
 name: stock-watchlist
-description: Manage a stock/crypto watchlist with price target and stop-loss alerts via AIsa API. Add, remove, list, and check tickers with live price alerts. Use when the user wants to track stocks, set price alerts, manage a watchlist, or check triggered alerts.
+description: DEPRECATED (documented helper script is not published; see SKILL.md banner). Manage a stock/crypto watchlist with price target and stop-loss alerts via AIsa API. Add, remove, list, and check tickers with live price alerts. Use when the user wants to track stocks, set price alerts, manage a watchlist, or check triggered alerts.
 compatibility: Designed for Agent Skills compatible clients such as OpenClaw, Claude Code, Hermes, and GitHub-backed skill catalogs. Requires system binaries python3, environment variables AISA_API_KEY and internet access to api.aisa.one.
 metadata:
   version: "1.0.1"
@@ -16,6 +16,9 @@ metadata:
 ---
 
 # Watchlist Management — AIsa Edition
+
+> **DEPRECATED (2026-10-20).** The helper this skill documents, `scripts/watchlist.py`, was never published in this repository: the bundle contains only `SKILL.md`, so the commands below cannot run as written. The interface is kept as the intended contract until the owner adds the script; for live prices use the `market` skill (`GET /apis/v1/financial/prices/snapshot`) or `stock-portfolio` in the meantime.
+<!-- aisa-deprecated: the documented helper scripts/watchlist.py is not published in this bundle -->
 
 <!-- aisa-rules:start -->
 ## AIsa agent rules (shared)
@@ -68,27 +71,16 @@ The settled cost of a direct HTTP call is reported by the response header `X-AIS
 
 Manage a watchlist with price target and stop-loss alerts using the AIsa API.
 
-## Usage
+## Intended interface (helper not published)
 
-```bash
-# Add a ticker with price target and stop-loss
-python3 scripts/watchlist.py add AAPL --target 220 --stop 160
+The commands below describe the intended `watchlist.py` interface. The script is not part of this bundle, so they are listed as text rather than as runnable examples:
 
-# Add with signal-change alert
-python3 scripts/watchlist.py add AAPL --alert-on signal
-
-# List all watchlist items
-python3 scripts/watchlist.py list
-
-# Check live prices and trigger alerts
-python3 scripts/watchlist.py check
-
-# Check with notification
-python3 scripts/watchlist.py check --notify
-
-# Remove a ticker
-python3 scripts/watchlist.py remove AAPL
-```
+- `watchlist.py add AAPL --target 220 --stop 160` — add a ticker with price target and stop-loss
+- `watchlist.py add AAPL --alert-on signal` — add with signal-change alert
+- `watchlist.py list` — list all watchlist items
+- `watchlist.py check` — check live prices and trigger alerts
+- `watchlist.py check --notify` — check with notification
+- `watchlist.py remove AAPL` — remove a ticker
 
 ### Actions
 

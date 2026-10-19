@@ -55,7 +55,7 @@ This catalog contains **48 skills**.
 | [stock-hot](./financial/stock-hot/) | 1.0.1 | Hot Scanner — find the most trending and high-momentum stocks and crypto right now via AIsa API. Top gainers, losers, most active by volume, crypto highlights, news catalysts, and top 5 watchlist picks. Use when the user asks about trending stocks, what's hot, market movers, or momentum plays. |
 | [stock-portfolio](./financial/stock-portfolio/) | 1.0.1 | Manage investment portfolios with live P&L tracking via AIsa API. Create, add, update, remove positions, rename, and show portfolio summary with real-time profit/loss. Use when the user wants to track investments, manage a portfolio, check P&L, or add/remove holdings. |
 | [stock-rumors](./financial/stock-rumors/) | 1.0.1 | Rumor Scanner — find early signals including M&A rumors, insider activity, analyst upgrades/downgrades, social whispers, and SEC/regulatory activity via AIsa API. Ranked by impact score. Use when the user asks about rumors, insider trading, M&A activity, analyst changes, or early market signals. |
-| [stock-watchlist](./financial/stock-watchlist/) | 1.0.1 | Manage a stock/crypto watchlist with price target and stop-loss alerts via AIsa API. Add, remove, list, and check tickers with live price alerts. Use when the user wants to track stocks, set price alerts, manage a watchlist, or check triggered alerts. |
+| [stock-watchlist](./financial/stock-watchlist/) | 1.0.1 | DEPRECATED (documented helper script is not published; see SKILL.md banner). Manage a stock/crypto watchlist with price target and stop-loss alerts via AIsa API. Add, remove, list, and check tickers with live price alerts. Use when the user wants to track stocks, set price alerts, manage a watchlist, or check triggered alerts. |
 | [trend-forecast](./financial/trend-forecast/) | 1.0.1 | Multi-signal trend forecasting for autonomous agents. Combines prediction market odds, Twitter/X social sentiment, news velocity, and stock market data into a unified trend analysis with confidence scoring. Powered by AIsa — one API key, five data streams.  |
 | [us-stock-analyst](./financial/us-stock-analyst/) | 1.0.2 | Professional US stock analysis with financial data, news, social sentiment, and multi-model AI. Comprehensive reports at $0.02-0.10 per analysis. Use when: the user needs market data, stock analysis, watchlists, or portfolio workflows. |
 
@@ -119,7 +119,7 @@ This catalog contains **48 skills**.
 
 | Skill | Version | Description |
 |---|---|---|
-| [media-gen](./creative/media-gen/) | 1.0.1 | Generate images and videos with AIsa. Four image models (Google Gemini 3 Pro Image, Alibaba Wan 2.7 image + image-pro, ByteDance Seedream) and four Wan video variants (wan2.6/2.7 × t2v/i2v). One API key; the client routes each model to the correct endpoint automatically. |
+| [media-gen](./creative/media-gen/) | 1.0.1 | DEPRECATED (bundled client targets removed routes; see SKILL.md banner). Generate images and videos with AIsa. Four image models (Google Gemini 3 Pro Image, Alibaba Wan 2.7 image + image-pro, ByteDance Seedream) and four Wan video variants (wan2.6/2.7 × t2v/i2v). One API key; the client routes each model to the correct endpoint automatically. |
 
 <!-- skills:end -->
 
