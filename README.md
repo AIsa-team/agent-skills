@@ -131,3 +131,5 @@ The merge analysis is in [SKILL_DEDUP_ANALYSIS.md](./SKILL_DEDUP_ANALYSIS.md).
 ## Releases and maintenance
 
 All skills are distributed from this repository and its per-skill GitHub releases. Categories organize the source catalog; no separate category repositories are required. Each skill declares an independent version and maintenance manifest. See [SKILL_MAINTENANCE.md](./SKILL_MAINTENANCE.md) for releasing, reviewing upstream changes, runtime checks, and 14-day freshness warnings.
+
+Every AIsa API path a skill mentions is validated against the published OpenAPI contract (`https://aisa.one/openapi.json`) by [`scripts/validate_skills.py`](./scripts/validate_skills.py), which CI runs on every pull request and push to `main`.

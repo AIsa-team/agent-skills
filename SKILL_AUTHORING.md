@@ -286,6 +286,16 @@ Blocking checks are limited to objective, reproducible conditions:
    hashed lock using the exact command recorded at the top of
    `.github/quality-gate-requirements.txt`.
 
+10. Every AIsa API path and method the Skill mentions (in `SKILL.md`, references,
+    and scripts) exists in the published OpenAPI (`https://aisa.one/openapi.json`),
+    JSON bodies are only sent to operations that declare a `requestBody`, no
+    literal API key or `${CLAUDE_PLUGIN_ROOT}` reference is present, and the
+    shared rules block matches `_shared/aisa-rules.md`:
+    ```bash
+    python3 scripts/validate_skills.py --changed-from origin/main
+    ```
+    Pass `--openapi <file>` to validate offline against a downloaded copy.
+
 Also run lifecycle validation, generated-count checks, isolated runtime checks,
 and release packaging verification:
 

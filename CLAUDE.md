@@ -132,7 +132,22 @@ This validates repository-wide structure, credentials, and symlinks, then
 applies schema, link, reference, and syntax checks only to files
 changed from `origin/main`. Use `--all` when intentionally cleaning historical
 catalog issues. For behavior changes, also run the affected client against the
-live API with a real key. Skill removals remain normal Git changes and require
+live API with a real key.
+
+Then run the contract validator (stdlib only; downloads the published OpenAPI
+from `https://aisa.one/openapi.json`, or pass `--openapi <file>` offline):
+
+```bash
+python3 scripts/validate_skills.py --changed-from origin/main
+```
+
+It fails on API paths or methods that are not in the published contract,
+JSON bodies sent to operations without a `requestBody`, literal API keys,
+`${CLAUDE_PLUGIN_ROOT}` references, and shared rules blocks that drift from
+`_shared/aisa-rules.md`. Known contract gaps are tracked, with reasons, in
+`scripts/validate_skills_known_issues.json`; remove an entry when the skill is
+fixed. `.github/workflows/validate-skills.yml` runs the same check on every
+pull request and push to `main`. Skill removals remain normal Git changes and require
 explicit reviewer approval; there is no separate retirement database.
 
 Every Skill declares `metadata.version`, `CHANGELOG.md`, and `skill.json`.
