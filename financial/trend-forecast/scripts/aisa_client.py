@@ -242,7 +242,7 @@ def get_interest_rates():
 
 def perplexity_search(query):
     """Supplemental deep research via AIsa's Perplexity relay."""
-    url = f"{AISA_API_BASE}/perplexity/search"
-    data = {"query": query}
+    url = f"{AISA_API_BASE}/perplexity/sonar"
+    data = {"model": "sonar", "messages": [{"role": "user", "content": query}]}
     print(f"  🔍 Perplexity: {query}", file=sys.stderr)
     return _request(url, method="POST", data=data)

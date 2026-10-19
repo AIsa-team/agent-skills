@@ -33,7 +33,7 @@ class PortableRouterTests(unittest.TestCase):
                 request = build.return_value.open.call_args.args[0]
                 self.assertEqual(request.get_header('Authorization'), 'Bearer test-only-key')
                 if Path(m.__file__).parents[1].name == 'creator-marketing':
-                    self.assertEqual(request.get_header('User-agent'), 'aisa-skill/0.0.1 (skill=creator-marketing)')
+                    self.assertRegex(request.get_header('User-agent'), r'^aisa-skill/[0-9]+\.[0-9]+\.[0-9]+ \(skill=creator-marketing\)$')
                 self.assertEqual(request.full_url, 'https://tools.aisa.one/v1/tool-router/aisa-batch-quote')
                 self.assertEqual(request.get_method(), 'POST')
                 self.assertEqual(json.loads(request.data), {'example': '中文'})

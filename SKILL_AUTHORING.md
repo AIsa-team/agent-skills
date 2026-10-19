@@ -201,6 +201,16 @@ Keep `SKILL.md` under 500 lines. Move long reference material into
 `references/*.md` and link to it — agents load those on demand, saving
 context.
 
+### Shared AIsa rules block
+
+Every `SKILL.md` carries the shared connection, verification, spending and
+error rules between `<!-- aisa-rules:start -->` and `<!-- aisa-rules:end -->`.
+The source is [`_shared/aisa-rules.md`](./_shared/aisa-rules.md) (copied from
+`https://aisa.one/llms.txt`). Never edit the block inside a skill: change the
+source, run `python3 scripts/sync_shared_rules.py`, and commit the refreshed
+skills. For a new skill, run the sync script once after creating `SKILL.md`;
+`scripts/validate_skills.py` fails when the block is missing or stale.
+
 ## Where API Reference information goes
 
 For API-backed Skills, put the endpoint information where it helps the agent
@@ -285,6 +295,16 @@ Blocking checks are limited to objective, reproducible conditions:
    If `.github/quality-gate-requirements.in` changes, regenerate and commit the
    hashed lock using the exact command recorded at the top of
    `.github/quality-gate-requirements.txt`.
+
+10. Every AIsa API path and method the Skill mentions (in `SKILL.md`, references,
+    and scripts) exists in the published OpenAPI (`https://aisa.one/openapi.json`),
+    JSON bodies are only sent to operations that declare a `requestBody`, no
+    literal API key or `${CLAUDE_PLUGIN_ROOT}` reference is present, and the
+    shared rules block matches `_shared/aisa-rules.md`:
+    ```bash
+    python3 scripts/validate_skills.py --changed-from origin/main
+    ```
+    Pass `--openapi <file>` to validate offline against a downloaded copy.
 
 Also run lifecycle validation, generated-count checks, isolated runtime checks,
 and release packaging verification:

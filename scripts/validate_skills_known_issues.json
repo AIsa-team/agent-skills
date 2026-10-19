@@ -1,0 +1,114 @@
+[
+  {
+    "issue": "financial/market:unknown-path:*:* /apis/v1/financial/crypto/* is not in the published OpenAPI",
+    "reason": "No /financial/crypto/* operation is published; crypto prices come from /apis/v1/coingecko/* (crypto-market-data skill). Owner to remap or remove the crypto subcommands."
+  },
+  {
+    "issue": "financial/market:unknown-path:*:* /apis/v1/financial/institutional/ownership is not in the published OpenAPI",
+    "reason": "No institutional-ownership operation is published; owner to remove or replace."
+  },
+  {
+    "issue": "financial/us-stock-analyst:unknown-path:*:* /apis/v1/financial/institutional/ownership is not in the published OpenAPI",
+    "reason": "No institutional-ownership operation is published; the analyst reports it as a missing data source."
+  },
+  {
+    "issue": "financial/marketpulse:unknown-path:*:* /apis/v1/financial/financials/segmented-revenues is not in the published OpenAPI",
+    "reason": "Segmented revenues are not published in the Financial API; no published operation covers the same data."
+  },
+  {
+    "issue": "financial/marketpulse:unknown-path:*:* /apis/v1/financial/earnings/press-releases is not in the published OpenAPI",
+    "reason": "Earnings press releases are not published in the Financial API (GET /financial/earnings returns the earnings snapshot only)."
+  },
+  {
+    "issue": "financial/marketpulse:unknown-path:*:* /apis/v1/financial/institutional-ownership is not in the published OpenAPI",
+    "reason": "No institutional-ownership operation is published; owner to remove or replace."
+  },
+  {
+    "issue": "financial/trend-forecast:unknown-path:*:* /apis/v1/financial/financials/segmented-revenues is not in the published OpenAPI",
+    "reason": "Segmented revenues are not published in the Financial API; no published operation covers the same data."
+  },
+  {
+    "issue": "financial/trend-forecast:unknown-path:*:* /apis/v1/financial/earnings/press-releases is not in the published OpenAPI",
+    "reason": "Earnings press releases are not published in the Financial API (GET /financial/earnings returns the earnings snapshot only)."
+  },
+  {
+    "issue": "financial/trend-forecast:unknown-path:*:* /apis/v1/financial/institutional-ownership is not in the published OpenAPI",
+    "reason": "No institutional-ownership operation is published; owner to remove or replace."
+  },
+  {
+    "issue": "financial/prediction-market-*:unknown-path:*:* /apis/v1/polymarket/market-price/*",
+    "reason": "GET /polymarket/market-price/{token_id} is a legacy route; migrate to GET /polymarket/price?token_id=&side= or GET /polymarket/midpoint?token_id= (parameters differ, so not substituted automatically)."
+  },
+  {
+    "issue": "financial/prediction-market-*:unknown-path:*:* /apis/v1/polymarket/orderbooks is not in the published OpenAPI",
+    "reason": "GET /polymarket/orderbooks is a legacy route; migrate to GET /polymarket/book?token_id= or GET /polymarket/books?token_ids= (parameters differ)."
+  },
+  {
+    "issue": "financial/prediction-market-*:unknown-path:*:* /apis/v1/polymarket/candlesticks/*",
+    "reason": "GET /polymarket/candlesticks/{condition_id} is a legacy route; migrate to GET /polymarket/prices-history?market=&interval=&fidelity= (parameters differ)."
+  },
+  {
+    "issue": "financial/prediction-market-*:unknown-path:*:* /apis/v1/polymarket/positions/wallet/*",
+    "reason": "GET /polymarket/positions/wallet/{wallet_address} is a legacy route; migrate to GET /polymarket/positions?user= (parameters differ)."
+  },
+  {
+    "issue": "financial/prediction-market-*:unknown-path:*:* /apis/v1/polymarket/wallet is not in the published OpenAPI",
+    "reason": "GET /polymarket/wallet is a legacy route; migrate to GET /polymarket/public-profile?address= (parameters differ)."
+  },
+  {
+    "issue": "financial/prediction-market-*:unknown-path:*:* /apis/v1/polymarket/wallet/pnl/*",
+    "reason": "GET /polymarket/wallet/pnl/{wallet_address} is a legacy route; migrate to GET /polymarket/closed-positions?user= and GET /polymarket/value?user= (parameters differ)."
+  },
+  {
+    "issue": "financial/prediction-market-*:unknown-path:*:* /apis/v1/kalshi/market-price/*",
+    "reason": "GET /kalshi/market-price/{market_ticker} is a legacy route; migrate to GET /kalshi/markets/{ticker} (response shape differs)."
+  },
+  {
+    "issue": "financial/prediction-market-*:unknown-path:*:* /apis/v1/kalshi/orderbooks is not in the published OpenAPI",
+    "reason": "GET /kalshi/orderbooks is a legacy route; migrate to GET /kalshi/markets/{ticker}/orderbook (parameters differ)."
+  },
+  {
+    "issue": "financial/prediction-market-*:unknown-path:*:* /apis/v1/matching-markets/sports*",
+    "reason": "GET /matching-markets/sports is not published and has no equivalent (GET /polymarket/sports lists Polymarket sports only); owner to decide whether the cross-platform matcher is retired."
+  },
+  {
+    "issue": "financial/prediction-market-*:unknown-method:*:GET /apis/v1/polymarket/orders: contract allows DELETE, POST",
+    "reason": "GET /polymarket/orders (trade history) is a legacy route; the published /polymarket/orders is POST/DELETE order management. Migrate to GET /polymarket/activity or GET /polymarket/data/orders."
+  },
+  {
+    "issue": "financial/trend-forecast:unknown-path:*:* /apis/v1/polymarket/market-price/*",
+    "reason": "GET /polymarket/market-price/{token_id} is a legacy route; migrate to GET /polymarket/price?token_id=&side= or GET /polymarket/midpoint?token_id= (parameters differ, so not substituted automatically)."
+  },
+  {
+    "issue": "financial/trend-forecast:unknown-path:*:* /apis/v1/polymarket/orderbooks is not in the published OpenAPI",
+    "reason": "GET /polymarket/orderbooks is a legacy route; migrate to GET /polymarket/book?token_id= or GET /polymarket/books?token_ids= (parameters differ)."
+  },
+  {
+    "issue": "financial/trend-forecast:unknown-path:*:* /apis/v1/polymarket/candlesticks/*",
+    "reason": "GET /polymarket/candlesticks/{condition_id} is a legacy route; migrate to GET /polymarket/prices-history?market=&interval=&fidelity= (parameters differ)."
+  },
+  {
+    "issue": "financial/trend-forecast:unknown-path:*:* /apis/v1/polymarket/positions/wallet/*",
+    "reason": "GET /polymarket/positions/wallet/{wallet_address} is a legacy route; migrate to GET /polymarket/positions?user= (parameters differ)."
+  },
+  {
+    "issue": "financial/trend-forecast:unknown-path:*:* /apis/v1/polymarket/wallet is not in the published OpenAPI",
+    "reason": "GET /polymarket/wallet is a legacy route; migrate to GET /polymarket/public-profile?address= (parameters differ)."
+  },
+  {
+    "issue": "financial/trend-forecast:unknown-path:*:* /apis/v1/polymarket/wallet/pnl/*",
+    "reason": "GET /polymarket/wallet/pnl/{wallet_address} is a legacy route; migrate to GET /polymarket/closed-positions?user= and GET /polymarket/value?user= (parameters differ)."
+  },
+  {
+    "issue": "financial/trend-forecast:unknown-path:*:* /apis/v1/kalshi/market-price/*",
+    "reason": "GET /kalshi/market-price/{market_ticker} is a legacy route; migrate to GET /kalshi/markets/{ticker} (response shape differs)."
+  },
+  {
+    "issue": "financial/trend-forecast:unknown-path:*:* /apis/v1/kalshi/orderbooks is not in the published OpenAPI",
+    "reason": "GET /kalshi/orderbooks is a legacy route; migrate to GET /kalshi/markets/{ticker}/orderbook (parameters differ)."
+  },
+  {
+    "issue": "financial/trend-forecast:unknown-method:*:GET /apis/v1/polymarket/orders: contract allows DELETE, POST",
+    "reason": "GET /polymarket/orders (trade history) is a legacy route; the published /polymarket/orders is POST/DELETE order management. Migrate to GET /polymarket/activity or GET /polymarket/data/orders."
+  }
+]

@@ -5,7 +5,7 @@
   },
   "aisa-mcp": {
     "type": "mcp",
-    "url": "https://tools.aisa.one/mcp",
+    "url": "https://mcp.aisa.one/mcp",
     "token_env": "AISA_MONITOR_MCP_TOKEN"
   },
   "aisa-mcp-catalog": {

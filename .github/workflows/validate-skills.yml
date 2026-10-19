@@ -1,0 +1,52 @@
+name: Validate Skills Against AIsa Contract
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-skills-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-skills:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11.15"
+          cache: ""
+
+      - name: Check shared rules blocks
+        run: python3 scripts/sync_shared_rules.py --check
+
+      - name: Validate skills against the published OpenAPI
+        # Downloads https://aisa.one/openapi.json (hash recorded in the report).
+        # Rerun offline with: python3 scripts/validate_skills.py --openapi build/openapi.json
+        run: |
+          python3 scripts/validate_skills.py \
+            --timeout 120 \
+            --cache-dir build/openapi \
+            --json build/validate-skills-report.json
+
+      - name: Save validation report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: validate-skills-report-${{ github.sha }}
+          path: build/validate-skills-report.json
+          if-no-files-found: ignore
+          retention-days: 14
