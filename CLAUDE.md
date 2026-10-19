@@ -55,6 +55,17 @@ Use Skill-root-relative resource references such as `scripts/client.py` and
 A Harness-specific placeholder such as `{baseDir}` may be included for a
 verified integration, but do not assume every client substitutes it.
 
+## Shared agent rules
+
+Every `SKILL.md` carries the same connection/verification/spending/error
+rules between `<!-- aisa-rules:start -->` and `<!-- aisa-rules:end -->`.
+The text exists once, in `_shared/aisa-rules.md`, copied from
+`https://aisa.one/llms.txt` (MCP first with OAuth, direct HTTP only as a
+gated fallback, quote and approval before paid calls, settled cost in the
+`X-AISA-Customer-Cost-Micros-USD` header, never paste or print keys). Do
+not edit the block inside a skill; change the source and run
+`python3 scripts/sync_shared_rules.py`. The validator fails on drift.
+
 ## API surface
 
 All clients hit `https://api.aisa.one` and authenticate with

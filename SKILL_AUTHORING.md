@@ -201,6 +201,16 @@ Keep `SKILL.md` under 500 lines. Move long reference material into
 `references/*.md` and link to it — agents load those on demand, saving
 context.
 
+### Shared AIsa rules block
+
+Every `SKILL.md` carries the shared connection, verification, spending and
+error rules between `<!-- aisa-rules:start -->` and `<!-- aisa-rules:end -->`.
+The source is [`_shared/aisa-rules.md`](./_shared/aisa-rules.md) (copied from
+`https://aisa.one/llms.txt`). Never edit the block inside a skill: change the
+source, run `python3 scripts/sync_shared_rules.py`, and commit the refreshed
+skills. For a new skill, run the sync script once after creating `SKILL.md`;
+`scripts/validate_skills.py` fails when the block is missing or stale.
+
 ## Where API Reference information goes
 
 For API-backed Skills, put the endpoint information where it helps the agent

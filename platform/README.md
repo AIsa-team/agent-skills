@@ -8,7 +8,7 @@ This category contains 1 self-contained Agent Skills.
 
 | Skill | Version | Description |
 |---|---|---|
-| [aisa](./aisa/) | 1.0.0 | Discover and invoke published AIsa tools with unified MCP or the AIsa CLI (search, schema, quote, call). Use when the user wants AIsa tools or sign-in, or needs current web, company, or social data AIsa tools can fetch—even if they do not name AIsa. Do not use for OpenClaw Chinese model provider setup (aisa-provider), installing other catalog skills, or work that does not need live AIsa data. |
+| [aisa](./aisa/) | 1.0.1 | Discover and invoke published AIsa tools with unified MCP or the AIsa CLI (search, schema, quote, call). Use when the user wants AIsa tools or sign-in, or needs current web, company, or social data AIsa tools can fetch—even if they do not name AIsa. Do not use for OpenClaw Chinese model provider setup (aisa-provider), installing other catalog skills, or work that does not need live AIsa data. |
 
 <!-- category:end -->
 
