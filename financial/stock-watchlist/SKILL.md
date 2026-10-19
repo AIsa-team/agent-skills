@@ -72,22 +72,22 @@ Manage a watchlist with price target and stop-loss alerts using the AIsa API.
 
 ```bash
 # Add a ticker with price target and stop-loss
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-watchlist/scripts/watchlist.py" add AAPL --target 220 --stop 160
+python3 scripts/watchlist.py add AAPL --target 220 --stop 160
 
 # Add with signal-change alert
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-watchlist/scripts/watchlist.py" add AAPL --alert-on signal
+python3 scripts/watchlist.py add AAPL --alert-on signal
 
 # List all watchlist items
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-watchlist/scripts/watchlist.py" list
+python3 scripts/watchlist.py list
 
 # Check live prices and trigger alerts
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-watchlist/scripts/watchlist.py" check
+python3 scripts/watchlist.py check
 
 # Check with notification
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-watchlist/scripts/watchlist.py" check --notify
+python3 scripts/watchlist.py check --notify
 
 # Remove a ticker
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-watchlist/scripts/watchlist.py" remove AAPL
+python3 scripts/watchlist.py remove AAPL
 ```
 
 ### Actions

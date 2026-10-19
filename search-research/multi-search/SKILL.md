@@ -78,7 +78,7 @@ This skill requires the `AISA_API_KEY` environment variable. When installed as a
 Run the search client with the `verity` subcommand:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/multi-search/scripts/search_client.py verity --query "<search query>" --count <results_per_source>
+python3 scripts/search_client.py verity --query "<search query>" --count <results_per_source>
 ```
 
 ### Arguments
@@ -91,7 +91,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/multi-search/scripts/search_client.py verit
 ### Example
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/multi-search/scripts/search_client.py verity --query "impact of AI on healthcare diagnostics" --count 5
+python3 scripts/search_client.py verity --query "impact of AI on healthcare diagnostics" --count 5
 ```
 
 ## Output

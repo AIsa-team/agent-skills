@@ -71,10 +71,10 @@ Scan for the most trending and high-momentum stocks and cryptocurrencies using t
 ## Usage
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-hot/scripts/hot_scanner.py"
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-hot/scripts/hot_scanner.py" --focus stocks
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-hot/scripts/hot_scanner.py" --focus crypto
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-hot/scripts/hot_scanner.py" --output json
+python3 scripts/hot_scanner.py
+python3 scripts/hot_scanner.py --focus stocks
+python3 scripts/hot_scanner.py --focus crypto
+python3 scripts/hot_scanner.py --output json
 ```
 
 ### Arguments

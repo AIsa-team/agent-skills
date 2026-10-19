@@ -143,6 +143,10 @@ export AISA_API_KEY="your-aisa-api-key"
 └─────────────────────────────────────────────────────────┘
 ```
 
+## Contract status
+
+Validated against the published OpenAPI contract (https://aisa.one/openapi.json) on 2026-10-20. `GET /polymarket/market-price/{token_id}` and `GET /kalshi/market-price/{market_ticker}` (used by `scripts/aisa_client.py` and `references/api_endpoints.md`) are **not in the published contract** and may return 404; the published equivalents are `GET /polymarket/price?token_id=&side=` / `GET /polymarket/midpoint?token_id=` and `GET /kalshi/markets/{ticker}`. The same applies to `/financial/financials/segmented-revenues`, `/financial/earnings/press-releases` and `/financial/institutional-ownership` in the reference table. Tracked in `scripts/validate_skills_known_issues.json`.
+
 ## Workflow
 
 Follow these steps in order. Each step calls a specific AIsa API endpoint.

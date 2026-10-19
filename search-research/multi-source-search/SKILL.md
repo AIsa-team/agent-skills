@@ -152,7 +152,7 @@ curl -X POST "https://api.aisa.one/apis/v1/scholar/search/scholar?query=LLM&max_
 ### Hybrid Scholar Search
 
 ```bash
-curl -X POST "https://api.aisa.one/apis/v1/scholar/search/smart?query=machine+learning+optimization&max_num_results=10" \
+curl -X POST "https://api.aisa.one/apis/v1/scholar/search/mixed?query=machine+learning+optimization&max_num_results=10" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -288,8 +288,8 @@ python3 {baseDir}/scripts/search_client.py verity --query "Is quantum computing 
 |----------|--------|-------------|
 | `/scholar/search/web` | POST | Web search with structured results |
 | `/scholar/search/scholar` | POST | Academic paper search |
-| `/scholar/search/smart` | POST | Hybrid scholar search |
-| `/scholar/explain` | POST | Generate result explanations |
+| `/scholar/search/mixed` | POST | Hybrid web + scholar search (query-string parameters) |
+| `/scholar/search/explain` | POST | Explain a result set by `search_id` (JSON body: `search_id`, `detail_level`, `language`, `response_mode: NON_STREAMING`) |
 | `/perplexity/sonar` | POST | Lightweight search answers with citations |
 | `/perplexity/sonar-pro` | POST | Advanced search answers for complex tasks |
 | `/perplexity/sonar-reasoning-pro` | POST | Analytical reasoning with web search |
@@ -302,6 +302,8 @@ python3 {baseDir}/scripts/search_client.py verity --query "Is quantum computing 
 ## Parameters
 
 ### Scholar search query parameters
+
+The three search operations are `POST` requests whose parameters go in the **query string**; a JSON body is not accepted. Keep the returned `id`: `/scholar/search/explain` needs it as `search_id`.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|

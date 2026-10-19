@@ -77,7 +77,7 @@ This skill requires the `AISA_API_KEY` environment variable. When installed as a
 Run the search client with the `tavily` subcommand:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/tavily-search/scripts/search_client.py tavily --query "<search query>" [options]
+python3 scripts/search_client.py tavily --query "<search query>" [options]
 ```
 
 ### Arguments
@@ -95,13 +95,13 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/tavily-search/scripts/search_client.py tavi
 
 ```bash
 # Basic search
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/tavily-search/scripts/search_client.py tavily --query "OpenAI latest announcements" --count 10
+python3 scripts/search_client.py tavily --query "OpenAI latest announcements" --count 10
 
 # Advanced news search with answer
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/tavily-search/scripts/search_client.py tavily --query "AI regulation 2026" --depth advanced --topic news --include-answer
+python3 scripts/search_client.py tavily --query "AI regulation 2026" --depth advanced --topic news --include-answer
 
 # Finance-focused search
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/tavily-search/scripts/search_client.py tavily --query "NVIDIA earnings Q1 2026" --topic finance --include-answer
+python3 scripts/search_client.py tavily --query "NVIDIA earnings Q1 2026" --topic finance --include-answer
 ```
 
 ## Output

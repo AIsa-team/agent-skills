@@ -431,7 +431,7 @@ Common error codes:
 | deepseek-r1 | $2.00 | $8.00 |
 | deepseek-v3.1 | $4.00 | $12.00 |
 
-> Price unit: $ per Million tokens. Each response includes `usage.cost` and `usage.credits_remaining`.
+> Price unit: $ per Million tokens. The settled cost of each call is returned in the `X-AISA-Customer-Cost-Micros-USD` response header (integer micro-USD; 1 USD = 1,000,000). Do not look for a cost field in the response body.
 
 ## Get Started
 

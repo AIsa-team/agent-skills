@@ -85,11 +85,11 @@ Or use the plugin's `userConfig` values (set automatically when the plugin is en
 Run the analysis script with one or more ticker symbols:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-analysis/scripts/analyze_stock.py" AAPL
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-analysis/scripts/analyze_stock.py" BTC-USD ETH-USD
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-analysis/scripts/analyze_stock.py" AAPL MSFT GOOGL
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-analysis/scripts/analyze_stock.py" AAPL --fast
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-analysis/scripts/analyze_stock.py" AAPL --output json
+python3 scripts/analyze_stock.py AAPL
+python3 scripts/analyze_stock.py BTC-USD ETH-USD
+python3 scripts/analyze_stock.py AAPL MSFT GOOGL
+python3 scripts/analyze_stock.py AAPL --fast
+python3 scripts/analyze_stock.py AAPL --output json
 ```
 
 ### Arguments

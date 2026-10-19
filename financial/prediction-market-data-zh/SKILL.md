@@ -161,10 +161,26 @@ python3 scripts/prediction_market_client.py sports by-date <运动类型> --date
 
 价格为小数：`0.65` = 65% 隐含概率。"Yes" 价格 = 事件发生的概率。交易量越高 = 流动性越强。
 
+## 契约状态（Contract status）
+
+Validated against the published OpenAPI contract (https://aisa.one/openapi.json) on 2026-10-20. The routes below, used by this skill and its bundled client, are **not in the published contract** and may return 404. They are tracked with reasons in `scripts/validate_skills_known_issues.json` until the owner maps or removes them; the published operations that cover the same data have different parameters, so they were not substituted automatically:
+
+| Legacy route in this skill | Published operation to migrate to |
+|---|---|
+| `GET /polymarket/market-price/{token_id}` | `GET /polymarket/price?token_id=&side=`, `GET /polymarket/midpoint?token_id=`, `GET /polymarket/prices-history?market=` |
+| `GET /polymarket/orderbooks` | `GET /polymarket/book?token_id=`, `GET /polymarket/books?token_ids=` |
+| `GET /polymarket/orders` (trade history) | `GET /polymarket/activity`, `GET /polymarket/data/orders` (the published `/polymarket/orders` is POST/DELETE order management) |
+| `GET /polymarket/candlesticks/{condition_id}` | `GET /polymarket/prices-history?market=&interval=&fidelity=` |
+| `GET /polymarket/positions/wallet/{wallet_address}` | `GET /polymarket/positions?user=` |
+| `GET /polymarket/wallet`, `GET /polymarket/wallet/pnl/{wallet_address}` | `GET /polymarket/public-profile?address=`, `GET /polymarket/closed-positions?user=`, `GET /polymarket/value?user=` |
+| `GET /kalshi/market-price/{market_ticker}` | `GET /kalshi/markets/{ticker}` |
+| `GET /kalshi/orderbooks` | `GET /kalshi/markets/{ticker}/orderbook` |
+| `GET /matching-markets/sports[/{sport}]` | no published equivalent (`GET /polymarket/sports` lists Polymarket sports only) |
+
 ## 安全与权限
 
 **需要：** `AISA_API_KEY` 环境变量。
 
-所有操作均为**只读**，通过 HTTPS GET 请求 `api.aisa.one`。不执行交易、不连接钱包、除 API Key 外不发送个人数据。每个响应包含 `usage.cost` 和 `usage.credits_remaining`。
+所有操作均为**只读**，通过 HTTPS GET 请求 `api.aisa.one`。不执行交易、不连接钱包、除 API Key 外不发送个人数据。每次调用的实际费用通过响应头 `X-AISA-Customer-Cost-Micros-USD`（整数微美元，1 美元 = 1,000,000 微美元）返回，响应体中没有费用字段。
 
 完整文档：[AIsa API 参考](https://docs.aisa.one/reference/)。

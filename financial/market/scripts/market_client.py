@@ -7,7 +7,7 @@ Usage:
     # Stock commands
     python market_client.py stock prices --ticker <ticker> --start <date> --end <date> [--interval day|week|month] [--multiplier 1]
     python market_client.py stock news --ticker <ticker> [--count <n>]
-    python market_client.py stock statements --ticker <ticker> --type <all|income|balance|cash>
+    python market_client.py stock statements --ticker <ticker> --type <all|income|balance|cash> [--period annual|quarterly|ttm]
     python market_client.py stock metrics --ticker <ticker> [--historical]
     python market_client.py stock analyst --ticker <ticker>
     python market_client.py stock insider --ticker <ticker>
@@ -15,7 +15,7 @@ Usage:
     python market_client.py stock filings --ticker <ticker>
     python market_client.py stock facts --ticker <ticker>
     python market_client.py stock rates [--bank <bank>] [--historical]
-    python market_client.py stock screen --pe-max <n> --growth-min <n>
+    python market_client.py stock screen --filter <field>:<gt|lt|gte|lte|eq>:<value> [--filter ...] [--limit <n>]
     
     # Crypto commands
     python market_client.py crypto snapshot --ticker <BTC-USD>
@@ -125,21 +125,21 @@ class MarketClient:
             "limit": limit
         })
     
-    def statements_all(self, ticker: str) -> Dict[str, Any]:
-        """Get all financial statements."""
-        return self._request("GET", "/financial/financial_statements/all", params={"ticker": ticker})
-    
-    def statements_income(self, ticker: str) -> Dict[str, Any]:
+    def statements_all(self, ticker: str, period: str = "annual") -> Dict[str, Any]:
+        """Get all financial statements (period is required by the contract)."""
+        return self._request("GET", "/financial/financials", params={"ticker": ticker, "period": period})
+
+    def statements_income(self, ticker: str, period: str = "annual") -> Dict[str, Any]:
         """Get income statements."""
-        return self._request("GET", "/financial/financial_statements/income", params={"ticker": ticker})
-    
-    def statements_balance(self, ticker: str) -> Dict[str, Any]:
+        return self._request("GET", "/financial/financials/income-statements", params={"ticker": ticker, "period": period})
+
+    def statements_balance(self, ticker: str, period: str = "annual") -> Dict[str, Any]:
         """Get balance sheets."""
-        return self._request("GET", "/financial/financial_statements/balance", params={"ticker": ticker})
-    
-    def statements_cash(self, ticker: str) -> Dict[str, Any]:
+        return self._request("GET", "/financial/financials/balance-sheets", params={"ticker": ticker, "period": period})
+
+    def statements_cash(self, ticker: str, period: str = "annual") -> Dict[str, Any]:
         """Get cash flow statements."""
-        return self._request("GET", "/financial/financial_statements/cash", params={"ticker": ticker})
+        return self._request("GET", "/financial/financials/cash-flow-statements", params={"ticker": ticker, "period": period})
     
     def metrics_snapshot(self, ticker: str) -> Dict[str, Any]:
         """Get real-time financial metrics snapshot."""
@@ -151,26 +151,34 @@ class MarketClient:
     
     def analyst_eps(self, ticker: str, period: str = "annual") -> Dict[str, Any]:
         """Get earnings per share estimates."""
-        return self._request("GET", "/financial/analyst/eps", params={
+        return self._request("GET", "/financial/analyst-estimates", params={
             "ticker": ticker,
             "period": period
         })
     
     def insider_trades(self, ticker: str) -> Dict[str, Any]:
         """Get insider trades."""
-        return self._request("GET", "/financial/insider/trades", params={"ticker": ticker})
+        return self._request("GET", "/financial/insider-trades", params={"ticker": ticker})
     
     def institutional_ownership(self, ticker: str) -> Dict[str, Any]:
-        """Get institutional ownership."""
+        """Get institutional ownership.
+
+        Not in the published OpenAPI contract (https://aisa.one/openapi.json);
+        this request may return 404.
+        """
         return self._request("GET", "/financial/institutional/ownership", params={"ticker": ticker})
     
     def sec_filings(self, ticker: str) -> Dict[str, Any]:
         """Get SEC filings."""
-        return self._request("GET", "/financial/sec/filings", params={"ticker": ticker})
+        return self._request("GET", "/financial/filings", params={"ticker": ticker})
     
-    def sec_items(self, ticker: str) -> Dict[str, Any]:
-        """Get SEC filing items."""
-        return self._request("GET", "/financial/sec/items", params={"ticker": ticker})
+    def sec_items(self, ticker: str, filing_type: str, year: int) -> Dict[str, Any]:
+        """Get SEC filing items (filing_type and year are required by the contract)."""
+        return self._request("GET", "/financial/filings/items", params={
+            "ticker": ticker,
+            "filing_type": filing_type,
+            "year": year,
+        })
     
     def company_facts(self, ticker: str) -> Dict[str, Any]:
         """Get company facts."""
@@ -178,21 +186,31 @@ class MarketClient:
     
     def rates_snapshot(self) -> Dict[str, Any]:
         """Get current interest rates."""
-        return self._request("GET", "/financial/interest_rates/snapshot")
+        return self._request("GET", "/financial/macro/interest-rates/snapshot")
     
     def rates_historical(self, bank: str = "fed") -> Dict[str, Any]:
         """Get historical interest rates."""
-        return self._request("GET", "/financial/interest_rates/historical", params={"bank": bank})
+        return self._request("GET", "/financial/macro/interest-rates", params={"bank": bank})
     
-    def screen_stocks(self, filters: Dict[str, Any]) -> Dict[str, Any]:
-        """Screen for stocks matching criteria."""
-        return self._request("POST", "/financial/search/stock", data={"filters": filters})
+    def screen_stocks(self, filters: List[Dict[str, Any]], limit: int = 10) -> Dict[str, Any]:
+        """Screen for stocks matching criteria.
+
+        filters: [{"field": <statement line item>, "operator": gt|lt|gte|lte|eq|in, "value": ...}]
+        """
+        return self._request(
+            "POST",
+            "/financial/financials/search/screener",
+            data={"filters": filters, "limit": limit},
+        )
     
     # ==================== Crypto APIs ====================
     
     def crypto_snapshot(self, ticker: str) -> Dict[str, Any]:
         """
         Get real-time price snapshot for a cryptocurrency.
+
+        Not in the published OpenAPI contract (https://aisa.one/openapi.json);
+        this request may return 404. Prefer the crypto-market-data skill.
         
         Args:
             ticker: Crypto ticker in format SYMBOL-USD (e.g., BTC-USD, ETH-USD)
@@ -200,8 +218,8 @@ class MarketClient:
         return self._request("GET", "/financial/crypto/prices/snapshot", params={"ticker": ticker})
     
     def crypto_historical(
-        self, 
-        ticker: str, 
+        self,
+        ticker: str,
         start_date: str,
         end_date: str,
         interval: str = "day",
@@ -209,7 +227,10 @@ class MarketClient:
     ) -> Dict[str, Any]:
         """
         Get historical price data for a cryptocurrency.
-        
+
+        Not in the published OpenAPI contract (https://aisa.one/openapi.json);
+        this request may return 404. Prefer the crypto-market-data skill.
+                
         Args:
             ticker: Crypto ticker in format SYMBOL-USD (e.g., BTC-USD)
             start_date: Start date (YYYY-MM-DD) - required
@@ -288,6 +309,7 @@ Examples:
     statements = stock_sub.add_parser("statements", help="Get financial statements")
     statements.add_argument("--ticker", "-t", required=True, help="Stock ticker")
     statements.add_argument("--type", required=True, choices=["all", "income", "balance", "cash"], help="Statement type")
+    statements.add_argument("--period", "-p", choices=["annual", "quarterly", "ttm"], default="annual", help="Reporting period (default: annual)")
     
     # metrics
     metrics = stock_sub.add_parser("metrics", help="Get financial metrics")
@@ -321,11 +343,14 @@ Examples:
     rates.add_argument("--historical", action="store_true", help="Get historical data")
     
     # screen
-    screen = stock_sub.add_parser("screen", help="Stock screener")
-    screen.add_argument("--pe-max", type=float, help="Max P/E ratio")
-    screen.add_argument("--pe-min", type=float, help="Min P/E ratio")
-    screen.add_argument("--growth-min", type=float, help="Min revenue growth")
-    screen.add_argument("--growth-max", type=float, help="Max revenue growth")
+    screen = stock_sub.add_parser("screen", help="Stock screener (statement line-item filters)")
+    screen.add_argument("--filter", "-f", action="append", default=[], metavar="FIELD:OP:VALUE",
+                        help="Filter on a statement line item, e.g. revenue:gt:1000000000 (OP: gt|lt|gte|lte|eq); repeatable")
+    screen.add_argument("--limit", type=int, default=10, help="Max results (default: 10)")
+    screen.add_argument("--pe-max", type=float, help=argparse.SUPPRESS)
+    screen.add_argument("--pe-min", type=float, help=argparse.SUPPRESS)
+    screen.add_argument("--growth-min", type=float, help=argparse.SUPPRESS)
+    screen.add_argument("--growth-max", type=float, help=argparse.SUPPRESS)
     
     # ==================== Crypto Commands ====================
     crypto_parser = subparsers.add_parser("crypto", help="Cryptocurrency commands")
@@ -388,13 +413,13 @@ Examples:
             result = client.company_news(args.ticker, args.count)
         elif args.command == "statements":
             if args.type == "all":
-                result = client.statements_all(args.ticker)
+                result = client.statements_all(args.ticker, args.period)
             elif args.type == "income":
-                result = client.statements_income(args.ticker)
+                result = client.statements_income(args.ticker, args.period)
             elif args.type == "balance":
-                result = client.statements_balance(args.ticker)
+                result = client.statements_balance(args.ticker, args.period)
             elif args.type == "cash":
-                result = client.statements_cash(args.ticker)
+                result = client.statements_cash(args.ticker, args.period)
         elif args.command == "metrics":
             if args.historical:
                 result = client.metrics_historical(args.ticker)
@@ -416,20 +441,29 @@ Examples:
             else:
                 result = client.rates_snapshot()
         elif args.command == "screen":
-            filters = {}
-            if args.pe_max or args.pe_min:
-                filters["pe_ratio"] = {}
-                if args.pe_max:
-                    filters["pe_ratio"]["max"] = args.pe_max
-                if args.pe_min:
-                    filters["pe_ratio"]["min"] = args.pe_min
-            if args.growth_max or args.growth_min:
-                filters["revenue_growth"] = {}
-                if args.growth_max:
-                    filters["revenue_growth"]["max"] = args.growth_max
-                if args.growth_min:
-                    filters["revenue_growth"]["min"] = args.growth_min
-            result = client.screen_stocks(filters)
+            if any(v is not None for v in (args.pe_max, args.pe_min, args.growth_min, args.growth_max)):
+                print(json.dumps({"success": False, "error": {
+                    "code": "UNSUPPORTED_FILTER",
+                    "message": "The published screener (/financial/financials/search/screener) filters statement "
+                               "line items such as revenue or net_income; use --filter FIELD:OP:VALUE.",
+                }}))
+                sys.exit(2)
+            filters = []
+            for raw in args.filter:
+                parts = raw.split(":", 2)
+                if len(parts) != 3 or parts[1] not in {"gt", "lt", "gte", "lte", "eq"}:
+                    print(json.dumps({"success": False, "error": {"code": "BAD_FILTER", "message": f"--filter must be FIELD:OP:VALUE with OP in gt|lt|gte|lte|eq, got {raw!r}"}}))
+                    sys.exit(2)
+                field, operator, value = parts
+                try:
+                    number: Any = float(value) if "." in value else int(value)
+                except ValueError:
+                    number = value
+                filters.append({"field": field, "operator": operator, "value": number})
+            if not filters:
+                print(json.dumps({"success": False, "error": {"code": "BAD_FILTER", "message": "at least one --filter FIELD:OP:VALUE is required"}}))
+                sys.exit(2)
+            result = client.screen_stocks(filters, args.limit)
     
     # Crypto commands
     elif args.asset_type == "crypto":

@@ -149,19 +149,19 @@ curl "https://api.aisa.one/apis/v1/financial/news?ticker=AAPL&limit=10" \
 
 ```bash
 # All financial statements
-curl "https://api.aisa.one/apis/v1/financial/financial_statements/all?ticker=AAPL" \
+curl "https://api.aisa.one/apis/v1/financial/financials?ticker=AAPL&period=annual" \
   -H "Authorization: Bearer $AISA_API_KEY"
 
 # Income statements
-curl "https://api.aisa.one/apis/v1/financial/financial_statements/income?ticker=AAPL" \
+curl "https://api.aisa.one/apis/v1/financial/financials/income-statements?ticker=AAPL&period=annual" \
   -H "Authorization: Bearer $AISA_API_KEY"
 
 # Balance sheets
-curl "https://api.aisa.one/apis/v1/financial/financial_statements/balance?ticker=AAPL" \
+curl "https://api.aisa.one/apis/v1/financial/financials/balance-sheets?ticker=AAPL&period=annual" \
   -H "Authorization: Bearer $AISA_API_KEY"
 
 # Cash flow statements
-curl "https://api.aisa.one/apis/v1/financial/financial_statements/cash?ticker=AAPL" \
+curl "https://api.aisa.one/apis/v1/financial/financials/cash-flow-statements?ticker=AAPL&period=annual" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -181,7 +181,7 @@ curl "https://api.aisa.one/apis/v1/financial/financial-metrics?ticker=AAPL" \
 
 ```bash
 # Earnings per share estimates
-curl "https://api.aisa.one/apis/v1/financial/analyst/eps?ticker=AAPL&period=annual" \
+curl "https://api.aisa.one/apis/v1/financial/analyst-estimates?ticker=AAPL&period=annual" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -189,11 +189,13 @@ curl "https://api.aisa.one/apis/v1/financial/analyst/eps?ticker=AAPL&period=annu
 
 ```bash
 # Get insider trades
-curl "https://api.aisa.one/apis/v1/financial/insider/trades?ticker=AAPL" \
+curl "https://api.aisa.one/apis/v1/financial/insider-trades?ticker=AAPL" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
 ### Institutional Ownership
+
+> **Not in the published contract.** No institutional-ownership operation is published in https://aisa.one/openapi.json; this request may return 404. Tracked in `scripts/validate_skills_known_issues.json`.
 
 ```bash
 # Get institutional ownership
@@ -205,11 +207,11 @@ curl "https://api.aisa.one/apis/v1/financial/institutional/ownership?ticker=AAPL
 
 ```bash
 # Get SEC filings
-curl "https://api.aisa.one/apis/v1/financial/sec/filings?ticker=AAPL" \
+curl "https://api.aisa.one/apis/v1/financial/filings?ticker=AAPL" \
   -H "Authorization: Bearer $AISA_API_KEY"
 
-# Get SEC filing items
-curl "https://api.aisa.one/apis/v1/financial/sec/items?ticker=AAPL" \
+# Get SEC filing items (filing_type and year are required)
+curl "https://api.aisa.one/apis/v1/financial/filings/items?ticker=AAPL&filing_type=10-K&year=2024" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -225,27 +227,30 @@ curl "https://api.aisa.one/apis/v1/financial/company/facts?ticker=AAPL" \
 
 ```bash
 # Screen for stocks matching criteria
-curl -X POST "https://api.aisa.one/apis/v1/financial/search/stock" \
+# Filters are statement line items: [{"field", "operator": gt|lt|gte|lte|eq|in, "value"}]
+curl -X POST "https://api.aisa.one/apis/v1/financial/financials/search/screener" \
   -H "Authorization: Bearer $AISA_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"filters":{"pe_ratio":{"max":15},"revenue_growth":{"min":0.2}}}'
+  -d '{"filters":[{"field":"revenue","operator":"gt","value":1000000000},{"field":"net_income","operator":"gt","value":0}],"limit":10}'
 ```
 
 ### Interest Rates
 
 ```bash
 # Current interest rates
-curl "https://api.aisa.one/apis/v1/financial/interest_rates/snapshot" \
+curl "https://api.aisa.one/apis/v1/financial/macro/interest-rates/snapshot" \
   -H "Authorization: Bearer $AISA_API_KEY"
 
 # Historical interest rates
-curl "https://api.aisa.one/apis/v1/financial/interest_rates/historical?bank=fed" \
+curl "https://api.aisa.one/apis/v1/financial/macro/interest-rates?bank=fed" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
 ---
 
 ## ₿ Cryptocurrency
+
+> **Not in the published contract.** The Financial API publishes no crypto price operations (the `financial/crypto/...` routes below are absent from https://aisa.one/openapi.json), so the requests below may return 404 (tracked in `scripts/validate_skills_known_issues.json`). For crypto prices use the `crypto-market-data` skill (CoinGecko, `/apis/v1/coingecko/...`).
 
 ### Real-Time Price Snapshot
 
@@ -314,7 +319,7 @@ python3 scripts/market_client.py stock prices --ticker AAPL --start 2025-01-01 -
 python3 scripts/market_client.py stock news --ticker AAPL --count 10
 
 # ==================== Financial Statements ====================
-python3 scripts/market_client.py stock statements --ticker AAPL --type all
+python3 scripts/market_client.py stock statements --ticker AAPL --type all            # --period annual|quarterly|ttm (default annual)
 python3 scripts/market_client.py stock statements --ticker AAPL --type income
 python3 scripts/market_client.py stock statements --ticker AAPL --type balance
 python3 scripts/market_client.py stock statements --ticker AAPL --type cash
@@ -331,7 +336,7 @@ python3 scripts/market_client.py stock ownership --ticker AAPL
 python3 scripts/market_client.py stock filings --ticker AAPL
 
 # ==================== Stock Screener ====================
-python3 scripts/market_client.py stock screen --pe-max 15 --growth-min 0.2
+python3 scripts/market_client.py stock screen --filter revenue:gt:1000000000 --filter net_income:gt:0 --limit 10
 
 # ==================== Interest Rates ====================
 python3 scripts/market_client.py stock rates
@@ -355,28 +360,28 @@ python3 scripts/market_client.py crypto portfolio --tickers BTC-USD,ETH-USD,SOL-
 |----------|--------|-------------|
 | `/financial/prices` | GET | Historical stock prices (requires interval params) |
 | `/financial/news` | GET | Company news by ticker |
-| `/financial/financial_statements/all` | GET | All financial statements |
-| `/financial/financial_statements/income` | GET | Income statements |
-| `/financial/financial_statements/balance` | GET | Balance sheets |
-| `/financial/financial_statements/cash` | GET | Cash flow statements |
+| `/financial/financials` | GET | All financial statements (requires `period`) |
+| `/financial/financials/income-statements` | GET | Income statements |
+| `/financial/financials/balance-sheets` | GET | Balance sheets |
+| `/financial/financials/cash-flow-statements` | GET | Cash flow statements |
 | `/financial/financial-metrics/snapshot` | GET | Real-time financial metrics |
 | `/financial/financial-metrics` | GET | Historical metrics |
-| `/financial/analyst/eps` | GET | EPS estimates |
-| `/financial/insider/trades` | GET | Insider trades |
-| `/financial/institutional/ownership` | GET | Institutional ownership |
-| `/financial/sec/filings` | GET | SEC filings |
-| `/financial/sec/items` | GET | SEC filing items |
+| `/financial/analyst-estimates` | GET | EPS estimates |
+| `/financial/insider-trades` | GET | Insider trades |
+| `/financial/institutional/ownership` | GET | Institutional ownership (not in the published contract) |
+| `/financial/filings` | GET | SEC filings |
+| `/financial/filings/items` | GET | SEC filing items (requires `filing_type`, `year`) |
 | `/financial/company/facts` | GET | Company facts |
-| `/financial/search/stock` | POST | Stock screener |
-| `/financial/interest_rates/snapshot` | GET | Current interest rates |
-| `/financial/interest_rates/historical` | GET | Historical rates |
+| `/financial/financials/search/screener` | POST | Stock screener (JSON body `filters[]`) |
+| `/financial/macro/interest-rates/snapshot` | GET | Current interest rates |
+| `/financial/macro/interest-rates` | GET | Historical rates (requires `bank`) |
 
 ### Cryptocurrency
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/financial/crypto/prices/snapshot` | GET | Real-time price snapshot |
-| `/financial/crypto/prices` | GET | Historical OHLCV data |
+| `/financial/crypto/prices/snapshot` | GET | Real-time price snapshot (not in the published contract) |
+| `/financial/crypto/prices` | GET | Historical OHLCV data (not in the published contract) |
 
 ---
 
@@ -392,7 +397,7 @@ python3 scripts/market_client.py crypto portfolio --tickers BTC-USD,ETH-USD,SOL-
 | Crypto snapshot | ~$0.0005 |
 | Crypto historical | ~$0.001 |
 
-Every response includes `usage.cost` and `usage.credits_remaining`.
+The settled cost of each call is returned in the `X-AISA-Customer-Cost-Micros-USD` response header (integer micro-USD; 1 USD = 1,000,000). Do not look for a cost field in the response body.
 
 ---
 
@@ -405,4 +410,4 @@ Every response includes `usage.cost` and `usage.credits_remaining`.
 
 ## Full API Reference
 
-See [API Reference](https://docs.aisa.one/reference/) for complete endpoint documentation.
+See the [API Reference](https://aisa.one/docs/api-reference) for complete endpoint documentation.

@@ -77,7 +77,7 @@ This skill requires the `AISA_API_KEY` environment variable. When installed as a
 Run the search client with the `web` subcommand:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/web-search/scripts/search_client.py web --query "<search query>" --count <max_results>
+python3 scripts/search_client.py web --query "<search query>" --count <max_results>
 ```
 
 ### Arguments
@@ -90,7 +90,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/web-search/scripts/search_client.py web --q
 ### Example
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/web-search/scripts/search_client.py web --query "latest AI agent frameworks 2026" --count 5
+python3 scripts/search_client.py web --query "latest AI agent frameworks 2026" --count 5
 ```
 
 ## Output

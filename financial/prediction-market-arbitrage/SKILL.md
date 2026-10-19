@@ -198,6 +198,22 @@ curl -X GET "https://api.aisa.one/apis/v1/kalshi/orderbooks?ticker={ticker}" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
+## Contract status
+
+Validated against the published OpenAPI contract (https://aisa.one/openapi.json) on 2026-10-20. The routes below, used by this skill and its bundled client, are **not in the published contract** and may return 404. They are tracked with reasons in `scripts/validate_skills_known_issues.json` until the owner maps or removes them; the published operations that cover the same data have different parameters, so they were not substituted automatically:
+
+| Legacy route in this skill | Published operation to migrate to |
+|---|---|
+| `GET /polymarket/market-price/{token_id}` | `GET /polymarket/price?token_id=&side=`, `GET /polymarket/midpoint?token_id=`, `GET /polymarket/prices-history?market=` |
+| `GET /polymarket/orderbooks` | `GET /polymarket/book?token_id=`, `GET /polymarket/books?token_ids=` |
+| `GET /polymarket/orders` (trade history) | `GET /polymarket/activity`, `GET /polymarket/data/orders` (the published `/polymarket/orders` is POST/DELETE order management) |
+| `GET /polymarket/candlesticks/{condition_id}` | `GET /polymarket/prices-history?market=&interval=&fidelity=` |
+| `GET /polymarket/positions/wallet/{wallet_address}` | `GET /polymarket/positions?user=` |
+| `GET /polymarket/wallet`, `GET /polymarket/wallet/pnl/{wallet_address}` | `GET /polymarket/public-profile?address=`, `GET /polymarket/closed-positions?user=`, `GET /polymarket/value?user=` |
+| `GET /kalshi/market-price/{market_ticker}` | `GET /kalshi/markets/{ticker}` |
+| `GET /kalshi/orderbooks` | `GET /kalshi/markets/{ticker}/orderbook` |
+| `GET /matching-markets/sports[/{sport}]` | no published equivalent (`GET /polymarket/sports` lists Polymarket sports only) |
+
 ## API Endpoints Reference
 
 ### Cross-Platform Endpoints

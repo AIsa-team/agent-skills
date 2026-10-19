@@ -77,7 +77,7 @@ This skill requires the `AISA_API_KEY` environment variable. When installed as a
 Run the search client with the `sonar` subcommand:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/perplexity-research/scripts/search_client.py sonar --query "<research question>" --model <model_name>
+python3 scripts/search_client.py sonar --query "<research question>" --model <model_name>
 ```
 
 ### Arguments
@@ -100,16 +100,16 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/perplexity-research/scripts/search_client.p
 
 ```bash
 # Quick factual lookup
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/perplexity-research/scripts/search_client.py sonar --query "What is the current state of quantum computing?"
+python3 scripts/search_client.py sonar --query "What is the current state of quantum computing?"
 
 # Detailed research
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/perplexity-research/scripts/search_client.py sonar --query "Compare transformer and state-space model architectures" --model sonar-pro
+python3 scripts/search_client.py sonar --query "Compare transformer and state-space model architectures" --model sonar-pro
 
 # Complex reasoning
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/perplexity-research/scripts/search_client.py sonar --query "Will AGI be achieved by 2030? Analyze arguments for and against." --model sonar-reasoning-pro
+python3 scripts/search_client.py sonar --query "Will AGI be achieved by 2030? Analyze arguments for and against." --model sonar-reasoning-pro
 
 # Exhaustive deep research
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/perplexity-research/scripts/search_client.py sonar --query "Comprehensive analysis of AI regulation frameworks worldwide" --model sonar-deep-research
+python3 scripts/search_client.py sonar --query "Comprehensive analysis of AI regulation frameworks worldwide" --model sonar-deep-research
 ```
 
 ## Output

@@ -77,7 +77,7 @@ This skill requires the `AISA_API_KEY` environment variable. When installed as a
 Run the search client with the `extract` subcommand:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/tavily-extract/scripts/search_client.py extract --urls "<comma-separated URLs>"
+python3 scripts/search_client.py extract --urls "<comma-separated URLs>"
 ```
 
 ### Arguments
@@ -90,10 +90,10 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/tavily-extract/scripts/search_client.py ext
 
 ```bash
 # Extract a single article
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/tavily-extract/scripts/search_client.py extract --urls "https://example.com/article"
+python3 scripts/search_client.py extract --urls "https://example.com/article"
 
 # Extract multiple pages
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/tavily-extract/scripts/search_client.py extract --urls "https://example.com/page1,https://example.com/page2"
+python3 scripts/search_client.py extract --urls "https://example.com/page1,https://example.com/page2"
 ```
 
 ## Output

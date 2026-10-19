@@ -77,7 +77,7 @@ This skill requires the `AISA_API_KEY` environment variable. When installed as a
 Run the search client with the `smart` subcommand:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/smart-search/scripts/search_client.py smart --query "<search query>" --count <max_results>
+python3 scripts/search_client.py smart --query "<search query>" --count <max_results>
 ```
 
 ### Arguments
@@ -90,7 +90,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/smart-search/scripts/search_client.py smart
 ### Example
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/smart-search/scripts/search_client.py smart --query "impact of large language models on software engineering" --count 10
+python3 scripts/search_client.py smart --query "impact of large language models on software engineering" --count 10
 ```
 
 ## Output

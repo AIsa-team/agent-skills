@@ -74,9 +74,9 @@ Analyze dividend metrics for one or more tickers using the AIsa API. This is a r
 ## Usage
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-dividend/scripts/dividends.py" JNJ
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-dividend/scripts/dividends.py" JNJ PG KO
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/stock-dividend/scripts/dividends.py" JNJ PG KO --output json
+python3 scripts/dividends.py JNJ
+python3 scripts/dividends.py JNJ PG KO
+python3 scripts/dividends.py JNJ PG KO --output json
 ```
 
 ### Arguments

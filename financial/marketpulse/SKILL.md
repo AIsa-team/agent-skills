@@ -344,6 +344,10 @@ python3 {baseDir}/scripts/market_client.py stock rates --historical --bank fed
 
 ---
 
+## Contract status
+
+Validated against the published OpenAPI contract (https://aisa.one/openapi.json) on 2026-10-20. `GET /financial/financials/segmented-revenues`, `GET /financial/earnings/press-releases` and `GET /financial/institutional-ownership` are **not in the published contract** and may return 404; no published operation covers the same data. Tracked in `scripts/validate_skills_known_issues.json` until the owner maps or removes them.
+
 ## API Endpoints Reference
 
 | Endpoint | Method | Description |

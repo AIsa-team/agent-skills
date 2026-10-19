@@ -137,25 +137,28 @@ curl "https://api.aisa.one/apis/v1/financial/prices?ticker=AAPL&start_date=2025-
 **Financial Statements**
 ```bash
 # All statements (income, balance, cash flow)
-curl "https://api.aisa.one/apis/v1/financial/financial_statements/all?ticker=AAPL" \
+curl "https://api.aisa.one/apis/v1/financial/financials?ticker=AAPL&period=annual" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
 **Analyst Estimates**
 ```bash
 # EPS forecasts and ratings
-curl "https://api.aisa.one/apis/v1/financial/analyst/eps?ticker=AAPL&period=annual" \
+curl "https://api.aisa.one/apis/v1/financial/analyst-estimates?ticker=AAPL&period=annual" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
 **Insider Trading**
 ```bash
 # Track insider buy/sell activity
-curl "https://api.aisa.one/apis/v1/financial/insider/trades?ticker=AAPL" \
+curl "https://api.aisa.one/apis/v1/financial/insider-trades?ticker=AAPL" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
 **Institutional Ownership**
+
+> **Not in the published contract.** No institutional-ownership operation is published in https://aisa.one/openapi.json; this request may return 404 (tracked in `scripts/validate_skills_known_issues.json`).
+
 ```bash
 # See who owns the stock
 curl "https://api.aisa.one/apis/v1/financial/institutional/ownership?ticker=AAPL" \
@@ -165,7 +168,7 @@ curl "https://api.aisa.one/apis/v1/financial/institutional/ownership?ticker=AAPL
 **SEC Filings**
 ```bash
 # Access 10-K, 10-Q, 8-K filings
-curl "https://api.aisa.one/apis/v1/financial/sec/filings?ticker=AAPL" \
+curl "https://api.aisa.one/apis/v1/financial/filings?ticker=AAPL" \
   -H "Authorization: Bearer $AISA_API_KEY"
 ```
 
@@ -285,18 +288,18 @@ python3 scripts/stock_analyst.py analyze --ticker GOOGL --output report.json
 | **Financial Metrics** | `/financial/financial-metrics/snapshot` | GET | $0.002 |
 | **Stock Prices** | `/financial/prices` | GET | $0.001 |
 | **News** | `/financial/news` | GET | $0.001 |
-| **Statements** | `/financial/financial_statements/*` | GET | $0.002 |
-| **Analyst Estimates** | `/financial/analyst/eps` | GET | $0.002 |
-| **Insider Trades** | `/financial/insider/trades` | GET | $0.001 |
-| **Institutional** | `/financial/institutional/ownership` | GET | $0.001 |
-| **SEC Filings** | `/financial/sec/filings` | GET | $0.001 |
+| **Statements** | `/financial/financials` (requires `period`) | GET | $0.002 |
+| **Analyst Estimates** | `/financial/analyst-estimates` | GET | $0.002 |
+| **Insider Trades** | `/financial/insider-trades` | GET | $0.001 |
+| **Institutional** | `/financial/institutional/ownership` (not in the published contract) | GET | $0.001 |
+| **SEC Filings** | `/financial/filings` | GET | $0.001 |
 | **Web Search** | `/scholar/search/web` | POST | $0.001 |
 | **Scholar Search** | `/scholar/search/scholar` | POST | $0.002 |
 | **Twitter** | `/twitter/tweet/advanced_search` | GET | $0.0004 |
 | **YouTube** | `/youtube/search` | GET | $0.002 |
 | **LLM** | `/v1/chat/completions` | POST | Token-based |
 
-Every response includes `usage.cost` and `usage.credits_remaining`.
+The settled cost of each call is returned in the `X-AISA-Customer-Cost-Micros-USD` response header (integer micro-USD; 1 USD = 1,000,000). Do not look for a cost field in the response body.
 
 ---
 
@@ -437,8 +440,8 @@ print(report['sentiment_analysis'])
 
 ## Full API Documentation
 
-- **API Reference**: https://aisa.mintlify.app/api-reference/introduction
-- **Complete Docs**: https://aisa.mintlify.app/llms.txt
+- **API Reference**: https://aisa.one/docs/api-reference
+- **Complete Docs**: https://aisa.one/docs/llms.txt
 - **Support**: support@aisa.one
 - **Discord**: https://discord.gg/aisa
 
@@ -451,4 +454,4 @@ print(report['sentiment_analysis'])
 Single API Key. Pay-Per-Use. Agent-Native.
 
 - Website: https://aisa.one
-- Documentation: https://aisa.mintlify.app
+- Documentation: https://aisa.one/docs

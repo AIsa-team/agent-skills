@@ -77,7 +77,7 @@ This skill requires the `AISA_API_KEY` environment variable. When installed as a
 Run the search client with the `scholar` subcommand:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/scholar-search/scripts/search_client.py scholar --query "<academic query>" --count <max_results> [--year-from YYYY] [--year-to YYYY]
+python3 scripts/search_client.py scholar --query "<academic query>" --count <max_results> [--year-from YYYY] [--year-to YYYY]
 ```
 
 ### Arguments
@@ -93,10 +93,10 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/scholar-search/scripts/search_client.py sch
 
 ```bash
 # Search for recent transformer papers
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/scholar-search/scripts/search_client.py scholar --query "transformer architecture attention mechanism" --count 10 --year-from 2024
+python3 scripts/search_client.py scholar --query "transformer architecture attention mechanism" --count 10 --year-from 2024
 
 # Search papers in a specific year range
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/scholar-search/scripts/search_client.py scholar --query "reinforcement learning from human feedback" --year-from 2022 --year-to 2025
+python3 scripts/search_client.py scholar --query "reinforcement learning from human feedback" --year-from 2022 --year-to 2025
 ```
 
 ## Output

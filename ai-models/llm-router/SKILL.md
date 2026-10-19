@@ -283,11 +283,11 @@ curl -X POST "https://api.aisa.one/v1/chat/completions" \
 For Gemini models, you can also use the native format:
 
 ```
-POST https://api.aisa.one/v1/models/{model}:generateContent
+POST https://api.aisa.one/v1beta/models/{model}:generateContent
 ```
 
 ```bash
-curl -X POST "https://api.aisa.one/v1/models/gemini-2.0-flash:generateContent" \
+curl -X POST "https://api.aisa.one/v1beta/models/gemini-2.0-flash:generateContent" \
   -H "Authorization: Bearer $AISA_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -513,7 +513,7 @@ Token-based pricing varies by model. Check [marketplace.aisa.one/pricing](https:
 | Qwen-Max | ~$0.005 / 1K tokens |
 | DeepSeek-V3 | ~$0.002 / 1K tokens |
 
-Every response includes `usage.cost` and `usage.credits_remaining`.
+The settled cost of each call is returned in the `X-AISA-Customer-Cost-Micros-USD` response header (integer micro-USD; 1 USD = 1,000,000). Do not look for a cost field in the response body.
 
 ## Get Started
 

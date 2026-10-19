@@ -305,7 +305,7 @@ python3 scripts/twitter_client.py community-search --query "AI"
 |-----|------|
 | Twitter read query | ~$0.0004 |
 
-Every response includes `usage.cost` and `usage.credits_remaining`.
+The settled cost of each call is returned in the `X-AISA-Customer-Cost-Micros-USD` response header (integer micro-USD; 1 USD = 1,000,000). Do not look for a cost field in the response body.
 
 ## Get Started
 

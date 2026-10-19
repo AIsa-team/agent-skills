@@ -267,7 +267,7 @@ class SearchClient:
     def smart_search(self, query: str, max_results: int = 10) -> Dict[str, Any]:
         return self._request(
             "POST",
-            "/scholar/search/smart",
+            "/scholar/search/mixed",
             params={"query": query, "max_num_results": max_results},
         )
 
@@ -294,12 +294,18 @@ class SearchClient:
         )
 
     def explain_results(
-        self, results: List[Dict[str, Any]], language: str = "en", output_format: str = "summary"
+        self, search_id: str, detail_level: str = "MODERATE", language: str = "en"
     ) -> Dict[str, Any]:
+        """Explain a search by the `id` that /scholar/search/{web,scholar,mixed} returned."""
         return self._request(
             "POST",
-            "/scholar/explain",
-            data={"results": results, "language": language, "format": output_format},
+            "/scholar/search/explain",
+            data={
+                "search_id": search_id,
+                "detail_level": detail_level,
+                "language": language,
+                "response_mode": "NON_STREAMING",
+            },
         )
 
     # Tavily APIs

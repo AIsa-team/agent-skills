@@ -137,7 +137,7 @@ class AIsaStockAnalyst:
     async def _get_analyst_estimates(self, ticker: str) -> Dict:
         """Get analyst EPS estimates."""
         response = await self.client.get(
-            f"{self.base_url}/financial/analyst/eps",
+            f"{self.base_url}/financial/analyst-estimates",
             params={"ticker": ticker, "period": "annual"},
             headers=self.headers
         )
@@ -147,7 +147,7 @@ class AIsaStockAnalyst:
     async def _get_insider_trades(self, ticker: str) -> Dict:
         """Get insider trading data."""
         response = await self.client.get(
-            f"{self.base_url}/financial/insider/trades",
+            f"{self.base_url}/financial/insider-trades",
             params={"ticker": ticker},
             headers=self.headers
         )
@@ -155,7 +155,11 @@ class AIsaStockAnalyst:
         return response.json()
     
     async def _get_institutional_ownership(self, ticker: str) -> Dict:
-        """Get institutional ownership data."""
+        """Get institutional ownership data.
+
+        Not in the published OpenAPI contract (https://aisa.one/openapi.json);
+        this request may return 404 and is reported as a missing data source.
+        """
         response = await self.client.get(
             f"{self.base_url}/financial/institutional/ownership",
             params={"ticker": ticker},
@@ -167,8 +171,8 @@ class AIsaStockAnalyst:
     async def _get_financial_statements(self, ticker: str) -> Dict:
         """Get all financial statements."""
         response = await self.client.get(
-            f"{self.base_url}/financial/financial_statements/all",
-            params={"ticker": ticker},
+            f"{self.base_url}/financial/financials",
+            params={"ticker": ticker, "period": "annual"},
             headers=self.headers
         )
         response.raise_for_status()
@@ -177,7 +181,7 @@ class AIsaStockAnalyst:
     async def _get_sec_filings(self, ticker: str) -> Dict:
         """Get SEC filings."""
         response = await self.client.get(
-            f"{self.base_url}/financial/sec/filings",
+            f"{self.base_url}/financial/filings",
             params={"ticker": ticker},
             headers=self.headers
         )

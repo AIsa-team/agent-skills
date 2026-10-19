@@ -135,7 +135,7 @@ curl "https://api.aisa.one/apis/v1/polymarket/market-price/<TOKEN_ID>" \
 
 Client function: `search_twitter` (uses `/twitter/tweet/advanced_search`). Tweet
 search params are `query` and `queryType` (`Latest`|`Top`) — there is no
-`/twitter/search` endpoint or `search_type` param. Pricing varies by AIsa plan;
+separate tweet-search endpoint or `search_type` param. Pricing varies by AIsa plan;
 treat as ~$0.01/call for budgeting.
 
 ```bash
@@ -169,15 +169,15 @@ curl -X POST "https://api.aisa.one/apis/v1/tavily/search" \
 
 | Method | Path                  | Purpose                                |
 |--------|-----------------------|----------------------------------------|
-| POST   | `/perplexity/search`  | Deep research via Perplexity Sonar     |
+| POST   | `/perplexity/sonar`   | Deep research via Perplexity Sonar (also `sonar-pro`, `sonar-reasoning-pro`, `sonar-deep-research`) |
 
-Body: `{"query": "..."}`. Client function: `perplexity_search`.
+Body (OpenAI-style): `{"model": "sonar", "messages": [{"role": "user", "content": "..."}]}`. Client function: `perplexity_search`.
 
 ```bash
-curl -X POST "https://api.aisa.one/apis/v1/perplexity/search" \
+curl -X POST "https://api.aisa.one/apis/v1/perplexity/sonar" \
   -H "Authorization: Bearer $AISA_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"query": "outlook for AI chip demand 2026"}'
+  -d '{"model": "sonar", "messages": [{"role": "user", "content": "outlook for AI chip demand 2026"}]}'
 ```
 
 ---
@@ -187,11 +187,11 @@ curl -X POST "https://api.aisa.one/apis/v1/perplexity/search" \
 | Method | Path                     | Purpose                                  |
 |--------|--------------------------|------------------------------------------|
 | POST   | `/scholar/search/web`    | Web search (`?query=...&max_num_results=10`) |
-| POST   | `/scholar/search/smart`  | Smart hybrid search (`?query=...&max_num_results=10`) |
+| POST   | `/scholar/search/mixed`  | Hybrid web + scholar search (`?query=...&max_num_results=10`) |
 | POST   | `/scholar/search/scholar`| Academic search (`?query=...&max_num_results=10`) |
-| POST   | `/scholar/explain`       | Confidence-scored explanation of results |
+| POST   | `/scholar/search/explain` | Explain a search by its `id` |
 
-`/scholar/explain` body: `{"results": [...], "language": "en", "format": "summary"}`.
+`/scholar/search/explain` body: `{"search_id": "<id from a search response>", "detail_level": "MODERATE", "language": "en", "response_mode": "NON_STREAMING"}`. The three search operations take query-string parameters only (no JSON body).
 Not wired into the default orchestrator — available for deeper manual research.
 
 ---
@@ -207,6 +207,6 @@ A typical forecast (decompose + 3–4 sources + synthesis) costs roughly:
 - Stock data (per ticker: prices + metrics + news): ~$0.003
 - **Total: ~$0.05–0.08 per forecast**
 
-Every response includes `usage.cost` and `usage.credits_remaining`. See
+The settled cost of each call is returned in the `X-AISA-Customer-Cost-Micros-USD` response header (integer micro-USD; 1 USD = 1,000,000). Do not look for a cost field in the response body. See
 <https://aisa.one/docs/api-reference> for the full catalog and
 <https://aisa.one/docs/guides/pricing> for current per-call pricing.
