@@ -1,0 +1,909 @@
+{
+  "checkedAt": "2026-10-18",
+  "verification": "Catalog schema discovery only; no paid endpoint execution.",
+  "tools": {
+    "post_tavily_extract": {
+      "execution_supported": true,
+      "arguments_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "chunks_per_source": {
+                "default": 3,
+                "description": "Maximum number of relevant chunks returned per source. Available only when query is provided.",
+                "maximum": 5,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "extract_depth": {
+                "default": "basic",
+                "description": "Depth of the extraction process.",
+                "enum": [
+                  "basic",
+                  "advanced"
+                ],
+                "type": "string"
+              },
+              "format": {
+                "default": "markdown",
+                "description": "Format of the extracted web page content.",
+                "enum": [
+                  "markdown",
+                  "text"
+                ],
+                "type": "string"
+              },
+              "include_favicon": {
+                "default": false,
+                "description": "Include the favicon URL for each result.",
+                "type": "boolean"
+              },
+              "include_images": {
+                "default": false,
+                "description": "Include a list of images extracted from the URLs.",
+                "type": "boolean"
+              },
+              "include_usage": {
+                "default": false,
+                "description": "Include credit usage information in the response.",
+                "type": "boolean"
+              },
+              "query": {
+                "description": "User intent for reranking extracted content chunks.",
+                "type": "string"
+              },
+              "timeout": {
+                "description": "Maximum time in seconds to wait for URL extraction. If omitted, default timeouts depend on extract_depth: 10 seconds for basic and 30 seconds for advanced.",
+                "format": "float",
+                "maximum": 60,
+                "minimum": 1,
+                "type": "number"
+              },
+              "urls": {
+                "description": "The URL or URLs to extract content from. A single URL string and an array of URL strings are both accepted.",
+                "example": [
+                  "https://en.wikipedia.org/wiki/Artificial_intelligence"
+                ],
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "urls"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "response_schema": {
+        "properties": {
+          "failed_results": {
+            "description": "List of URLs that could not be processed.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "request_id": {
+            "description": "Unique request identifier.",
+            "type": "string"
+          },
+          "response_time": {
+            "description": "Time in seconds it took to complete the request.",
+            "format": "float",
+            "type": "number"
+          },
+          "results": {
+            "items": {
+              "properties": {
+                "favicon": {
+                  "description": "Favicon URL of the extracted content.",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "images": {
+                  "description": "Images extracted from the URL when include_images is true.",
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "raw_content": {
+                  "description": "Extracted raw content from the URL.",
+                  "type": "string"
+                },
+                "title": {
+                  "description": "Title of the extracted page.",
+                  "type": "string"
+                },
+                "url": {
+                  "description": "URL of the extracted content.",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "usage": {
+            "properties": {
+              "credits": {
+                "description": "Credit usage details for the request.",
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "post_tavily_search": {
+      "execution_supported": true,
+      "arguments_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "auto_parameters": {
+                "default": false,
+                "description": "Automatically configure search parameters based on query content.",
+                "type": "boolean"
+              },
+              "chunks_per_source": {
+                "default": 3,
+                "description": "Maximum number of relevant chunks returned per source.",
+                "maximum": 3,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "country": {
+                "description": "Boost search results from a specific country. Available only when topic is general.",
+                "enum": [
+                  "afghanistan",
+                  "albania",
+                  "algeria",
+                  "andorra",
+                  "angola",
+                  "argentina",
+                  "armenia",
+                  "australia",
+                  "austria",
+                  "azerbaijan",
+                  "bahamas",
+                  "bahrain",
+                  "bangladesh",
+                  "barbados",
+                  "belarus",
+                  "belgium",
+                  "belize",
+                  "benin",
+                  "bhutan",
+                  "bolivia",
+                  "bosnia and herzegovina",
+                  "botswana",
+                  "brazil",
+                  "brunei",
+                  "bulgaria",
+                  "burkina faso",
+                  "burundi",
+                  "cambodia",
+                  "cameroon",
+                  "canada",
+                  "cape verde",
+                  "central african republic",
+                  "chad",
+                  "chile",
+                  "china",
+                  "colombia",
+                  "comoros",
+                  "congo",
+                  "costa rica",
+                  "croatia",
+                  "cuba",
+                  "cyprus",
+                  "czech republic",
+                  "denmark",
+                  "djibouti",
+                  "dominican republic",
+                  "ecuador",
+                  "egypt",
+                  "el salvador",
+                  "equatorial guinea",
+                  "eritrea",
+                  "estonia",
+                  "ethiopia",
+                  "fiji",
+                  "finland",
+                  "france",
+                  "gabon",
+                  "gambia",
+                  "georgia",
+                  "germany",
+                  "ghana",
+                  "greece",
+                  "guatemala",
+                  "guinea",
+                  "haiti",
+                  "honduras",
+                  "hungary",
+                  "iceland",
+                  "india",
+                  "indonesia",
+                  "iran",
+                  "iraq",
+                  "ireland",
+                  "israel",
+                  "italy",
+                  "jamaica",
+                  "japan",
+                  "jordan",
+                  "kazakhstan",
+                  "kenya",
+                  "kuwait",
+                  "kyrgyzstan",
+                  "latvia",
+                  "lebanon",
+                  "lesotho",
+                  "liberia",
+                  "libya",
+                  "liechtenstein",
+                  "lithuania",
+                  "luxembourg",
+                  "madagascar",
+                  "malawi",
+                  "malaysia",
+                  "maldives",
+                  "mali",
+                  "malta",
+                  "mauritania",
+                  "mauritius",
+                  "mexico",
+                  "moldova",
+                  "monaco",
+                  "mongolia",
+                  "montenegro",
+                  "morocco",
+                  "mozambique",
+                  "myanmar",
+                  "namibia",
+                  "nepal",
+                  "netherlands",
+                  "new zealand",
+                  "nicaragua",
+                  "niger",
+                  "nigeria",
+                  "north korea",
+                  "north macedonia",
+                  "norway",
+                  "oman",
+                  "pakistan",
+                  "panama",
+                  "papua new guinea",
+                  "paraguay",
+                  "peru",
+                  "philippines",
+                  "poland",
+                  "portugal",
+                  "qatar",
+                  "romania",
+                  "russia",
+                  "rwanda",
+                  "saudi arabia",
+                  "senegal",
+                  "serbia",
+                  "singapore",
+                  "slovakia",
+                  "slovenia",
+                  "somalia",
+                  "south africa",
+                  "south korea",
+                  "south sudan",
+                  "spain",
+                  "sri lanka",
+                  "sudan",
+                  "sweden",
+                  "switzerland",
+                  "syria",
+                  "taiwan",
+                  "tajikistan",
+                  "tanzania",
+                  "thailand",
+                  "togo",
+                  "trinidad and tobago",
+                  "tunisia",
+                  "turkey",
+                  "turkmenistan",
+                  "uganda",
+                  "ukraine",
+                  "united arab emirates",
+                  "united kingdom",
+                  "united states",
+                  "uruguay",
+                  "uzbekistan",
+                  "venezuela",
+                  "vietnam",
+                  "yemen",
+                  "zambia",
+                  "zimbabwe"
+                ],
+                "type": "string"
+              },
+              "end_date": {
+                "description": "Return results before the specified end date.",
+                "example": "2025-12-29",
+                "format": "date",
+                "type": "string"
+              },
+              "exclude_domains": {
+                "description": "List of domains to specifically exclude from the search results.",
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 150,
+                "type": "array"
+              },
+              "include_answer": {
+                "default": false,
+                "description": "Include an LLM-generated answer. true uses the default answer mode; basic or advanced selects the answer generation mode.",
+                "oneOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "enum": [
+                      "basic",
+                      "advanced"
+                    ],
+                    "type": "string"
+                  }
+                ]
+              },
+              "include_domains": {
+                "description": "List of domains to specifically include in the search results.",
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 300,
+                "type": "array"
+              },
+              "include_favicon": {
+                "default": false,
+                "description": "Include the favicon URL for each result.",
+                "type": "boolean"
+              },
+              "include_image_descriptions": {
+                "default": false,
+                "description": "Add descriptive text for each image when include_images is true.",
+                "type": "boolean"
+              },
+              "include_images": {
+                "default": false,
+                "description": "Perform an image search and include results.",
+                "type": "boolean"
+              },
+              "include_raw_content": {
+                "default": false,
+                "description": "Include cleaned and parsed content for each search result. true or markdown returns markdown; text returns plain text and may increase latency.",
+                "oneOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "enum": [
+                      "markdown",
+                      "text"
+                    ],
+                    "type": "string"
+                  }
+                ]
+              },
+              "include_usage": {
+                "default": false,
+                "description": "Include credit usage information in the response.",
+                "type": "boolean"
+              },
+              "max_results": {
+                "default": 5,
+                "description": "Maximum number of search results to return.",
+                "maximum": 20,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "query": {
+                "description": "The search query to execute with Tavily.",
+                "example": "Who is Leo Messi?",
+                "type": "string"
+              },
+              "safe_search": {
+                "default": false,
+                "description": "Filter out adult or unsafe content from search results. Enterprise only; not supported when search_depth is fast or ultra-fast.",
+                "type": "boolean"
+              },
+              "search_depth": {
+                "default": "basic",
+                "description": "Controls the latency vs. relevance tradeoff. advanced gives the highest relevance with higher latency and cost; basic is balanced; fast and ultra-fast optimize for lower latency.",
+                "enum": [
+                  "advanced",
+                  "basic",
+                  "fast",
+                  "ultra-fast"
+                ],
+                "type": "string"
+              },
+              "start_date": {
+                "description": "Return results after the specified start date.",
+                "example": "2025-02-09",
+                "format": "date",
+                "type": "string"
+              },
+              "time_range": {
+                "description": "Time range to filter results based on publish date.",
+                "enum": [
+                  "day",
+                  "week",
+                  "month",
+                  "year",
+                  "d",
+                  "w",
+                  "m",
+                  "y"
+                ],
+                "type": "string"
+              },
+              "topic": {
+                "default": "general",
+                "description": "Category of the search.",
+                "enum": [
+                  "general",
+                  "news",
+                  "finance"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "query"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "response_schema": {
+        "properties": {
+          "answer": {
+            "description": "A short LLM-generated answer. Present as null when include_answer is false or no answer is generated.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "images": {
+            "items": {
+              "properties": {
+                "description": {
+                  "description": "Image description.",
+                  "type": "string"
+                },
+                "url": {
+                  "description": "Image URL.",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "query": {
+            "description": "The search query that was executed.",
+            "type": "string"
+          },
+          "request_id": {
+            "description": "Unique request identifier.",
+            "type": "string"
+          },
+          "response_time": {
+            "description": "Time in seconds it took to complete the request.",
+            "format": "float",
+            "type": "number"
+          },
+          "results": {
+            "items": {
+              "properties": {
+                "content": {
+                  "description": "Content snippet of the search result.",
+                  "type": "string"
+                },
+                "favicon": {
+                  "description": "Favicon URL of the search result.",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "raw_content": {
+                  "description": "Cleaned and parsed source content. Null unless include_raw_content is requested or no raw content is available.",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "score": {
+                  "description": "Relevance score of the search result.",
+                  "format": "float",
+                  "type": "number"
+                },
+                "title": {
+                  "description": "Title of the search result.",
+                  "type": "string"
+                },
+                "url": {
+                  "description": "URL of the search result.",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "usage": {
+            "properties": {
+              "credits": {
+                "description": "Credit usage details for the request.",
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "post_tikhub_tiktok_ads_search_ads": {
+      "execution_supported": true,
+      "arguments_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "properties": {
+              "ad_format": {
+                "description": "Ad format (optional): 1=Spark Ads, 2=Non-Spark Ads",
+                "title": "Ad Format",
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "ad_language": {
+                "description": "Ad language (optional)",
+                "title": "Ad Language",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "cookie": {
+                "description": "Custom Cookie string, optional parameter, can be used to fetch more data",
+                "title": "Cookie",
+                "type": "string"
+              },
+              "country_code": {
+                "default": "US",
+                "description": "Country code",
+                "title": "Country Code",
+                "type": "string"
+              },
+              "duration": {
+                "description": "Video duration filter value (optional)",
+                "title": "Duration",
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "industry": {
+                "description": "Industry ID list, multiple IDs separated by commas. Full industry ID list: https://github.com/TikHub/TikTok-Ads-Industry-Code",
+                "title": "Industry",
+                "type": "string"
+              },
+              "keyword": {
+                "description": "Search keyword, optional, returns all ads if empty",
+                "title": "Keyword",
+                "type": "string"
+              },
+              "like": {
+                "description": "Performance rank (optional; 1=top 1-20%, 2=top 21-40%, 3=top 41-60%, 4=top 61-80%, 5=top 81-100%)",
+                "title": "Like",
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "limit": {
+                "default": 20,
+                "description": "Items per page, default 20, max 50",
+                "maximum": 50,
+                "title": "Limit",
+                "type": "integer"
+              },
+              "objective": {
+                "description": "Ad objective (optional): 1=Traffic, 2=App install, 3=Conversion, 4=Video views, 5=Reach, 6=Lead generation, 7=Product sales",
+                "title": "Objective",
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "order_by": {
+                "default": "for_you",
+                "description": "Sort method, \"for_you\"=Recommended, \"likes\"=Sort by likes",
+                "title": "Order By",
+                "type": "string"
+              },
+              "page": {
+                "default": 1,
+                "description": "Page number, default 1",
+                "title": "Page",
+                "type": "integer"
+              },
+              "pattern_label": {
+                "description": "Creative pattern label (optional)",
+                "title": "Pattern Label",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "period": {
+                "default": 180,
+                "description": "Time period in days, e.g., 7, 30, 120, 180 days",
+                "title": "Period",
+                "type": "integer"
+              },
+              "search_id": {
+                "description": "Search ID (optional)",
+                "title": "Search Id",
+                "type": "string"
+              }
+            },
+            "title": "Body_search_ads_api_v1_tiktok_ads_search_ads_post",
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "response_schema": {
+        "properties": {
+          "cache_message": {
+            "default": "This response is cached and accessible via the URL below for 24 hours at no extra cost. The cache is for request tracing only — it doesn't affect the API's data freshness and won't be returned through the API again.",
+            "description": "Cache message (EN-US)",
+            "title": "Cache Message",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cache_message_zh": {
+            "default": "本次响应已缓存，可通过下方 URL 直接查看，有效期 24 小时，访问缓存链接无额外费用。缓存仅用于请求溯源，不影响接口数据的时效性，也不会再次通过接口返回。",
+            "description": "Cache message (ZH-CN)",
+            "title": "Cache Message Zh",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cache_url": {
+            "description": "The URL to access the cached result",
+            "title": "Cache Url",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "code": {
+            "default": 200,
+            "description": "HTTP status code",
+            "title": "Code",
+            "type": "integer"
+          },
+          "data": {
+            "description": "Endpoint-specific response payload. The official shared model does not declare a fixed type or field set. Use the operation's documented return fields or response example; an operation-specific schema, when present, describes the documented fields. Undocumented fields must be read from the actual response rather than assumed.",
+            "title": "Data"
+          },
+          "docs": {
+            "description": "Link to the API Swagger documentation for this endpoint",
+            "title": "Docs",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "message": {
+            "default": "Request successful. This request will incur a charge.",
+            "description": "Response message (EN-US)",
+            "title": "Message",
+            "type": "string"
+          },
+          "message_zh": {
+            "default": "请求成功，本次请求将被计费。",
+            "description": "Response message (ZH-CN)",
+            "title": "Message Zh",
+            "type": "string"
+          },
+          "params": {
+            "default": {},
+            "description": "The parameters used in the request",
+            "title": "Params"
+          },
+          "request_id": {
+            "description": "Unique request identifier",
+            "title": "Request Id",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "router": {
+            "default": "",
+            "description": "The endpoint that generated this response",
+            "title": "Router",
+            "type": "string"
+          },
+          "support": {
+            "default": "Discord: https://discord.gg/aMEAS8Xsvz",
+            "description": "Support message",
+            "title": "Support",
+            "type": "string"
+          },
+          "time": {
+            "description": "The time the response was generated",
+            "title": "Time",
+            "type": "string"
+          },
+          "time_stamp": {
+            "description": "The timestamp the response was generated",
+            "title": "Time Stamp",
+            "type": "integer"
+          },
+          "time_zone": {
+            "default": "America/Los_Angeles",
+            "description": "The timezone of the response time",
+            "title": "Time Zone",
+            "type": "string"
+          }
+        },
+        "title": "ResponseModel",
+        "type": "object"
+      }
+    },
+    "search_discovery_ads": {
+      "execution_supported": true,
+      "arguments_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "cursor": {
+            "description": "Cursor for pagination. Use the cursor value from the previous response's metadata to get the next page of results.",
+            "type": "string"
+          },
+          "display_format": {
+            "description": "Filter by one or more display formats.\nAvailable formats (11): carousel, dco, dpa, event, image, multi_images, multi_medias, multi_videos, page_like, text, video\nExample: `?display_format=video&display_format=carousel`\n\n",
+            "enum": [
+              "carousel",
+              "dco",
+              "dpa",
+              "event",
+              "image",
+              "multi_images",
+              "multi_medias",
+              "multi_videos",
+              "page_like",
+              "text",
+              "video"
+            ],
+            "type": "string"
+          },
+          "end_date": {
+            "description": "End date (inclusive). Format: 'YYYY-MM-DD', 'YYYY-MM-DDTHH:MM:SS', or 'YYYY-MM-DD HH:MM:SS'. If you provide only the date (e.g. '2024-11-12'), it will be interpreted as '2024-11-12 00:00:00'. To include all results for a given day, set end_date to 'YYYY-MM-DD 23:59:59' or to the next day at '00:00:00'. Examples: start_date=2024-11-12 00:00:00, end_date=2024-11-12 23:59:59.",
+            "type": "string"
+          },
+          "languages": {
+            "description": "Filter by languages.\nAccepts various language formats: 'french', 'FR', 'romanian', 'ro', 'english', 'en', etc.\nExample: `?languages=en&languages=fr`\n\n",
+            "type": "string"
+          },
+          "limit": {
+            "default": 10,
+            "description": "Pagination limit (max 250). Controls the number of ads returned per request.",
+            "maximum": 250,
+            "type": "integer"
+          },
+          "live": {
+            "description": "Filter ads by live status. `true` means currently active ads, `false` means inactive ads. Leave empty to include both.",
+            "type": "string"
+          },
+          "market_target": {
+            "description": "Filter by market target.\nAvailable targets: b2b (business-to-business), b2c (business-to-consumer)\nExample: `?market_target=b2b`\n\n",
+            "type": "string"
+          },
+          "niches": {
+            "description": "Filter by one or more niches.\nAvailable niches: accessories, app/software, beauty, business/professional, education, entertainment, fashion, food/drink, health/wellness, home/garden, jewelry/watches, other, parenting, pets, real estate, service business, medical, charity/nfp, kids/baby\nExample: `?niches=travel&niches=fashion`\n\n",
+            "type": "string"
+          },
+          "order": {
+            "default": "newest",
+            "description": "Order of results: 'newest' (default), 'oldest', 'longest_running', or 'most_relevant'. Sorts ads by creation date, longest running duration, or relevance to the search query.",
+            "enum": [
+              "newest",
+              "oldest",
+              "longest_running",
+              "most_relevant"
+            ],
+            "type": "string"
+          },
+          "publisher_platform": {
+            "description": "Filter by one or more publisher platforms.\nAvailable platforms: facebook, instagram, audience_network, messenger, tiktok, youtube, linkedin, threads, whatsapp\nExample: `?publisher_platform=facebook&publisher_platform=instagram`\n\n",
+            "enum": [
+              "facebook",
+              "instagram",
+              "audience_network",
+              "messenger",
+              "tiktok",
+              "youtube",
+              "linkedin",
+              "threads",
+              "whatsapp"
+            ],
+            "type": "string"
+          },
+          "query": {
+            "description": "Search text for ad name or description. Leave empty to search all ads with filters only.",
+            "type": "string"
+          },
+          "running_duration_max_days": {
+            "description": "Filter ads by maximum running duration in days. Must be a positive integer.",
+            "type": "string"
+          },
+          "running_duration_min_days": {
+            "description": "Filter ads by minimum running duration in days. Must be a positive integer.",
+            "type": "string"
+          },
+          "start_date": {
+            "description": "Start date (inclusive). Format: 'YYYY-MM-DD', 'YYYY-MM-DDTHH:MM:SS', or 'YYYY-MM-DD HH:MM:SS'. If you provide only the date (e.g. '2024-11-12'), it will be interpreted as '2024-11-12 00:00:00'. To get all ads from a specific day, set end_date to 'YYYY-MM-DD 23:59:59' or to the next day at '00:00:00'. Examples: start_date=2024-11-12 00:00:00, end_date=2024-11-12 23:59:59.",
+            "type": "string"
+          },
+          "video_duration_max": {
+            "description": "Filter ads by maximum video duration in seconds. Only applies to video ads.",
+            "type": "string"
+          },
+          "video_duration_min": {
+            "description": "Filter ads by minimum video duration in seconds. Only applies to video ads.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "response_schema": {
+        "type": "object"
+      }
+    }
+  }
+}

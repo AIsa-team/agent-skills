@@ -21,10 +21,11 @@ The generic AIsa Skill is the platform entry at [`platform/aisa/`](./platform/ai
 | [Search & Research](./search-research/) | 12 | Web, academic, Tavily, Perplexity, and recent multi-source research. |
 | [Social Media](./social-media/) | 9 | Twitter/X intelligence and engagement plus YouTube discovery. |
 | [AI Models](./ai-models/) | 3 | Provider setup and unified routing for Chinese and global LLMs. |
-| [Marketing](./marketing/) | 6 | SEO/GEO review, creator partnerships and discovery, and traffic research. |
-| [Creative](./creative/) | 1 | Image and video generation workflows. |
+| [Marketing](./marketing/) | 5 | SEO/GEO review, creator partnerships and discovery, and traffic research. |
+| [E-commerce](./e-commerce/) | 3 | Product selection, pricing, performance tracking, and platform-specific product images, copy, and videos. |
+| [Creative](./creative/) | 0 | Image and video generation workflows. |
 
-This catalog contains **47 skills**.
+This catalog contains **48 skills**.
 
 <!-- catalog:end -->
 
@@ -104,15 +105,21 @@ This catalog contains **47 skills**.
 | [article-seo-geo-review](./marketing/article-seo-geo-review/) | 1.0.0 | Use this skill when a user wants an article, blog post, landing page draft, or published URL reviewed for SEO and GEO (generative engine optimization, AI search visibility, being cited by AI Overviews, Google AI Mode, ChatGPT, or Perplexity). It runs one pipeline through AIsa APIs — keyword metrics (DataForSEO + SEMrush), live Google SERP and AI Mode, top-ranking competitor pages, content-gap detection, deterministic on-page SEO and GEO checks, AI answer-engine citation checks, LLM rewrite suggestions — and returns a scored Markdown report plus JSON evidence. Trigger phrases include "review this article for SEO", "GEO audit", "will AI cite this", "content gap vs competitors", "SEO scorecard", "/review-article". |
 | [creator-marketing](./marketing/creator-marketing/) | 0.0.1 | Plan creator, influencer and ambassador partnerships for a brand or agency client. Find and assess candidates, structure compensation and usage rights, draft outreach and creative briefs, and measure qualified outcomes. Use for creator sourcing, gifting, sponsorships and UGC programs; connected-account diagnosis and campaign execution use their specialist workflows. |
 | [kol-creator-discovery](./marketing/kol-creator-discovery/) | 1.0.0 | Use this skill when a user needs KOL or influencer research, creator email lookup, similar-creator discovery, outreach-list building, influencer prospecting, or a contact table from TikTok, Instagram, or YouTube profile URLs. It uses AIsa's WaveInflu APIs to find verified creator emails, match similar YouTube or TikTok creators, enrich each recommended profile with contact emails, and return an outreach-ready Markdown table without inventing missing data. |
-| [product-selection](./marketing/product-selection/) | 1.0.0 | Select products to sell, compare suitable destination markets, and calculate viable prices for sellers. Use for product selection, product-market fit, marketplace assortment research, competitor price comparisons and landed-cost pricing. Supports sellers with no starting preference, a chosen market, or a chosen product; uses AIsa MCP for live evidence and TypeScript helpers for ranking and pricing. |
 | [seo-keyword-research](./marketing/seo-keyword-research/) | 1.0.0 | Use this skill when a user asks for SEO keyword research, keyword discovery, search volume analysis, keyword difficulty, search intent mapping, topic clusters, content opportunities, competitor keyword gaps, or a keyword strategy for a domain, URL, product, market, or seed topic. When a website is provided, crawl and interpret the site first, then use AIsa API access to DataForSEO keyword, SERP, trend, Labs, and OnPage endpoints plus AIsa LLM reasoning to find non-brand keyword opportunities. |
 | [use-similarweb](./marketing/use-similarweb/) | 1.1.0 | Retrieve Similarweb website and competitor intelligence through AIsa: traffic, engagement, audience, sources, rankings, technologies, and search performance. Use for Similarweb data requests, with live contract discovery, request quotes, authorized budgets, and actual-charge reporting. |
+
+### [E-commerce](./e-commerce/)
+
+| Skill | Version | Description |
+|---|---|---|
+| [e-commerce-content-studio](./e-commerce/e-commerce-content-studio/) | 1.0.0 | Prepare platform-specific e-commerce product images and listing copy with AIsa, plus experimental product-video generation. Use for 商品图、商品文案 and listing content for Amazon US, TikTok Shop US or Shopify product pages. Requires real user-supplied product photos, current platform research, an evidence-backed creative playbook and explicit user approval before production. |
+| [product-selection](./e-commerce/product-selection/) | 1.0.1 | Select products to sell, compare suitable destination markets, and calculate viable prices for sellers. Use for product selection, product-market fit, marketplace assortment research, competitor price comparisons and landed-cost pricing. Supports sellers with no starting preference, a chosen market, or a chosen product; uses AIsa MCP for live evidence and TypeScript helpers for ranking and pricing. |
+| [product-tracking](./e-commerce/product-tracking/) | 1.0.0 | Track a specified product, competitor SKU or ASIN over time: product prices, availability, ratings and public demand signals. Use for product watchlists, competitor price monitoring and changes since a previous observation. Amazon US is supported through AIsa DataForSEO with persistent local snapshots. Seller-level information is not supported. |
 
 ### [Creative](./creative/)
 
 | Skill | Version | Description |
 |---|---|---|
-| [media-gen](./creative/media-gen/) | 1.0.0 | Generate images and videos with AIsa. Four image models (Google Gemini 3 Pro Image, Alibaba Wan 2.7 image + image-pro, ByteDance Seedream) and four Wan video variants (wan2.6/2.7 × t2v/i2v). One API key; the client routes each model to the correct endpoint automatically. |
 
 <!-- skills:end -->
 

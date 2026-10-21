@@ -25,6 +25,10 @@
       "name": "Marketing",
       "description": "SEO/GEO review, creator partnerships and discovery, and traffic research."
     },
+    "e-commerce": {
+      "name": "E-commerce",
+      "description": "Product selection, pricing, performance tracking, and platform-specific product images, copy, and videos."
+    },
     "creative": {
       "name": "Creative",
       "description": "Image and video generation workflows."

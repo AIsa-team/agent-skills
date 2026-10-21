@@ -15,6 +15,7 @@ self-contained skill:
 - `social-media/` — Twitter/X and YouTube workflows
 - `ai-models/` — provider setup and LLM routing
 - `marketing/` — SEO and creator discovery
+- `e-commerce/` — product selection, pricing, tracking, and product content production
 - `creative/` — image and video generation
 
 Skills are consumed by any [agentskills.io](https://agentskills.io)-
@@ -63,8 +64,8 @@ All clients hit `https://api.aisa.one` and authenticate with
   polymarket, kalshi, youtube, search, perplexity, etc.)
 - `/v1/...` — OpenAI-compatible surface (chat completions, models) used
   by `last30days` for planner/reranker/fun-scorer LLM calls, and
-  `/v1/models/{model}:generateContent` for the Gemini passthrough used
-  by `media-gen`.
+  `/v1beta/models/{model}:generateContent` for the Gemini passthrough used
+  by `e-commerce-content-studio`. Verify current model routes before production.
 
 ## Documentation
 
@@ -92,9 +93,9 @@ All doc links use **`aisa.one/docs/...`** (never `docs.aisa.one` or
   `/financial/earnings/press-releases`), document the gotcha inline
   in `SKILL.md` and, if there's a supported-tickers list, keep it in a
   sibling `.md` file (see `financial/marketpulse/earnings-press-releases-tickers.md`).
-- Async task endpoints (video generation, OAuth) poll via a task-id GET —
-  follow the pattern in `creative/media-gen/scripts/media_gen_client.py` rather
-  than reinventing.
+- Async task endpoints (video generation, OAuth) poll via a task-id GET.
+  Preserve task IDs before polling, distinguish task success from validated
+  artifact delivery, and never blindly resubmit an ambiguous paid request.
 - When a Harness integration is actually verified, update only the Skills whose
   compatibility claims or vendor metadata are affected. Do not add a universal
   roster or a fixed body section to unrelated Skills.

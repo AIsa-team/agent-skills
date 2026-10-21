@@ -1,5 +1,9 @@
 # Product selection changelog
 
+## 1.0.1
+
+- Move the skill into the e-commerce category; preserve research and pricing behavior.
+
 ## 1.0.0
 
 - Add MCP-first product selection, market comparison and pricing workflows for all three seller starting scenarios.

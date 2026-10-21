@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "owner": "@chaimengphp",
+  "languages": [
+    "typescript",
+    "javascript"
+  ],
+  "runtime": {
+    "node": "22"
+  },
+  "entrypoints": [
+    "dist/cli.js"
+  ],
+  "checks": {
+    "lint": [],
+    "typecheck": [
+      [
+        "npm",
+        "run",
+        "typecheck"
+      ]
+    ],
+    "build": [
+      [
+        "npm",
+        "run",
+        "build"
+      ]
+    ],
+    "test": [
+      [
+        "npm",
+        "test"
+      ]
+    ]
+  },
+  "upstreams": [
+    "aisa-authentication",
+    "aisa-api-creative",
+    "aisa-api-search-research",
+    "aisa-api-marketing",
+    "aisa-mcp-catalog",
+    "aisa-ecommerce-models",
+    "aisa-ecommerce-image-routing",
+    "aisa-ecommerce-gemini"
+  ]
+}

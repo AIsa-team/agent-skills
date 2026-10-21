@@ -1,0 +1,14 @@
+{
+  "deliverableId": "hero",
+  "inspectedBy": "agent",
+  "artifacts": [
+    {
+      "sha256": "Replace with the hash of the actual artifact inspected.",
+      "productFidelity": "fail",
+      "platformCompliance": "fail",
+      "copyAccuracy": "fail",
+      "visualQuality": "fail",
+      "notes": "Inspect the real output against the original product photos, approved facts and current placement rules. Record concrete findings; do not approve unseen media."
+    }
+  ]
+}

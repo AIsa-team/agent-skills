@@ -4,7 +4,7 @@ description: "Select products to sell, compare suitable destination markets, and
 license: MIT
 compatibility: "Live research needs an AIsa unified MCP connection and network access. Bundled offline helpers require Node.js 22 or later; compiled JavaScript ships with TypeScript sources. No API key or npm install is needed for offline use."
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # Product selection

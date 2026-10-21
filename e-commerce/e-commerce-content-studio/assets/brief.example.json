@@ -1,0 +1,31 @@
+{
+  "name": "Example product launch — replace with your product",
+  "goal": "Create accurate Shopify gallery imagery, localized listing copy, and one short product video from the supplied product photo.",
+  "targets": [
+    {
+      "platform": "shopify",
+      "market": "US",
+      "language": "en-US",
+      "themeDescription": "Replace with the Shopify theme name/version and product-template layout, or supply themeUrl instead.",
+      "placements": ["shopify-gallery", "shopify-copy", "shopify-video"]
+    }
+  ],
+  "products": [
+    {
+      "sku": "YOUR-SKU",
+      "name": "Replace with the product name",
+      "category": "Replace with the product category used for platform-specific requirements",
+      "facts": [
+        {
+          "id": "product-appearance",
+          "text": "Replace with a visible attribute confirmed in the supplied photograph.",
+          "source": { "kind": "visible-in-reference", "referenceId": "product-front" }
+        }
+      ]
+    }
+  ],
+  "references": [
+    { "id": "product-front", "sku": "YOUR-SKU", "path": "./your-product-front.jpg", "source": "user-product-photo" }
+  ],
+  "budget": { "currency": "USD", "maxEstimatedCostUsd": 10, "maxAttemptsPerDeliverable": 2 }
+}

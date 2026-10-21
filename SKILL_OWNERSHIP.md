@@ -22,7 +22,9 @@ The monitor flags unassigned ownership even when the skill is verified current.
 | `ai-models/aisa-provider` | unassigned | [Bulk import][bulk-import]; individual owner unknown |
 | `ai-models/cn-llm` | @chaimengphp | [Historical skill or predecessor](https://github.com/AIsa-team/agent-skills/commit/cb1015522ff7f9cd983dc14c44ae87e9b1ac9670) |
 | `ai-models/llm-router` | @chaimengphp | [Historical skill or predecessor](https://github.com/AIsa-team/agent-skills/commit/cb1015522ff7f9cd983dc14c44ae87e9b1ac9670) |
-| `creative/media-gen` | @chaimengphp | [Historical skill or predecessor](https://github.com/AIsa-team/agent-skills/commit/49ebd76ab3e37f54cd562da7309e428efbacc729) |
+| `e-commerce/e-commerce-content-studio` | @chaimengphp | Renamed from `creative/media-gen`; [historical skill or predecessor](https://github.com/AIsa-team/agent-skills/commit/49ebd76ab3e37f54cd562da7309e428efbacc729) |
+| `e-commerce/product-selection` | unassigned | New skill; maintenance responsibility not yet assigned |
+| `e-commerce/product-tracking` | unassigned | New skill; maintenance responsibility not yet assigned |
 | `financial/crypto-market-data` | @karensheng | [Introduction](https://github.com/AIsa-team/agent-skills/commit/2d3ebb9df897f7b095cf4c667c82461daed19008) |
 | `financial/market` | @chaimengphp | [Historical skill or predecessor](https://github.com/AIsa-team/agent-skills/commit/49ebd76ab3e37f54cd562da7309e428efbacc729) |
 | `financial/marketpulse` | @chaimengphp | [Historical skill or predecessor](https://github.com/AIsa-team/agent-skills/commit/49ebd76ab3e37f54cd562da7309e428efbacc729) |
@@ -41,7 +43,6 @@ The monitor flags unassigned ownership even when the skill is verified current.
 | `marketing/article-seo-geo-review` | @zhenlonghe | [Introduction](https://github.com/AIsa-team/agent-skills/commit/83e995b29d4d53321c7fe9920b15b9422aee37d2) |
 | `marketing/creator-marketing` | @fatflowers | [Introduction](https://github.com/AIsa-team/agent-skills/commit/205a8492dd3ad093f5779ab384889b3dae1cfc89) |
 | `marketing/kol-creator-discovery` | @lijing-22 | [Introduction](https://github.com/AIsa-team/agent-skills/commit/ffbe6da3ea977c8cd1419052ab3a9c86ea283aa9) |
-| `marketing/product-selection` | unassigned | New skill; maintenance responsibility not yet assigned |
 | `marketing/seo-keyword-research` | @lijing-22 | [Introduction](https://github.com/AIsa-team/agent-skills/commit/21b25b978205686d8fc87d6c5354a53cf6452f6c) |
 | `marketing/use-similarweb` | @lhymmEU | [Introduction](https://github.com/AIsa-team/agent-skills/commit/9813811e39a8749bf38c859134c2b9bf1a3259ea) |
 | `platform/aisa` | @eddiearc | [Introduction](https://github.com/AIsa-team/agent-skills/commit/6dcb21159a551e8c6cb0c509ca67627c5b69324a) |

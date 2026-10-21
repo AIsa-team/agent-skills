@@ -1,9 +1,11 @@
 {
-  "name": "aisa-product-selection",
+  "name": "aisa-e-commerce-content-studio",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build": "tsc",
