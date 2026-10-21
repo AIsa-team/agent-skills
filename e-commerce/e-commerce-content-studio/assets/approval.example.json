@@ -1,0 +1,5 @@
+{
+  "actor": "user",
+  "message": "Replace this with the user's actual confirmation after presenting the current report and playbook.",
+  "playbookHash": "Replace this with the exact hash printed by the report command."
+}

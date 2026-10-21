@@ -252,5 +252,17 @@
     "paths": [
       "dataforseo/merchant/amazon/(products|asin)/live/advanced"
     ]
+  },
+  "aisa-ecommerce-models": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/guides/models.md"
+  },
+  "aisa-ecommerce-image-routing": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/chat/post_images-generations.md"
+  },
+  "aisa-ecommerce-gemini": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/chat/post_models-model-generatecontent.md"
   }
 }

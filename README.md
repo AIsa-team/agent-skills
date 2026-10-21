@@ -22,8 +22,8 @@ The generic AIsa Skill is the platform entry at [`platform/aisa/`](./platform/ai
 | [Social Media](./social-media/) | 9 | Twitter/X intelligence and engagement plus YouTube discovery. |
 | [AI Models](./ai-models/) | 3 | Provider setup and unified routing for Chinese and global LLMs. |
 | [Marketing](./marketing/) | 5 | SEO/GEO review, creator partnerships and discovery, and traffic research. |
-| [E-commerce](./e-commerce/) | 2 | Product selection, market assessment, product pricing, and product performance tracking. |
-| [Creative](./creative/) | 1 | Image and video generation workflows. |
+| [E-commerce](./e-commerce/) | 3 | Product selection, market assessment, pricing, tracking, and product content production. |
+| [Creative](./creative/) | 0 | Image and video generation workflows. |
 
 This catalog contains **48 skills**.
 
@@ -112,6 +112,7 @@ This catalog contains **48 skills**.
 
 | Skill | Version | Description |
 |---|---|---|
+| [e-commerce-content-studio](./e-commerce/e-commerce-content-studio/) | 1.0.0 | Prepare platform-specific e-commerce product images and listing copy with AIsa, plus experimental product-video generation. Use for 商品图、商品文案 and listing content for Amazon US, TikTok Shop US or Shopify product pages. Requires real user-supplied product photos, current platform research, an evidence-backed creative playbook and explicit user approval before production. |
 | [product-selection](./e-commerce/product-selection/) | 1.0.2 | Select products to sell, compare suitable destination markets, and calculate viable prices for sellers. Use for product selection, product-market fit, marketplace assortment research, competitor price comparisons and landed-cost pricing. Supports sellers with no starting preference, a chosen market, or a chosen product; uses AIsa MCP for live evidence and TypeScript helpers for ranking and pricing. |
 | [product-tracking](./e-commerce/product-tracking/) | 1.0.1 | Track a specified product, competitor SKU or ASIN over time: product prices, availability, ratings and public demand signals. Use for product watchlists, competitor price monitoring and changes since a previous observation. Amazon US is supported through AIsa DataForSEO with persistent local snapshots. Seller-level information is not supported. |
 
@@ -119,7 +120,6 @@ This catalog contains **48 skills**.
 
 | Skill | Version | Description |
 |---|---|---|
-| [media-gen](./creative/media-gen/) | 1.0.1 | DEPRECATED (bundled client targets removed routes; see SKILL.md banner). Generate images and videos with AIsa. Four image models (Google Gemini 3 Pro Image, Alibaba Wan 2.7 image + image-pro, ByteDance Seedream) and four Wan video variants (wan2.6/2.7 × t2v/i2v). One API key; the client routes each model to the correct endpoint automatically. |
 
 <!-- skills:end -->
 

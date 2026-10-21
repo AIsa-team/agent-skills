@@ -1,0 +1,47 @@
+{
+  "scope": "STRUCTURE EXAMPLE ONLY. Research current official Shopify, theme, market, and product-category requirements before replacing these rows. The old dates deliberately prevent approval.",
+  "rules": [
+    {
+      "id": "shopify-gallery-requirement",
+      "platform": "shopify",
+      "placement": "shopify-gallery",
+      "requirement": "Replace with the verified current image format, dimensions, file limits, and selected theme requirements.",
+      "status": "mandatory",
+      "sourceUrl": "https://help.shopify.com/en/manual/products/product-media/product-media-types",
+      "publisher": "Shopify Help Center — verify the applicable section",
+      "fetchedAt": "1970-01-01",
+      "effectiveAt": null,
+      "conflict": "Template: current requirements have not been researched."
+    },
+    {
+      "id": "shopify-copy-requirement",
+      "platform": "shopify",
+      "placement": "shopify-copy",
+      "requirement": "Replace with verified current product fields, theme constraints, and applicable product-claim requirements.",
+      "status": "mandatory",
+      "sourceUrl": "https://help.shopify.com/en/manual/products/details",
+      "publisher": "Shopify Help Center — verify the applicable section",
+      "fetchedAt": "1970-01-01",
+      "effectiveAt": null,
+      "conflict": "Template: current requirements have not been researched."
+    },
+    {
+      "id": "shopify-video-requirement",
+      "platform": "shopify",
+      "placement": "shopify-video",
+      "requirement": "Replace with verified current video formats, duration, resolution, file-size limits, and theme support.",
+      "status": "mandatory",
+      "sourceUrl": "https://help.shopify.com/en/manual/products/product-media/product-media-types",
+      "publisher": "Shopify Help Center — verify the applicable section",
+      "fetchedAt": "1970-01-01",
+      "effectiveAt": null,
+      "conflict": "Template: current requirements have not been researched."
+    }
+  ],
+  "examples": [],
+  "exampleLimitations": [
+    { "platform": "shopify", "reason": "This template contains no competitor evidence. Add researched comparable product pages with actual metrics, explicit unknowns, and measurement windows; retain a precise limitation if access prevents it." }
+  ],
+  "synthesis": ["Replace with evidence-backed recommendations for product presentation, copy hierarchy, and video structure."],
+  "limitations": ["Template values are illustrative and cannot be represented as research. Public observations cannot establish conversion or causality."]
+}

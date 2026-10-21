@@ -1,14 +1,13 @@
 # Creative Skills
 
-Image and video generation workflows.
+The former `media-gen` skill is replaced by [E-commerce Content Studio](../e-commerce/e-commerce-content-studio/) for researched, approved product images, listing copy, and experimental videos.
 
 <!-- category:start -->
 
-This category contains 1 self-contained Agent Skills.
+This category contains 0 self-contained Agent Skills.
 
 | Skill | Version | Description |
 |---|---|---|
-| [media-gen](./media-gen/) | 1.0.1 | DEPRECATED (bundled client targets removed routes; see SKILL.md banner). Generate images and videos with AIsa. Four image models (Google Gemini 3 Pro Image, Alibaba Wan 2.7 image + image-pro, ByteDance Seedream) and four Wan video variants (wan2.6/2.7 × t2v/i2v). One API key; the client routes each model to the correct endpoint automatically. |
 
 <!-- category:end -->
 
