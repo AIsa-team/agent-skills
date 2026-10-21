@@ -21,6 +21,7 @@ import json
 import os
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
@@ -46,6 +47,32 @@ def aisa_post(api_key: str, path: str, body: dict[str, Any]) -> dict[str, Any]:
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            return json.loads(resp.read().decode())
+    except urllib.error.HTTPError as e:
+        body_text = e.read().decode() if e.fp else ""
+        print(f"API error {e.code} on {path}: {body_text}", file=sys.stderr)
+        return {"error": str(e), "status": e.code}
+
+
+def aisa_post_query(api_key: str, path: str, params: dict[str, Any]) -> dict[str, Any]:
+    """POST with the parameters in the query string and no body.
+
+    The Scholar search operations (/scholar/search/web, /scholar/search/scholar
+    and /scholar/search/mixed) are POST operations that take query-string
+    parameters only; a JSON body is not accepted by the published contract.
+    """
+    query = urllib.parse.urlencode({k: v for k, v in params.items() if v is not None})
+    url = f"{AISA_BASE}{path}?{query}"
+    req = urllib.request.Request(
+        url,
+        headers={
+            "Authorization": f"Bearer {api_key}",
             "Accept": "application/json",
         },
         method="POST",
@@ -111,7 +138,7 @@ def print_results(data: dict[str, Any], source: str) -> None:
 
 def cmd_web(args: argparse.Namespace) -> None:
     api_key = get_api_key()
-    data = aisa_post(api_key, "/scholar/search/web", {
+    data = aisa_post_query(api_key, "/scholar/search/web", {
         "query": args.query,
         "max_num_results": args.count,
     })
@@ -128,13 +155,14 @@ def cmd_scholar(args: argparse.Namespace) -> None:
         body["as_ylo"] = args.year_from
     if args.year_to:
         body["as_yhi"] = args.year_to
-    data = aisa_post(api_key, "/scholar/search/scholar", body)
+    data = aisa_post_query(api_key, "/scholar/search/scholar", body)
     print_results(data, "Scholar Search")
 
 
 def cmd_smart(args: argparse.Namespace) -> None:
     api_key = get_api_key()
-    data = aisa_post(api_key, "/scholar/search/smart", {
+    # The hybrid web + scholar operation is published as /scholar/search/mixed.
+    data = aisa_post_query(api_key, "/scholar/search/mixed", {
         "query": args.query,
         "max_num_results": args.count,
     })
@@ -176,12 +204,12 @@ def cmd_extract(args: argparse.Namespace) -> None:
 def cmd_sonar(args: argparse.Namespace) -> None:
     api_key = get_api_key()
     endpoint_map = {
-        "sonar": "/sonar",
-        "sonar-pro": "/sonar-pro",
-        "sonar-reasoning-pro": "/sonar-reasoning-pro",
-        "sonar-deep-research": "/sonar-deep-research",
+        "sonar": "/perplexity/sonar",
+        "sonar-pro": "/perplexity/sonar-pro",
+        "sonar-reasoning-pro": "/perplexity/sonar-reasoning-pro",
+        "sonar-deep-research": "/perplexity/sonar-deep-research",
     }
-    endpoint = endpoint_map.get(args.model, "/sonar")
+    endpoint = endpoint_map.get(args.model, "/perplexity/sonar")
     data = aisa_post(api_key, endpoint, {
         "model": args.model,
         "messages": [{"role": "user", "content": args.query}],
@@ -200,12 +228,14 @@ def cmd_verity(args: argparse.Namespace) -> None:
     sources: dict[str, dict[str, Any]] = {}
     tasks = {
         "Web": ("/scholar/search/web", {"query": args.query, "max_num_results": count}),
-        "Smart": ("/scholar/search/smart", {"query": args.query, "max_num_results": count}),
+        "Smart": ("/scholar/search/mixed", {"query": args.query, "max_num_results": count}),
         "Scholar": ("/scholar/search/scholar", {"query": args.query, "max_num_results": count}),
         "Tavily": ("/tavily/search", {"query": args.query, "max_results": count, "include_answer": True}),
     }
 
     def fetch(name: str, endpoint: str, body: dict[str, Any]) -> tuple[str, dict[str, Any]]:
+        if endpoint.startswith("/scholar/search/"):
+            return name, aisa_post_query(api_key, endpoint, body)
         return name, aisa_post(api_key, endpoint, body)
 
     with ThreadPoolExecutor(max_workers=4) as pool:
@@ -264,21 +294,27 @@ def cmd_verity(args: argparse.Namespace) -> None:
     print(f"  Sources OK:       {total_sources}")
     print(f"  Total results:    {total_results}")
 
-    # Phase 3: Explanation
-    if sources:
+    # Phase 3: Explanation — /scholar/search/explain explains one search by the
+    # `id` that /scholar/search/{web,scholar,mixed} returned.
+    search_id = next(
+        (
+            sources[name].get("id")
+            for name in ("Web", "Smart", "Scholar")
+            if isinstance(sources.get(name), dict) and sources[name].get("id")
+        ),
+        None,
+    )
+    if search_id:
         print(f"\n  Generating synthesis...")
-        explain_data = aisa_post(api_key, "/scholar/explain", {
-            "results": list(sources.values()),
+        explain_data = aisa_post(api_key, "/scholar/search/explain", {
+            "search_id": search_id,
+            "detail_level": "MODERATE",
             "language": "en",
-            "format": "summary",
+            "response_mode": "NON_STREAMING",
         })
-        if "summary" in explain_data:
+        if explain_data.get("message"):
             print(f"\n  AI Synthesis:")
-            print(f"  {explain_data['summary']}")
-        if isinstance(explain_data.get("citations"), list):
-            print(f"\n  Citations:")
-            for c in explain_data["citations"]:
-                print(f"    - {c}")
+            print(f"  {explain_data['message']}")
     print()
 
 

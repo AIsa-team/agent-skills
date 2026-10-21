@@ -4,7 +4,9 @@ Reviewed **2026-10-21**. The authenticated catalog check found GPT Image edit ro
 
 ## Discovery and authorization
 
-Use `GET https://api.aisa.one/v1/models` with `Authorization: Bearer $AISA_API_KEY`. The [current catalog guide](https://aisa.one/docs/guides/models) describes the free response as `data[]` with `id` and `aisa.model_type`, `aisa.capabilities`, and `aisa.routes[]` (`method`, `path`, optional `key`). Every production adapter checks the selected model's type and exact route; unknown models/routes fail before generation. Catalog entries are cached for five minutes within a client instance.
+Follow the shared AIsa connection and spending rules in `SKILL.md`. The bundled runtime is REST-only and does not bridge to MCP/CLI. When those interfaces are available, discover and quote native operations; missing native media generation is a capability gap, not permission to bypass the fallback gate.
+
+For an eligible HTTP fallback, use `GET https://api.aisa.one/v1/models` with `Authorization: Bearer $AISA_API_KEY`. The [current catalog guide](https://aisa.one/docs/guides/models) describes the free response as `data[]` with `id` and `aisa.model_type`, `aisa.capabilities`, and `aisa.routes[]` (`method`, `path`, optional `key`). Every production adapter checks the selected model's type and exact route; unknown models/routes fail before generation. Catalog entries are cached for five minutes within a client instance.
 
 Use AIsa MCP discovery with the complete goal first, then atomic capabilities; request full schemas and current quotes before paid research. Tools are discovered dynamically, not assumed from static names. Model generation must have a product reference, approved playbook, selected model, price evidence, and approved cost scope. `AisaClient` is the transport layer: use the gated studio workflow rather than calling it independently to bypass those checks.
 
@@ -35,7 +37,7 @@ The selected GPT Image 2 model must advertise the exact edit route in the authen
 | `1K` / `2:3` | `1024x1536` |
 | `2K` / `1:1` | `2048x2048` |
 
-Other combinations fail before dispatch. Final export dimensions are separate from generation size. The adapter never falls back to another model, text-only generation, remote photo hosting or an unverified URL response. Every returned PNG must decode and pass technical and visual review.
+Unsupported aspect ratios and native-size combinations fail during playbook validation, before any attempt or estimate is reserved. GPT Image native dimensions must cover the requested export; hidden upscaling is rejected. Final export dimensions are separate from generation size, but the runtime derives the requested aspect ratio from the export dimensions. The adapter never falls back to another model, text-only generation, remote photo hosting or an unverified URL response. Every returned PNG must decode and pass technical and visual review.
 
 Live test receipt: **2026-10-21**, HTTP 200 in 34,459 ms; request ID `1792515035362642611-362642662`; PNG 1,233,199 bytes; SHA-256 `74d9cf83a1476fc0dbec4aa7a6f54032b9a97ef06ffe1013d4a8385e4a164c4d`. This called the source `AisaClient` directly with the unchanged 222×222 product photo, which is below the full CLI workflow's 256-pixel intake minimum. Visual review found that the generated scene reinterpreted the tumbler lid/rim; the image is not listing-approved. The receipt verifies transport and output decoding, not a completed research/approval/production/QA workflow.
 
@@ -72,6 +74,10 @@ The [AIsa Wan 2.7 model page](https://aisa.one/models/wan2.7-i2v) documents `con
 Video references require user-accessible HTTPS URLs. The studio verifies that a remote reference matches the inspected local photo before sending it. No upload endpoint, local file URL, or video data-URI support is invented. No text-to-video fallback is allowed. Output URLs may expire; download promptly and preserve the job ID for recovery.
 
 ## Failure behavior and unsupported adapters
+
+Production responses preserve allowlisted request IDs and valid `X-AISA-Customer-Cost-Micros-USD` headers in generation receipts. Jobs and exported manifests distinguish known settled micro-USD from unknown costs; missing or invalid cost headers are never treated as free. Estimates remain separate from settled charges.
+
+If a successful synchronous response cannot be written to its cache file, its recovery data is retained in the job ledger when possible. `resume` restores that cache and processes the original result without another paid POST. If no response can be persisted, reconcile the job rather than blindly retrying.
 
 Requests have a body-inclusive deadline, a 96 MiB response limit, and disabled redirects. Authentication only goes to `api.aisa.one`; provider error bodies are not printed. Network/timeout failures after POST are ambiguous and are never automatically retried. `AisaError.taskId`, when present, preserves a recoverable video job identifier even when submission parsing fails. HTTP/auth errors stop immediately. A finished video without a usable URL fails validation.
 

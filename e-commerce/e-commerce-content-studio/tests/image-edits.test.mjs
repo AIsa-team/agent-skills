@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { AisaClient, AisaError } from '../dist/aisa.js';
+import { AisaClient, AisaError, validateImageConfiguration } from '../dist/aisa.js';
 
 // Adapter-contract tests only. All responses and catalog entries are fixtures;
 // this suite never contacts AIsa and does not establish live generation support.
@@ -8,7 +8,7 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR
 const reference = { data: png, mimeType: 'image/png' };
 const key = 'fixture-private-key-never-in-errors';
 const model = { id: 'gpt-image-2', aisa: { model_type: 'image', routes: [{ method: 'POST', path: '/v1/images/edits' }] } };
-const json = (value, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json' } });
+const json = (value, status = 200, headers = {}) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json', ...headers } });
 const output = () => json({ data: [{ b64_json: png.toString('base64') }] });
 const input = (patch = {}) => ({ model: model.id, prompt: 'Keep the supplied product and label unchanged.', references: [reference], aspectRatio: '1:1', imageSize: '1K', ...patch });
 function fake(responses) {
@@ -51,12 +51,13 @@ test('GPT Image edit parsing retains every inline result and its revised-prompt 
   const f = fake([json({ data: [model] }), json({ data: [
     { b64_json: png.toString('base64'), revised_prompt: 'First provider revision.' },
     { b64_json: png.toString('base64'), revised_prompt: 'Second provider revision.' },
-  ] })]);
+  ] }, 200, { 'X-AISA-Customer-Cost-Micros-USD': '42000', 'x-request-id': 'edit-request' })]);
   const result = await f.client.generateImages(input());
   assert.equal(result.images.length, 2);
   for (const image of result.images) assert.deepEqual(Buffer.from(image.data), png);
   assert.match(result.text, /First provider revision/);
   assert.match(result.text, /Second provider revision/);
+  assert.deepEqual(result.receipt, { customerCostMicrosUsd: 42000, requestId: 'edit-request' });
 });
 
 test('GPT Image edit needs the requested model, image type and POST edit route in the live catalog', async () => {
@@ -82,10 +83,25 @@ test('supported native GPT Image size mappings remain separate from downstream e
     ['1K', '1:1', '1024x1024'], ['1K', '3:2', '1536x1024'],
     ['1K', '2:3', '1024x1536'], ['2K', '1:1', '2048x2048'],
   ]) {
+    assert.equal(validateImageConfiguration(model.id, aspectRatio, imageSize), expected);
     const f = fake([json({ data: [model] }), output()]);
     await f.client.generateImages(input({ imageSize, aspectRatio }));
     assert.equal(posts(f).length, 1);
     assert.equal(posts(f)[0].body.size, expected);
+  }
+});
+
+test('image configuration preflight applies defaults and supported GPT aliases without network calls', () => {
+  for (const id of ['gpt-image-2', 'gpt-image-2-2026-04-21', 'gpt-image-2.5-flare', 'gpt-image-2.5-sunburst-2026-10-01']) {
+    assert.equal(validateImageConfiguration(id), '1024x1024');
+    assert.equal(validateImageConfiguration(id, '1:1', '2K'), '2048x2048');
+    assert.throws(() => validateImageConfiguration(id, '16:9', '1K'), { code: 'invalid_input' });
+  }
+  for (const id of ['catalog-image', 'gemini-3.1-flash-image-preview']) {
+    assert.equal(validateImageConfiguration(id), undefined);
+    assert.equal(validateImageConfiguration(id, '16:9', '4K'), undefined);
+    assert.throws(() => validateImageConfiguration(id, '7:3', '1K'), { code: 'invalid_input' });
+    assert.throws(() => validateImageConfiguration(id, '1:1', '8K'), { code: 'invalid_input' });
   }
 });
 
@@ -98,6 +114,7 @@ test('unsupported GPT Image native sizes and excessive references fail before an
     const f = fake([json({ data: [model] })]);
     await assert.rejects(f.client.generateImages(input(patch)), { code: 'invalid_input' });
     assert.equal(posts(f).length, 0);
+    assert.equal(f.calls.length, 0, 'Adapter settings must fail before catalog lookup');
   }
 });
 
@@ -111,10 +128,11 @@ test('URL-only, corrupt, empty and mixed invalid edit outputs are never accepted
     { data: [{ b64_json: png.toString('base64') }, { url: 'https://signed.example/other.png?secret=fixture-secret' }] },
   ];
   for (const response of invalid) {
-    const f = fake([json({ data: [model] }), json(response)]);
+    const f = fake([json({ data: [model] }), json(response, 200, { 'X-AISA-Customer-Cost-Micros-USD': '40000', 'request-id': 'invalid-edit' })]);
     await assert.rejects(f.client.generateImages(input()), error => {
       assert.ok(error instanceof AisaError);
       assert.ok(['invalid_media', 'no_images'].includes(error.code));
+      assert.deepEqual(error.receipt, { customerCostMicrosUsd: 40000, requestId: 'invalid-edit' });
       assert.doesNotMatch(error.message, /signed\.example|fixture-secret|not an image/);
       return true;
     });

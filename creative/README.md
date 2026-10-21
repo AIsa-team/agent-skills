@@ -1,6 +1,6 @@
 # Creative Skills
 
-Image and video generation workflows.
+The former `media-gen` skill is replaced by [E-commerce Content Studio](../e-commerce/e-commerce-content-studio/) for researched, approved product images, listing copy, and experimental videos.
 
 <!-- category:start -->
 

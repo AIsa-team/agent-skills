@@ -55,7 +55,7 @@ The output package contains saved media and copy, the source-backed report, appr
 
 Node.js 22 or later, `ffmpeg`, `ffprobe`, and a host with web research and image/video inspection capabilities. The package includes TypeScript source and compiled JavaScript with no npm runtime dependencies. Media tools are needed for actual decoding, technical QA and photo exports; this package does not implement a video-editing workflow.
 
-Direct AIsa REST production needs network access and `AISA_API_KEY`; native MCP research can use its own authorized OAuth connection. Live model availability, accepted reference formats, usage limits and prices must be checked before production.
+Use the authorized AIsa MCP/OAuth connection first. The bundled production executable implements REST and has no MCP/CLI bridge; it is available only under the shared rules' HTTP fallback gate, with an existing `AISA_API_KEY` and the required paid-call approval. Missing native generation capability must be reported, not treated as permission to switch transports. Live model availability, accepted reference formats, usage limits and prices must be checked before production.
 
 Read [SKILL.md](SKILL.md) for the agent workflow and [the creative playbook reference](references/creative-playbook.md) for research, approval and QA records. Mocked or offline checks do not establish successful live AIsa generation; production success must be recorded from the actual run.
 
@@ -81,9 +81,9 @@ From the installed skill directory, run `node dist/cli.js --help`. Use absolute 
 
 Do not automate `approve` from an agent-authored recommendation or generate review passes without opening the artifacts. Run one stage at a time, inspect its result and resolve failures before continuing. No production command replaces the user's required playbook confirmation.
 
-Start from the [brief](assets/brief.example.json), [research](assets/research.example.json), [playbook](assets/playbook.example.json), [approval](assets/approval.example.json) and [review](assets/review.example.json) templates. Replace illustrative models, facts, dates, pricing and constraints with real evidence; approval/review examples deliberately do not grant approval. The budget limits estimated spend and attempt count, not actual provider billing. Do not resubmit an ambiguous charged request; inspect `status` and reconcile its saved job first.
+Start from the [brief](assets/brief.example.json), [research](assets/research.example.json), [playbook](assets/playbook.example.json), [approval](assets/approval.example.json) and [review](assets/review.example.json) templates. Replace illustrative models, facts, dates, pricing and constraints with real evidence; approval/review examples deliberately do not grant approval. Unsupported image dimensions fail before reserving an attempt. The budget limits estimated spend and attempt count, not actual provider billing. Available settled-cost headers and request IDs are recorded separately; absent cost metadata remains unknown. Do not resubmit an ambiguous charged request; inspect `status` and reconcile its saved job first.
 
-The [adapter contract](references/aisa-contract.md) documents implemented routes and gaps. The [research-contract snapshot](references/research-contracts.json) records free MCP schema discovery on 18 October 2026; it does not establish paid execution or current availability. Native AIsa MCP research is preferred; direct search/extract adapters are available to the host when needed.
+The [adapter contract](references/aisa-contract.md) documents implemented routes and gaps. The [research-contract snapshot](references/research-contracts.json) records free MCP schema discovery on 18 October 2026; it does not establish paid execution or current availability. Native AIsa MCP research is preferred; direct search/extract adapters require the same HTTP fallback gate.
 
 ## API reference
 

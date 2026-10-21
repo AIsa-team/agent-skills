@@ -55,6 +55,17 @@ Use Skill-root-relative resource references such as `scripts/client.py` and
 A Harness-specific placeholder such as `{baseDir}` may be included for a
 verified integration, but do not assume every client substitutes it.
 
+## Shared agent rules
+
+Every `SKILL.md` carries the same connection/verification/spending/error
+rules between `<!-- aisa-rules:start -->` and `<!-- aisa-rules:end -->`.
+The text exists once, in `_shared/aisa-rules.md`, copied from
+`https://aisa.one/llms.txt` (MCP first with OAuth, direct HTTP only as a
+gated fallback, quote and approval before paid calls, settled cost in the
+`X-AISA-Customer-Cost-Micros-USD` header, never paste or print keys). Do
+not edit the block inside a skill; change the source and run
+`python3 scripts/sync_shared_rules.py`. The validator fails on drift.
+
 ## API surface
 
 All clients hit `https://api.aisa.one` and authenticate with
@@ -64,8 +75,9 @@ All clients hit `https://api.aisa.one` and authenticate with
   polymarket, kalshi, youtube, search, perplexity, etc.)
 - `/v1/...` — OpenAI-compatible surface (chat completions, models) used
   by `last30days` for planner/reranker/fun-scorer LLM calls, and
-  `/v1beta/models/{model}:generateContent` for the Gemini passthrough used
-  by `e-commerce-content-studio`. Verify current model routes before production.
+  `/v1beta/models/{model}:generateContent` for the Gemini passthrough.
+  `e-commerce-content-studio` also supports catalog-verified GPT Image edits
+  through `/v1/images/edits`. Verify current model routes before production.
 
 ## Documentation
 
@@ -132,7 +144,22 @@ This validates repository-wide structure, credentials, and symlinks, then
 applies schema, link, reference, and syntax checks only to files
 changed from `origin/main`. Use `--all` when intentionally cleaning historical
 catalog issues. For behavior changes, also run the affected client against the
-live API with a real key. Skill removals remain normal Git changes and require
+live API with a real key.
+
+Then run the contract validator (stdlib only; downloads the published OpenAPI
+from `https://aisa.one/openapi.json`, or pass `--openapi <file>` offline):
+
+```bash
+python3 scripts/validate_skills.py --changed-from origin/main
+```
+
+It fails on API paths or methods that are not in the published contract,
+JSON bodies sent to operations without a `requestBody`, literal API keys,
+`${CLAUDE_PLUGIN_ROOT}` references, and shared rules blocks that drift from
+`_shared/aisa-rules.md`. Known contract gaps are tracked, with reasons, in
+`scripts/validate_skills_known_issues.json`; remove an entry when the skill is
+fixed. `.github/workflows/validate-skills.yml` runs the same check on every
+pull request and push to `main`. Skill removals remain normal Git changes and require
 explicit reviewer approval; there is no separate retirement database.
 
 Every Skill declares `metadata.version`, `CHANGELOG.md`, and `skill.json`.

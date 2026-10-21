@@ -2,6 +2,8 @@
 
 ## 1.0.0
 
+- Integrate the shared MCP-first connection and spending rules. Validate provider image dimensions before reserving an attempt, recover successful synchronous responses after a cache-write failure without resubmitting, and retain allowlisted request IDs and settled-cost headers with unknown costs explicitly distinguished.
+
 - 2026-10-21: Add a catalog-gated GPT Image 2 JSON edit adapter with inline references, PNG output, medium quality and bounded native sizes; prohibit automatic model fallback. Verify one live `gpt-image-2` 1024×1024 request through the direct source adapter; record product-detail drift and distinguish this from the full CLI workflow or WorkBuddy MCP execution. Document the current Gemini catalog gap. Keep the skill version at 1.0.0.
 - Add a concise menu as the first response on every new invocation, in the user’s language; honor existing choices and preserve photo and approval gates.
 

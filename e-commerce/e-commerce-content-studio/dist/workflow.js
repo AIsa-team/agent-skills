@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { validateImageConfiguration } from "./aisa.js";
 import { PLACEMENTS, PLATFORMS } from "./types.js";
 const FRESHNESS_DAYS = 7;
 function fail(message) { throw new Error(message); }
@@ -318,8 +319,18 @@ export function validatePlaybook(value, brief, research) {
             if (typeof deliverable.size !== "string" || !/^[1-9]\d{0,4}x[1-9]\d{0,4}$/.test(deliverable.size))
                 fail("Image/video deliverable.size must be explicit WIDTHxHEIGHT pixels.");
         }
-        if (kind === "image" && deliverable.imageMode === "edit")
-            oneOf(deliverable.imageSize, ["1K", "2K", "4K"], "deliverable.imageSize (include the source resolution in the approved pricing estimate)");
+        if (kind === "image" && deliverable.imageMode === "edit") {
+            const imageSize = oneOf(deliverable.imageSize, ["1K", "2K", "4K"], "deliverable.imageSize (include the source resolution in the approved pricing estimate)");
+            const [width, height] = deliverable.size.split("x").map(Number);
+            const gcd = (a, b) => b ? gcd(b, a % b) : a;
+            const divisor = gcd(width, height);
+            const nativeSize = validateImageConfiguration(deliverable.model, `${width / divisor}:${height / divisor}`, imageSize);
+            if (nativeSize) {
+                const [nativeWidth, nativeHeight] = nativeSize.split("x").map(Number);
+                if (width > nativeWidth || height > nativeHeight)
+                    fail("The selected native image size is smaller than the approved export. Choose a larger supported source resolution before approval.");
+            }
+        }
         if (kind === "video") {
             number(deliverable.durationSeconds, "deliverable.durationSeconds", 0.001);
             if (deliverable.allowExperimentalVideo !== true)

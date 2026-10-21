@@ -8,7 +8,7 @@ const imageModel = { id: 'catalog-image', aisa: { model_type: 'image', capabilit
 const textModel = { id: 'catalog-text', aisa: { model_type: 'text', routes: [{ method: 'POST', path: '/v1/chat/completions' }] } };
 const videoModel = { id: 'wan2.7-i2v', aisa: { model_type: 'video', routes: [{ method: 'POST', path: '/v1/video/generations' }, { method: 'GET', path: '/v1/video/generations/{task_id}' }] } };
 const models = { data: [imageModel, textModel, videoModel] };
-const json = (value, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json' } });
+const json = (value, status = 200, headers = {}) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json', ...headers } });
 const inline = { inline_data: { mime_type: 'image/png', data: png.toString('base64') } };
 function fake(responses) {
   const calls = [];
@@ -147,7 +147,7 @@ test('truncated copy is rejected instead of marked complete', async () => {
 test('video submission uses verified product HTTPS references and preserves its task ID', async () => {
   const f = fake([json(models), json({ task_id: 'job-123', status: 'queued' })]);
   const result = await f.client.submitVideo({ model: videoModel.id, prompt: 'Product reveal', referenceUrls: ['https://images.example/product.png'], duration: 5, ratio: '16:9' });
-  assert.deepEqual(result, { id: 'job-123', status: 'queued', urls: [] });
+  assert.deepEqual(result, { id: 'job-123', status: 'queued', urls: [], receipt: { customerCostMicrosUsd: null } });
   assert.equal(f.calls[1].body.content[1].image_url.url, 'https://images.example/product.png');
   assert.equal(f.calls[1].body.content[1].role, 'reference_image');
 });
@@ -180,4 +180,95 @@ test('poll only queries the saved task and never submits another video', async (
   assert.equal((await f.client.getVideoJob('job-123')).status, 'running');
   assert.equal((await f.client.getVideoJob('job-123')).urls[0], 'https://assets.example/out.mp4');
   assert.ok(f.calls.every((call) => call.options.method === 'GET' && call.url.endsWith('/v1/video/generations/job-123')));
+});
+
+test('settled cost receipts remain separate from provider JSON on image and copy results', async () => {
+  const headers = { 'X-AISA-Customer-Cost-Micros-USD': '23450', 'x-request-id': 'req:valid_1.2-3', 'x-provider-secret': 'never-save-me' };
+  const f = fake([
+    json(models, 200, { 'X-AISA-Customer-Cost-Micros-USD': '999', 'x-request-id': 'catalog-request' }),
+    json({ candidates: [{ content: { parts: [inline] } }], receipt: { customerCostMicrosUsd: 0 } }, 200, headers),
+    json({ choices: [{ message: { content: 'Facts only' } }], usage: { total_tokens: 12 } }, 200, { 'X-AISA-Customer-Cost-Micros-USD': '0', 'request-id': 'copy-request' }),
+  ]);
+  const images = await f.client.generateImages({ model: imageModel.id, prompt: 'x', references: [reference] });
+  assert.deepEqual(images.receipt, { customerCostMicrosUsd: 23450, requestId: 'req:valid_1.2-3' });
+  const copy = await f.client.copy({ model: textModel.id, system: 'Facts only', prompt: 'Write' });
+  assert.deepEqual(copy.receipt, { customerCostMicrosUsd: 0, requestId: 'copy-request' });
+  assert.deepEqual(copy.usage, { total_tokens: 12 });
+});
+
+test('missing, malformed, negative and unsafe settled costs remain unknown, never free', async () => {
+  for (const cost of [undefined, '', '-1', '1.5', '1e3', '+1', 'NaN', 'free', '9007199254740992']) {
+    const f = fake([json({ id: 'job-123', status: 'running' }, 200, cost === undefined ? {} : { 'X-AISA-Customer-Cost-Micros-USD': cost })]);
+    assert.deepEqual((await f.client.getVideoJob('job-123')).receipt, { customerCostMicrosUsd: null });
+  }
+  const f = fake([json({ id: 'job-123', status: 'running' }, 200, { 'X-AISA-Customer-Cost-Micros-USD': '9007199254740991' })]);
+  assert.equal((await f.client.getVideoJob('job-123')).receipt.customerCostMicrosUsd, Number.MAX_SAFE_INTEGER);
+});
+
+test('receipt request IDs accept only bounded safe identifiers from allowlisted headers', async () => {
+  for (const requestId of ['https://signed.example/?secret=hidden', 'two words', 'x'.repeat(201), '']) {
+    const f = fake([json({ id: 'job-123', status: 'running' }, 200, { 'x-request-id': requestId, 'x-aisa-request-id': 'not-a-documented-header' })]);
+    assert.deepEqual((await f.client.getVideoJob('job-123')).receipt, { customerCostMicrosUsd: null });
+  }
+  const f = fake([json({ id: 'job-123', status: 'running' }, 200, { 'x-request-id': 'unsafe id', 'request-id': 'safe-fallback' })]);
+  assert.equal((await f.client.getVideoJob('job-123')).receipt.requestId, 'safe-fallback');
+});
+
+test('video submission and each poll retain their own receipt without overwriting earlier costs', async () => {
+  const f = fake([
+    json(models),
+    json({ task_id: 'job-123', status: 'queued' }, 200, { 'X-AISA-Customer-Cost-Micros-USD': '100', 'x-request-id': 'submit' }),
+    json({ id: 'job-123', status: 'running' }, 200, { 'X-AISA-Customer-Cost-Micros-USD': '0', 'x-request-id': 'poll-1' }),
+    json({ id: 'job-123', status: 'succeeded', content: { video_url: 'https://assets.example/out.mp4' } }, 200, { 'x-request-id': 'poll-2' }),
+  ]);
+  const submitted = await f.client.submitVideo({ model: videoModel.id, prompt: 'x', referenceUrls: ['https://images.example/product.png'] });
+  const running = await f.client.getVideoJob('job-123');
+  const completed = await f.client.getVideoJob('job-123');
+  assert.deepEqual([submitted.receipt, running.receipt, completed.receipt], [
+    { customerCostMicrosUsd: 100, requestId: 'submit' },
+    { customerCostMicrosUsd: 0, requestId: 'poll-1' },
+    { customerCostMicrosUsd: null, requestId: 'poll-2' },
+  ]);
+});
+
+test('HTTP and response-validation failures preserve the response receipt', async () => {
+  const headers = { 'X-AISA-Customer-Cost-Micros-USD': '900', 'x-request-id': 'failed-paid-request' };
+  const receipt = { customerCostMicrosUsd: 900, requestId: 'failed-paid-request' };
+  for (const response of [
+    json({ error: { message: 'never-print-provider-body' } }, 502, headers),
+    json({ success: false }, 200, headers),
+    new Response('invalid JSON', { headers: { 'Content-Type': 'application/json', ...headers } }),
+    new Response('invalid content type', { headers: { 'Content-Type': 'text/html', ...headers } }),
+    json({ choices: [{ finish_reason: 'length', message: { content: 'Truncated' } }] }, 200, headers),
+    json({ choices: [{}] }, 200, headers),
+  ]) {
+    const f = fake([json(models), response]);
+    await assert.rejects(f.client.copy({ model: textModel.id, system: 'Facts only', prompt: 'Write' }), error => {
+      assert.ok(error instanceof AisaError);
+      assert.deepEqual(error.receipt, receipt);
+      assert.doesNotMatch(error.message, /never-print-provider-body/);
+      return true;
+    });
+    assert.equal(f.calls.length, 2);
+  }
+});
+
+test('invalid image and video outputs retain their paid receipt and recoverable task ID', async () => {
+  const headers = { 'X-AISA-Customer-Cost-Micros-USD': '500', 'request-id': 'invalid-output' };
+  const receipt = { customerCostMicrosUsd: 500, requestId: 'invalid-output' };
+  const f = fake([json(models), json({ candidates: [{ content: { parts: [{ text: 'No image' }] } }] }, 200, headers)]);
+  await assert.rejects(f.client.generateImages({ model: imageModel.id, prompt: 'x', references: [reference] }), { code: 'no_images', receipt });
+  const video = fake([json(models), json({ task_id: 'job-keep-me', status: 'unknown' }, 200, headers)]);
+  await assert.rejects(video.client.submitVideo({ model: videoModel.id, prompt: 'x', referenceUrls: ['https://images.example/product.png'] }), { code: 'unknown_job_status', taskId: 'job-keep-me', ambiguous: true, receipt });
+  const poll = fake([json({ id: 'job-123', status: 'succeeded' }, 200, headers)]);
+  await assert.rejects(poll.client.getVideoJob('job-123'), { code: 'missing_video', receipt });
+});
+
+test('a network failure before response headers has no settled-cost receipt', async () => {
+  const f = fake([json(models), new Error('transport failed')]);
+  await assert.rejects(f.client.copy({ model: textModel.id, system: 'Facts only', prompt: 'Write' }), error => {
+    assert.equal(error.receipt, undefined);
+    assert.equal(error.ambiguous, true);
+    return true;
+  });
 });

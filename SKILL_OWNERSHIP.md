@@ -22,7 +22,7 @@ The monitor flags unassigned ownership even when the skill is verified current.
 | `ai-models/aisa-provider` | unassigned | [Bulk import][bulk-import]; individual owner unknown |
 | `ai-models/cn-llm` | @chaimengphp | [Historical skill or predecessor](https://github.com/AIsa-team/agent-skills/commit/cb1015522ff7f9cd983dc14c44ae87e9b1ac9670) |
 | `ai-models/llm-router` | @chaimengphp | [Historical skill or predecessor](https://github.com/AIsa-team/agent-skills/commit/cb1015522ff7f9cd983dc14c44ae87e9b1ac9670) |
-| `e-commerce/e-commerce-content-studio` | @chaimengphp | Renamed from `creative/media-gen`; [historical skill or predecessor](https://github.com/AIsa-team/agent-skills/commit/49ebd76ab3e37f54cd562da7309e428efbacc729) |
+| `e-commerce/e-commerce-content-studio` | @chaimengphp | Replaces `creative/media-gen`; [historical skill or predecessor](https://github.com/AIsa-team/agent-skills/commit/49ebd76ab3e37f54cd562da7309e428efbacc729) |
 | `e-commerce/product-selection` | unassigned | New skill; maintenance responsibility not yet assigned |
 | `e-commerce/product-tracking` | unassigned | New skill; maintenance responsibility not yet assigned |
 | `financial/crypto-market-data` | @karensheng | [Introduction](https://github.com/AIsa-team/agent-skills/commit/2d3ebb9df897f7b095cf4c667c82461daed19008) |

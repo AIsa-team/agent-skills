@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+- Add the shared AIsa agent rules block (MCP first with OAuth, direct HTTP as a gated fallback, quote and approval before paid calls, settled cost from the X-AISA-Customer-Cost-Micros-USD header, never paste or print keys); synced from _shared/aisa-rules.md.
+- Call the published Perplexity operation `/perplexity/sonar` with an OpenAI-style `messages` body, document `/scholar/search/mixed` and `/scholar/search/explain` (`search_id`), and report cost from the `X-AISA-Customer-Cost-Micros-USD` header.
+- Document which prediction-market and financial routes are absent from the published contract.
+
 ## 1.0.0
 
 - Establish the independently versioned baseline and maintenance manifest.

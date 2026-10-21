@@ -3,12 +3,14 @@ export class AisaError extends Error {
     httpStatus;
     ambiguous;
     taskId;
-    constructor(code, message, httpStatus, ambiguous = false, taskId) {
+    receipt;
+    constructor(code, message, httpStatus, ambiguous = false, taskId, receipt) {
         super(message);
         this.code = code;
         this.httpStatus = httpStatus;
         this.ambiguous = ambiguous;
         this.taskId = taskId;
+        this.receipt = receipt;
         this.name = "AisaError";
     }
 }
@@ -18,6 +20,29 @@ const IMAGE_ROUTE = "/v1beta/models/{model}:generateContent";
 const IMAGE_EDIT_ROUTE = "/v1/images/edits";
 const VIDEO_ROUTE = "/v1/video/generations";
 const IMAGE_MIMES = new Set(["image/png", "image/jpeg", "image/webp"]);
+function requestReceipt(headers) {
+    const rawCost = headers.get("X-AISA-Customer-Cost-Micros-USD");
+    const cost = rawCost !== null && /^\d+$/.test(rawCost) ? Number(rawCost) : NaN;
+    const requestId = [headers.get("x-request-id"), headers.get("request-id")].find((value) => value !== null && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$/.test(value));
+    return { customerCostMicrosUsd: Number.isSafeInteger(cost) && cost >= 0 ? cost : null, ...(requestId ? { requestId } : {}) };
+}
+/** Validate adapter settings before approval or a paid request; return GPT native dimensions. */
+export function validateImageConfiguration(model, aspectRatio, imageSize) {
+    const ratios = ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"];
+    if (aspectRatio !== undefined && !ratios.includes(aspectRatio))
+        throw new AisaError("invalid_input", "Unsupported Gemini image aspect ratio.");
+    if (imageSize !== undefined && !["512", "1K", "2K", "4K"].includes(imageSize))
+        throw new AisaError("invalid_input", "Gemini imageSize must be 512, 1K, 2K, or 4K; confirm chosen-model support and cost first.");
+    if (!/^gpt-image-2(?:\.5-(?:flare|sunburst))?(?:-\d{4}-\d{2}-\d{2})?$/.test(model))
+        return undefined;
+    const sizes = {
+        "1K/1:1": "1024x1024", "1K/3:2": "1536x1024", "1K/2:3": "1024x1536", "2K/1:1": "2048x2048",
+    };
+    const size = sizes[`${imageSize ?? "1K"}/${aspectRatio ?? "1:1"}`];
+    if (!size)
+        throw new AisaError("invalid_input", "The GPT Image adapter supports 1K square/3:2/2:3 and 2K square generation. Choose a supported native size separately from final export dimensions.");
+    return size;
+}
 function object(value) {
     if (!value || typeof value !== "object" || Array.isArray(value))
         throw new AisaError("invalid_response", "AIsa returned an unexpected response structure.");
@@ -78,15 +103,17 @@ export class AisaClient {
         if (!Number.isFinite(this.timeoutMs) || this.timeoutMs < 1 || this.timeoutMs > 600_000)
             throw new AisaError("invalid_input", "Request timeout must be between 1 and 600000 milliseconds.");
     }
-    async request(path, body) {
+    async request(path, body, parse) {
         const method = body === undefined ? "GET" : "POST";
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+        let receipt;
         try {
             const response = await this.fetcher(ORIGIN + path, {
                 method, headers: { Authorization: `Bearer ${this.apiKey}`, Accept: "application/json", ...(body === undefined ? {} : { "Content-Type": "application/json" }) },
                 ...(body === undefined ? {} : { body: JSON.stringify(body) }), redirect: "error", signal: controller.signal,
             });
+            receipt = requestReceipt(response.headers);
             if (!response.ok) {
                 await response.body?.cancel();
                 // Provider messages can echo prompts, signed URLs, or credentials: never print them.
@@ -121,35 +148,39 @@ export class AisaClient {
             }
             if (result.error || result.success === false)
                 throw new AisaError("provider_error", "AIsa returned a provider error; inspect the provider dashboard using the saved request record.", undefined, method === "POST");
-            return result;
+            return parse(result, receipt);
         }
         catch (error) {
-            if (error instanceof AisaError)
-                throw error;
-            throw new AisaError(controller.signal.aborted ? "timeout" : "network_error", controller.signal.aborted ? "AIsa request timed out. Do not automatically resubmit a generation request." : "AIsa request failed before a usable response was received. Do not automatically resubmit a generation request.", undefined, method === "POST");
+            if (error instanceof AisaError) {
+                if (!receipt)
+                    throw error;
+                throw new AisaError(error.code, error.message, error.httpStatus, error.ambiguous, error.taskId, receipt);
+            }
+            throw new AisaError(controller.signal.aborted ? "timeout" : "network_error", controller.signal.aborted ? "AIsa request timed out. Do not automatically resubmit a generation request." : "AIsa request failed before a usable response was received. Do not automatically resubmit a generation request.", undefined, method === "POST", undefined, receipt);
         }
         finally {
             clearTimeout(timer);
         }
     }
     async listModels() {
-        const result = await this.request("/v1/models");
-        if (!Array.isArray(result.data))
-            throw new AisaError("invalid_response", "AIsa model catalog is missing its data array.");
-        const models = result.data.map((item) => {
-            const row = object(item);
-            const id = string(row.id, "model ID");
-            if (!row.aisa)
-                return { id };
-            const aisa = object(row.aisa);
-            const routes = Array.isArray(aisa.routes) ? aisa.routes.map((route) => {
-                const r = object(route);
-                return { method: string(r.method, "route method"), path: string(r.path, "route path"), ...(typeof r.key === "string" ? { key: r.key } : {}) };
-            }) : [];
-            return { id, aisa: { ...(typeof aisa.model_type === "string" ? { model_type: aisa.model_type } : {}), capabilities: Array.isArray(aisa.capabilities) ? aisa.capabilities.filter((x) => typeof x === "string") : [], routes } };
+        return this.request("/v1/models", undefined, (result) => {
+            if (!Array.isArray(result.data))
+                throw new AisaError("invalid_response", "AIsa model catalog is missing its data array.");
+            const models = result.data.map((item) => {
+                const row = object(item);
+                const id = string(row.id, "model ID");
+                if (!row.aisa)
+                    return { id };
+                const aisa = object(row.aisa);
+                const routes = Array.isArray(aisa.routes) ? aisa.routes.map((route) => {
+                    const r = object(route);
+                    return { method: string(r.method, "route method"), path: string(r.path, "route path"), ...(typeof r.key === "string" ? { key: r.key } : {}) };
+                }) : [];
+                return { id, aisa: { ...(typeof aisa.model_type === "string" ? { model_type: aisa.model_type } : {}), capabilities: Array.isArray(aisa.capabilities) ? aisa.capabilities.filter((x) => typeof x === "string") : [], routes } };
+            });
+            this.catalog = { at: Date.now(), models };
+            return structuredClone(models);
         });
-        this.catalog = { at: Date.now(), models };
-        return structuredClone(models);
     }
     async requireModel(id, type, path) {
         inputString(id, "Model ID", 200);
@@ -167,24 +198,26 @@ export class AisaClient {
             throw new AisaError("invalid_input", "Search maxResults must be 1–20.");
         if (input.includeDomains && (!Array.isArray(input.includeDomains) || input.includeDomains.length > 300 || input.includeDomains.some((x) => typeof x !== "string" || !/^[a-z0-9.-]+$/i.test(x))))
             throw new AisaError("invalid_input", "Search domains must be host names.");
-        const result = await this.request("/apis/v1/tavily/search", { query: input.query, search_depth: input.depth ?? "basic", max_results: maxResults, include_answer: false, include_raw_content: true, ...(input.includeDomains?.length ? { include_domains: input.includeDomains } : {}) });
-        if (!Array.isArray(result.results))
-            throw new AisaError("invalid_response", "AIsa search response is missing results.");
-        return result.results.map((item) => {
-            const row = object(item);
-            return { title: string(row.title, "search title"), url: httpsUrl(string(row.url, "search URL")), content: typeof row.raw_content === "string" && row.raw_content.trim() ? row.raw_content : string(row.content, "search content"), ...(typeof row.score === "number" && Number.isFinite(row.score) ? { score: row.score } : {}) };
+        return this.request("/apis/v1/tavily/search", { query: input.query, search_depth: input.depth ?? "basic", max_results: maxResults, include_answer: false, include_raw_content: true, ...(input.includeDomains?.length ? { include_domains: input.includeDomains } : {}) }, (result) => {
+            if (!Array.isArray(result.results))
+                throw new AisaError("invalid_response", "AIsa search response is missing results.");
+            return result.results.map((item) => {
+                const row = object(item);
+                return { title: string(row.title, "search title"), url: httpsUrl(string(row.url, "search URL")), content: typeof row.raw_content === "string" && row.raw_content.trim() ? row.raw_content : string(row.content, "search content"), ...(typeof row.score === "number" && Number.isFinite(row.score) ? { score: row.score } : {}) };
+            });
         });
     }
     async extract(input) {
         if (!Array.isArray(input.urls) || input.urls.length < 1 || input.urls.length > 20)
             throw new AisaError("invalid_input", "Extract requires 1–20 public HTTPS URLs.");
         const urls = input.urls.map(httpsUrl);
-        const result = await this.request("/apis/v1/tavily/extract", { urls, extract_depth: "basic", format: "markdown" });
-        if (!Array.isArray(result.results))
-            throw new AisaError("invalid_response", "AIsa extract response is missing results.");
-        const results = result.results.map((item) => { const row = object(item); return { url: httpsUrl(string(row.url, "extract URL")), content: string(row.raw_content, "extracted content") }; });
-        const returned = new Set(results.map((r) => r.url));
-        return { results, failedUrls: urls.filter((url) => !returned.has(url)) };
+        return this.request("/apis/v1/tavily/extract", { urls, extract_depth: "basic", format: "markdown" }, (result) => {
+            if (!Array.isArray(result.results))
+                throw new AisaError("invalid_response", "AIsa extract response is missing results.");
+            const results = result.results.map((item) => { const row = object(item); return { url: httpsUrl(string(row.url, "extract URL")), content: string(row.raw_content, "extracted content") }; });
+            const returned = new Set(results.map((r) => r.url));
+            return { results, failedUrls: urls.filter((url) => !returned.has(url)) };
+        });
     }
     async copy(input) {
         inputString(input.system, "System instructions");
@@ -192,16 +225,17 @@ export class AisaClient {
         if (input.maxTokens !== undefined && (!Number.isInteger(input.maxTokens) || input.maxTokens < 1))
             throw new AisaError("invalid_input", "maxTokens must be a positive integer.");
         await this.requireModel(input.model, "text", "/v1/chat/completions");
-        const result = await this.request("/v1/chat/completions", { model: input.model, messages: [{ role: "system", content: input.system }, { role: "user", content: input.prompt }], stream: false, ...(input.maxTokens ? { max_tokens: input.maxTokens } : {}) });
-        if (!Array.isArray(result.choices) || !result.choices.length)
-            throw new AisaError("invalid_response", "AIsa returned no copy choices.");
-        const texts = result.choices.map((choice) => {
-            const row = object(choice);
-            if (row.finish_reason && row.finish_reason !== "stop")
-                throw new AisaError("incomplete_output", "Copy generation did not finish normally; no partial copy was accepted.");
-            return string(object(row.message).content, "copy text");
+        return this.request("/v1/chat/completions", { model: input.model, messages: [{ role: "system", content: input.system }, { role: "user", content: input.prompt }], stream: false, ...(input.maxTokens ? { max_tokens: input.maxTokens } : {}) }, (result, receipt) => {
+            if (!Array.isArray(result.choices) || !result.choices.length)
+                throw new AisaError("invalid_response", "AIsa returned no copy choices.");
+            const texts = result.choices.map((choice) => {
+                const row = object(choice);
+                if (row.finish_reason && row.finish_reason !== "stop")
+                    throw new AisaError("incomplete_output", "Copy generation did not finish normally; no partial copy was accepted.");
+                return string(object(row.message).content, "copy text");
+            });
+            return { text: texts.join("\n\n"), ...(result.usage === undefined ? {} : { usage: result.usage }), receipt };
         });
-        return { text: texts.join("\n\n"), ...(result.usage === undefined ? {} : { usage: result.usage }) };
     }
     async generateImages(input) {
         inputString(input.prompt, "Image prompt");
@@ -215,74 +249,66 @@ export class AisaClient {
         }
         if (total > 14 * 1024 * 1024)
             throw new AisaError("invalid_input", "Combined product references exceed the 14 MiB inline-image limit; prepare smaller reviewed copies.");
-        const ratios = ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"];
-        if (input.aspectRatio !== undefined && !ratios.includes(input.aspectRatio))
-            throw new AisaError("invalid_input", "Unsupported Gemini image aspect ratio.");
-        if (input.imageSize !== undefined && !["512", "1K", "2K", "4K"].includes(input.imageSize))
-            throw new AisaError("invalid_input", "Gemini imageSize must be 512, 1K, 2K, or 4K; confirm chosen-model support and cost first.");
+        const size = validateImageConfiguration(input.model, input.aspectRatio, input.imageSize);
         // GPT Image uses a different reference-image contract from Gemini. Select
         // only the explicitly requested model; never retry on a different provider.
-        if (/^gpt-image-2(?:\.5-(?:flare|sunburst))?(?:-\d{4}-\d{2}-\d{2})?$/.test(input.model)) {
-            const sizes = {
-                "1K/1:1": "1024x1024", "1K/3:2": "1536x1024", "1K/2:3": "1024x1536", "2K/1:1": "2048x2048",
-            };
-            const size = sizes[`${input.imageSize ?? "1K"}/${input.aspectRatio ?? "1:1"}`];
-            if (!size)
-                throw new AisaError("invalid_input", "The GPT Image adapter supports 1K square/3:2/2:3 and 2K square generation. Choose a supported native size separately from final export dimensions.");
+        if (size !== undefined) {
             if (input.references.length > 16)
                 throw new AisaError("invalid_input", "GPT Image editing supports at most 16 product references.");
             await this.requireModel(input.model, "image", IMAGE_EDIT_ROUTE);
-            const result = await this.request(IMAGE_EDIT_ROUTE, {
+            return this.request(IMAGE_EDIT_ROUTE, {
                 model: input.model, prompt: input.prompt,
                 images: input.references.map(ref => ({ image_url: `data:${ref.mimeType};base64,${Buffer.from(ref.data).toString("base64")}` })),
                 n: 1, size, quality: "medium", output_format: "png", stream: false,
+            }, (result, receipt) => {
+                if (!Array.isArray(result.data) || !result.data.length)
+                    throw new AisaError("no_images", "AIsa returned no edited images; an empty or text-only response is not a completed image deliverable.");
+                const images = [];
+                const texts = [];
+                for (const item of result.data) {
+                    const row = object(item);
+                    if (typeof row.b64_json !== "string")
+                        throw new AisaError("invalid_media", "The GPT Image edit response is missing inline image bytes; a URL alone has not been downloaded or validated.");
+                    images.push(imageBytes(row.b64_json, "image/png"));
+                    if (typeof row.revised_prompt === "string")
+                        texts.push(row.revised_prompt);
+                }
+                return { images, text: texts.join("\n"), receipt };
             });
-            if (!Array.isArray(result.data) || !result.data.length)
-                throw new AisaError("no_images", "AIsa returned no edited images; an empty or text-only response is not a completed image deliverable.");
-            const images = [];
-            const texts = [];
-            for (const item of result.data) {
-                const row = object(item);
-                if (typeof row.b64_json !== "string")
-                    throw new AisaError("invalid_media", "The GPT Image edit response is missing inline image bytes; a URL alone has not been downloaded or validated.");
-                images.push(imageBytes(row.b64_json, "image/png"));
-                if (typeof row.revised_prompt === "string")
-                    texts.push(row.revised_prompt);
-            }
-            return { images, text: texts.join("\n") };
         }
         await this.requireModel(input.model, "image", IMAGE_ROUTE);
-        const result = await this.request(IMAGE_ROUTE.replace("{model}", encodeURIComponent(input.model)), {
+        return this.request(IMAGE_ROUTE.replace("{model}", encodeURIComponent(input.model)), {
             contents: [{ role: "user", parts: [{ text: input.prompt }, ...input.references.map((ref) => ({ inline_data: { mime_type: ref.mimeType, data: Buffer.from(ref.data).toString("base64") } }))] }],
             generationConfig: { responseModalities: ["TEXT", "IMAGE"], ...(input.aspectRatio || input.imageSize ? { imageConfig: { ...(input.aspectRatio ? { aspectRatio: input.aspectRatio } : {}), ...(input.imageSize ? { imageSize: input.imageSize } : {}) } } : {}) },
-        });
-        if (!Array.isArray(result.candidates))
-            throw new AisaError("invalid_response", "AIsa returned no image candidates.");
-        const images = [];
-        const texts = [];
-        for (const candidate of result.candidates) {
-            const c = object(candidate);
-            if (c.finishReason && c.finishReason !== "STOP")
-                throw new AisaError("incomplete_output", "Image generation did not finish normally; inspect the provider job before retrying.");
-            const parts = object(c.content).parts;
-            if (!Array.isArray(parts))
-                throw new AisaError("invalid_response", "AIsa image candidate is missing parts.");
-            for (const part of parts) {
-                const p = object(part);
-                if (p.thought === true)
-                    continue;
-                if (typeof p.text === "string")
-                    texts.push(p.text);
-                const inline = p.inline_data ?? p.inlineData;
-                if (inline !== undefined) {
-                    const data = object(inline);
-                    images.push(imageBytes(data.data, data.mime_type ?? data.mimeType));
+        }, (result, receipt) => {
+            if (!Array.isArray(result.candidates))
+                throw new AisaError("invalid_response", "AIsa returned no image candidates.");
+            const images = [];
+            const texts = [];
+            for (const candidate of result.candidates) {
+                const c = object(candidate);
+                if (c.finishReason && c.finishReason !== "STOP")
+                    throw new AisaError("incomplete_output", "Image generation did not finish normally; inspect the provider job before retrying.");
+                const parts = object(c.content).parts;
+                if (!Array.isArray(parts))
+                    throw new AisaError("invalid_response", "AIsa image candidate is missing parts.");
+                for (const part of parts) {
+                    const p = object(part);
+                    if (p.thought === true)
+                        continue;
+                    if (typeof p.text === "string")
+                        texts.push(p.text);
+                    const inline = p.inline_data ?? p.inlineData;
+                    if (inline !== undefined) {
+                        const data = object(inline);
+                        images.push(imageBytes(data.data, data.mime_type ?? data.mimeType));
+                    }
                 }
             }
-        }
-        if (!images.length)
-            throw new AisaError("no_images", "AIsa returned no usable images; text-only output is not a completed image deliverable.");
-        return { images, text: texts.join("\n") };
+            if (!images.length)
+                throw new AisaError("no_images", "AIsa returned no usable images; text-only output is not a completed image deliverable.");
+            return { images, text: texts.join("\n"), receipt };
+        });
     }
     async submitVideo(input) {
         inputString(input.prompt, "Video prompt");
@@ -300,22 +326,23 @@ export class AisaClient {
         const model = this.catalog.models.find((row) => row.id === input.model);
         if (!model.aisa?.routes?.some((route) => route.method.toUpperCase() === "GET" && route.path === `${VIDEO_ROUTE}/{task_id}`))
             throw new AisaError("unsupported_model", "The selected video model does not advertise a supported task-status route.");
-        const result = await this.request(VIDEO_ROUTE, { model: input.model, content: [{ type: "text", text: input.prompt }, ...references.map((url) => ({ type: "image_url", image_url: { url }, role: "reference_image" }))], duration, ratio: input.ratio ?? "16:9", generate_audio: false });
-        try {
-            return parseVideoJob(result, undefined, true);
-        }
-        catch (error) {
-            const row = result.output && typeof result.output === "object" ? result.output : result.data && typeof result.data === "object" ? result.data : result;
-            const id = row.task_id ?? row.id ?? result.task_id ?? result.id;
-            const taskId = typeof id === "string" && /^[a-zA-Z0-9_-]+$/.test(id) ? id : undefined;
-            throw new AisaError(error instanceof AisaError ? error.code : "invalid_response", error instanceof AisaError ? error.message : "Video submission returned an unexpected response.", undefined, true, taskId);
-        }
+        return this.request(VIDEO_ROUTE, { model: input.model, content: [{ type: "text", text: input.prompt }, ...references.map((url) => ({ type: "image_url", image_url: { url }, role: "reference_image" }))], duration, ratio: input.ratio ?? "16:9", generate_audio: false }, (result, receipt) => {
+            try {
+                return { ...parseVideoJob(result, undefined, true), receipt };
+            }
+            catch (error) {
+                const row = result.output && typeof result.output === "object" ? result.output : result.data && typeof result.data === "object" ? result.data : result;
+                const id = row.task_id ?? row.id ?? result.task_id ?? result.id;
+                const taskId = typeof id === "string" && /^[a-zA-Z0-9_-]+$/.test(id) ? id : undefined;
+                throw new AisaError(error instanceof AisaError ? error.code : "invalid_response", error instanceof AisaError ? error.message : "Video submission returned an unexpected response.", undefined, true, taskId);
+            }
+        });
     }
     async getVideoJob(id) {
         inputString(id, "Video task ID", 300);
         if (!/^[a-zA-Z0-9_-]+$/.test(id))
             throw new AisaError("invalid_input", "Video task ID contains unsupported characters.");
-        return parseVideoJob(await this.request(`${VIDEO_ROUTE}/${encodeURIComponent(id)}`), id, false);
+        return this.request(`${VIDEO_ROUTE}/${encodeURIComponent(id)}`, undefined, (result, receipt) => ({ ...parseVideoJob(result, id, false), receipt }));
     }
 }
 /** Accept known provider envelopes; reject unknown states instead of treating them as success. */

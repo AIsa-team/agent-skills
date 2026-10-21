@@ -197,13 +197,14 @@ mediaTest('expired video download is refreshed from the saved task without resub
   let posts = 0; let polls = 0;
   t.mock.method(globalThis, 'fetch', async url => String(url).endsWith('product.png') ? new Response(source) : String(url).endsWith('expired.mp4') ? new Response('Expired', { status: 403 }) : new Response(bytes));
   const client = {
-    submitVideo: async () => { posts++; return { id: 'saved-task', status: 'queued', urls: [] }; },
-    getVideoJob: async id => { assert.equal(id, 'saved-task'); polls++; return { id, status: 'succeeded', urls: [`https://93.184.216.34/${polls === 1 ? 'expired' : 'fresh'}.mp4`] }; },
+    submitVideo: async () => { posts++; return { id: 'saved-task', status: 'queued', urls: [], receipt: { customerCostMicrosUsd: 80000, requestId: 'video-submit' } }; },
+    getVideoJob: async id => { assert.equal(id, 'saved-task'); polls++; return { id, status: 'succeeded', urls: [`https://93.184.216.34/${polls === 1 ? 'expired' : 'fresh'}.mp4`], receipt: { customerCostMicrosUsd: 0, requestId: `video-poll-${polls}` } }; },
   };
   await generate(f.directory, f.state, 'asset', client);
   await assert.rejects(resume(f.directory, f.state, 'asset', client), /HTTP 403/);
   assert.equal((await resume(f.directory, f.state, 'asset', client)).status, 'needs-review');
   assert.equal(posts, 1); assert.equal(polls, 2);
+  assert.deepEqual((await loadLedger(f.directory)).jobs[0].receipts.map(receipt => receipt.requestId), ['video-submit', 'video-poll-1', 'video-poll-2']);
 });
 mediaTest('video above the approved file size is saved and rejected instead of stuck downloading', async t => {
   const f = await remoteVideo(t); await reapprove(f, state => { state.playbook.deliverables[0].constraints = { maxBytes: 1 }; });
@@ -218,4 +219,68 @@ mediaTest('corrupt provider media becomes a rejected output with a saved raw res
   const f = await fixture(t);
   await assert.rejects(generate(f.directory, f.state, 'asset', { generateImages: async () => ({ images: [{ data: Buffer.from('not an image'), mimeType: 'image/png' }], text: '' }) }), /status: rejected/);
   const job = (await loadLedger(f.directory)).jobs[0]; assert.ok((await stat(job.responsePath)).size > 0);
+});
+
+mediaTest('unsupported or undersized native image plans fail before reserving an attempt', async t => {
+  const f = await fixture(t); let calls = 0;
+  const client = { generateImages: async () => { calls++; throw new Error('Must not dispatch'); } };
+  for (const patch of [
+    { size: '1200x628', imageSize: '1K' },
+    { size: '1024x1024', imageSize: '4K' },
+    { size: '1200x1200', imageSize: '1K' },
+  ]) {
+    const plan = structuredClone(f.state.playbook);
+    Object.assign(plan.deliverables[0], { model: 'gpt-image-2', ...patch });
+    assert.throws(() => setPlaybook(f.state, plan), /aspect ratio|native size|native image size/);
+    await assert.rejects(generate(f.directory, { ...f.state, playbook: plan }, 'asset', client), /aspect ratio|native size|native image size/);
+    assert.equal((await loadLedger(f.directory)).jobs.length, 0);
+  }
+  assert.equal(calls, 0);
+});
+
+mediaTest('successful image and copy cache-write failures retain a resumable result without another paid call', async t => {
+  for (const kind of ['image', 'copy']) {
+    const f = await fixture(t, kind); let calls = 0;
+    const receipt = { customerCostMicrosUsd: 12345, requestId: `saved-${kind}` };
+    const success = async () => {
+      calls++;
+      const job = (await loadLedger(f.directory)).jobs.at(-1);
+      await mkdir(join(f.directory, 'jobs', job.id, 'response.json'));
+      return kind === 'image'
+        ? { images: [{ data: await readFile(f.source), mimeType: 'image/png' }], text: '', receipt }
+        : { text: '{"title":"Blue product","description":"The supplied product."}', receipt };
+    };
+    const client = { generateImages: success, copy: success };
+    await assert.rejects(generate(f.directory, f.state, 'asset', client), /status: download-pending/);
+    const job = (await loadLedger(f.directory)).jobs[0];
+    assert.ok(job.cachedResponse);
+    assert.deepEqual(job.receipts, [receipt]);
+    await assert.rejects(generate(f.directory, f.state, 'asset', client, true), /reconciliation/);
+    await rm(job.responsePath, { recursive: true });
+    const resumed = await resume(f.directory, f.state, 'asset');
+    assert.equal(resumed.status, 'needs-review');
+    assert.equal(resumed.cachedResponse, undefined);
+    assert.equal((await loadLedger(f.directory)).jobs[0].cachedResponse, undefined);
+    assert.equal(calls, 1);
+  }
+});
+
+mediaTest('settled receipts survive generation, export and paid-call failure while missing cost stays unknown', async t => {
+  for (const receipt of [{ customerCostMicrosUsd: 12345, requestId: 'paid-copy' }, undefined]) {
+    const f = await fixture(t, 'copy');
+    const job = await generate(f.directory, f.state, 'asset', { copy: async () => ({ text: '{"title":"Blue product","description":"The supplied product."}', ...(receipt ? { receipt } : {}) }) });
+    assert.deepEqual(job.receipts, receipt ? [receipt] : undefined);
+    await review(f.directory, f.state, findings(job));
+    const exported = await exportPackage(f.directory, f.state, join(f.root, 'export'));
+    const manifest = JSON.parse(await readFile(join(exported.destination, 'manifest.json')));
+    assert.deepEqual(manifest.deliverables[0].receipts, receipt ? [receipt] : []);
+    assert.equal(manifest.billing.knownSettledCostMicrosUsd, receipt ? 12345 : 0);
+    assert.equal(manifest.billing.actualChargesUsd, receipt ? 0.012345 : null);
+    assert.equal(manifest.billing.unsettledCostJobs, receipt ? 0 : 1);
+  }
+  const f = await fixture(t);
+  const error = new AisaError('invalid_media', 'Rejected provider output.');
+  error.receipt = { customerCostMicrosUsd: 9000, requestId: 'charged-invalid-output' };
+  await assert.rejects(generate(f.directory, f.state, 'asset', { generateImages: async () => { throw error; } }), /Rejected provider output/);
+  assert.deepEqual((await loadLedger(f.directory)).jobs[0].receipts, [error.receipt]);
 });
