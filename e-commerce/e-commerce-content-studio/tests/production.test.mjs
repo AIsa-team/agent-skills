@@ -28,7 +28,7 @@ async function fixture(t, kind = 'image', preserve = false) {
     references: [{ id: 'front', sku: 'sku-1', path: source, source: 'user-product-photo' }], budget: { currency: 'USD', maxEstimatedCostUsd: 1, maxAttemptsPerDeliverable: 2 },
   };
   const briefPath = join(root, 'brief.json'); await atomicJson(briefPath, brief);
-  const directory = join(root, 'project'); await main(['init', briefPath, directory]);
+  const directory = join(root, 'project'); await main(['init', briefPath, directory, '--transport', 'rest']);
   let state = JSON.parse(await readFile(join(directory, 'project.json')));
   state = setResearch(state, { scope: 'Offline fixture, not live evidence', rules: [{ id: 'rule', platform, placement, requirement: 'Use the approved accurate product depiction.', status: 'mandatory', sourceUrl: 'https://help.shopify.com/en/manual/products/product-media', publisher: 'Shopify', fetchedAt: now(), effectiveAt: null, conflict: null }], examples: [], exampleLimitations: [{ platform, reason: 'Offline test has no performance data.' }], synthesis: ['Keep product identity.'], limitations: ['No real performance inference.'] });
   const deliverable = {

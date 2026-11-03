@@ -35,6 +35,8 @@
     ]
   },
   "upstreams": [
+    "aisa-mcp",
+    "aisa-cli",
     "aisa-authentication",
     "aisa-api-creative",
     "aisa-api-search-research",

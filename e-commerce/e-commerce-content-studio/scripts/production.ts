@@ -1,15 +1,18 @@
+import { transportOf } from './native-contract.js';
+import type { NativeJob } from './native.js';
 import { randomUUID } from 'node:crypto';
 import { cp, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { basename, join, resolve } from 'node:path';
 import type { AisaClient, RequestReceipt } from './aisa.js';
 import type { Deliverable, ProjectState, ValidatedReference } from './types.js';
-import { approvalHash, assertReady, renderPlaybook, renderResearch } from './workflow.js';
+import { approvalHash, assertReady, renderPlaybook, renderResearch, validateProject } from './workflow.js';
 import { atomicJson, downloadBytes, inspectMedia, preservePhoto, saveMedia, sha256, strictBase64, MediaValidationError } from './media.js';
 import type { MediaInfo } from './media.js';
 
 export type Artifact = { path: string; sha256: string; kind: 'image' | 'video' | 'copy'; media?: MediaInfo };
-type JobStatus = 'submitting' | 'uncertain' | 'submitted' | 'download-pending' | 'needs-review' | 'approved' | 'rejected' | 'failed';
+type JobStatus = 'cancelled' | 'prepared' | 'submitting' | 'uncertain' | 'submitted' | 'download-pending' | 'needs-review' | 'approved' | 'rejected' | 'failed';
 export interface Job {
+  transport?: 'mcp' | 'cli' | 'rest'; native?: NativeJob;
   id: string; deliverableId: string; approvalHash: string; model: string;
   status: JobStatus; estimatedCostUsd: number; createdAt: string;
   taskId?: string; responsePath?: string; cachedResponse?: unknown; receipts?: RequestReceipt[]; artifacts: Artifact[]; error?: string; review?: unknown;
@@ -39,13 +42,17 @@ export async function loadLedger(directory: string): Promise<Ledger> {
     return value;
   } catch (error) { if ((error as NodeJS.ErrnoException).code === 'ENOENT') return { schemaVersion: 1, jobs: [] }; throw error; }
 }
-const saveLedger = (directory: string, ledger: Ledger) => atomicJson(join(directory, 'execution.json'), ledger);
-function recordReceipt(job: Job, receipt?: RequestReceipt): void {
+export const saveLedger = (directory: string, ledger: Ledger) => atomicJson(join(directory, 'execution.json'), ledger);
+export function recordReceipt(job: Job, receipt?: RequestReceipt): void {
   if (!receipt) return;
-  if (receipt.requestId && job.receipts?.some(saved => saved.requestId === receipt.requestId)) return;
+  const existing = receipt.requestId ? job.receipts?.find(saved => saved.requestId === receipt.requestId) : undefined;
+  if (existing) {
+    if (existing.customerCostMicrosUsd == null && receipt.customerCostMicrosUsd != null) existing.customerCostMicrosUsd = receipt.customerCostMicrosUsd;
+    return;
+  }
   (job.receipts ??= []).push(receipt);
 }
-async function cacheResponse(directory: string, ledger: Ledger, job: Job, response: unknown): Promise<void> {
+export async function cacheResponse(directory: string, ledger: Ledger, job: Job, response: unknown): Promise<void> {
   job.responsePath = join(directory, 'jobs', job.id, 'response.json');
   job.status = 'download-pending';
   try { await atomicJson(job.responsePath, response); }
@@ -86,7 +93,7 @@ export function validateMediaOutput(info: MediaInfo, deliverable: Deliverable): 
     if (Math.abs(info.width / info.height - w / h) > 0.001) throw new Error('Output aspect ratio differs from the researched rule.');
   }
 }
-function productionPrompt(state: ProjectState, deliverable: Deliverable): string {
+export function productionPrompt(state: ProjectState, deliverable: Deliverable): string {
   const product = state.brief.products.find(p => p.sku === deliverable.sku)!;
   const target = state.brief.targets.find(t => t.platform === deliverable.platform)!;
   return [
@@ -100,9 +107,11 @@ function productionPrompt(state: ProjectState, deliverable: Deliverable): string
     deliverable.copyLimits ? `Return only a JSON object with exactly these fields and maximum character lengths: ${JSON.stringify(deliverable.copyLimits)}. No Markdown fences.` : '',
   ].filter(Boolean).join('\n\n');
 }
-function resolveDeliverable(state: ProjectState, id: string): Deliverable {
+export function resolveDeliverable(state: ProjectState, id: string, requireCurrent = true): Deliverable {
   safeId(id);
-  const deliverable = assertReady(state).deliverables.find(d => d.id === id);
+  const checked = validateProject(state);
+  if (!checked.playbook || !checked.approval || checked.approval.playbookHash !== approvalHash(checked)) throw new Error('The job requires current approval of its exact playbook and references.');
+  const deliverable = (requireCurrent ? assertReady(checked) : checked.playbook).deliverables.find(d => d.id === id);
   if (!deliverable) throw new Error('Unknown deliverable in the approved playbook.');
   return deliverable;
 }
@@ -118,11 +127,13 @@ async function videoReferences(refs: ValidatedReference[]): Promise<string[]> {
 
 export async function generate(directory: string, state: ProjectState, id: string, client?: ProductionClient, retry = false): Promise<Job> {
   const deliverable = resolveDeliverable(state, id);
+  if (transportOf(state) !== 'rest' && !(deliverable.kind === 'image' && deliverable.imageMode === 'preserve')) throw new Error('This project uses host MCP/CLI execution. Use prepare-native; REST clients and AISA_API_KEY cannot switch the selected transport.');
   await verifyReferences(state);
   const ledger = await loadLedger(directory);
   const prior = ledger.jobs.filter(j => j.deliverableId === id);
+  if (prior.some(job => job.native || (job.transport ?? 'rest') !== transportOf(state))) throw new Error('This deliverable used a different transport; preserve its existing job and create a separate project.');
   if (prior.length && !retry) throw new Error('This deliverable already has a job. Resume it; use retry only for a confirmed failure or rejected output.');
-  if (prior.some(j => ['submitting', 'uncertain', 'submitted', 'download-pending'].includes(j.status))) throw new Error('An existing submission needs reconciliation or resumption; do not submit it again.');
+  if (prior.some(j => ['prepared', 'submitting', 'uncertain', 'submitted', 'download-pending'].includes(j.status))) throw new Error('An existing submission needs reconciliation or resumption; do not submit it again.');
   if (retry && !['failed', 'rejected'].includes(prior.at(-1)?.status ?? '')) throw new Error('Retry requires a confirmed failed job or reviewed rejection.');
   if (prior.length >= state.playbook!.budget.maxAttemptsPerDeliverable) throw new Error('The approved attempt limit has been reached.');
   const reserved = ledger.jobs.reduce((total, job) => total + job.estimatedCostUsd, 0);
@@ -130,7 +141,7 @@ export async function generate(directory: string, state: ProjectState, id: strin
   const refs = deliverable.referenceIds.map(id => state.references.find(r => r.id === id)!);
   if (!(deliverable.kind === 'image' && deliverable.imageMode === 'preserve') && !client) throw new Error('AISA_API_KEY is required for AIsa generation.');
   const remoteUrls = deliverable.kind === 'video' ? await videoReferences(refs) : [];
-  const job: Job = { id: randomUUID(), deliverableId: id, approvalHash: approvalHash(state), model: deliverable.model, status: 'submitting', estimatedCostUsd: deliverable.estimatedCostUsd, createdAt: new Date().toISOString(), artifacts: [] };
+  const job: Job = { ...(state.transport ? { transport: state.transport } : {}), id: randomUUID(), deliverableId: id, approvalHash: approvalHash(state), model: deliverable.model, status: 'submitting', estimatedCostUsd: deliverable.estimatedCostUsd, createdAt: new Date().toISOString(), artifacts: [] };
   ledger.jobs.push(job);
   await saveLedger(directory, ledger);
   const jobDirectory = join(directory, 'jobs', job.id);
@@ -192,7 +203,7 @@ async function existingMedia(stem: string, bytes: Uint8Array, kind: 'image' | 'v
   }
   return saveMedia(bytes, stem, kind);
 }
-async function materialize(directory: string, state: ProjectState, deliverable: Deliverable, job: Job): Promise<void> {
+export async function materialize(directory: string, state: ProjectState, deliverable: Deliverable, job: Job): Promise<void> {
   if (!job.responsePath) throw new Error('The provider response was not saved; reconcile this job before any retry.');
   if (job.cachedResponse !== undefined) {
     await atomicJson(job.responsePath, job.cachedResponse);
@@ -214,7 +225,8 @@ async function materialize(directory: string, state: ProjectState, deliverable: 
     const nativeOutputs: MediaInfo[] = [];
     for (let index = 0; index < values.length; index++) {
       try {
-        const bytes = deliverable.kind === 'image' ? strictBase64((values[index] as { base64: string }).base64) : await downloadBytes(String(values[index]), 512 * 1024 * 1024);
+        const image = values[index] as { base64?: string; url?: string };
+        const bytes = deliverable.kind === 'image' ? (image.base64 ? strictBase64(image.base64) : await downloadBytes(String(image.url), 50 * 1024 * 1024)) : await downloadBytes(String(values[index]), 512 * 1024 * 1024);
         const media = await existingMedia(join(jobDirectory, `${deliverable.kind === 'image' ? 'source' : 'asset'}-${index + 1}`), bytes, deliverable.kind);
         nativeOutputs.push(media);
       } catch (error) {
@@ -250,6 +262,7 @@ export async function resume(directory: string, state: ProjectState, id: string,
   const ledger = await loadLedger(directory);
   const job = ledger.jobs.filter(j => j.deliverableId === id).at(-1);
   if (!job || job.approvalHash !== approvalHash(state)) throw new Error('No job exists for this approved playbook.');
+  if (job.native || (transportOf(state) !== 'rest' && deliverable.model !== 'local-photo-export')) throw new Error('Use resume-native and the selected host connection; REST cannot resume a native MCP/CLI job.');
   if (job.status === 'submitting' || job.status === 'uncertain') throw new Error('Submission outcome is unknown. Reconcile with AIsa using the saved job details; never resubmit blindly.');
   if (['failed', 'rejected'].includes(job.status)) throw new Error(`Job is ${job.status}: ${job.error ?? 'Inspect the recorded findings before retrying.'}`);
   if (['needs-review', 'approved'].includes(job.status)) return job;
@@ -329,11 +342,11 @@ export async function exportPackage(directory: string, state: ProjectState, dest
       await cp(artifact.path, join(destination, relative), { errorOnExist: true, force: false });
       artifacts.push({ ...artifact, path: relative }); files++;
     }
-    manifests.push({ deliverable, model: job.model, jobId: job.id, taskId: job.taskId, receipts: job.receipts ?? [], artifacts, review: job.review });
+    manifests.push({ deliverable, transport: job.transport ?? "rest", native: job.native ? { operations: job.native.operations.map(operation => ({ id: operation.id, tool: operation.tool, argumentsHash: operation.argumentsHash, sessionId: operation.sessionId, requestId: operation.requestId, status: operation.status })) } : undefined, model: job.model, jobId: job.id, taskId: job.taskId, receipts: job.receipts ?? [], artifacts, review: job.review });
   }
   await writeFile(join(destination, 'research-report.md'), renderResearch(state));
   await writeFile(join(destination, 'approved-playbook.md'), renderPlaybook(state));
-  const paidJobs = ledger.jobs.filter(job => job.model !== 'local-photo-export');
+  const paidJobs = ledger.jobs.filter(job => job.status !== 'cancelled' && !['local-photo-export', 'host-copy'].includes(job.model));
   const knownSettledCostMicrosUsd = paidJobs.flatMap(job => job.receipts ?? []).reduce((sum, receipt) => sum + (receipt.customerCostMicrosUsd ?? 0), 0);
   const unsettledCostJobs = paidJobs.filter(job => !job.receipts?.length || job.receipts.some(receipt => receipt.customerCostMicrosUsd === null)).length;
   await atomicJson(join(destination, 'manifest.json'), { schemaVersion: 1, createdAt: new Date().toISOString(), approval: state.approval, references: state.references.map(({ id, sku, sha256, mimeType, width, height }) => ({ id, sku, sha256, mimeType, width, height })), deliverables: manifests, limitations: state.research!.limitations, billing: { estimatedSubmittedUsd: ledger.jobs.reduce((sum, j) => sum + j.estimatedCostUsd, 0), knownSettledCostMicrosUsd, unsettledCostJobs, actualChargesUsd: unsettledCostJobs ? null : knownSettledCostMicrosUsd / 1_000_000, actualCharges: unsettledCostJobs ? 'Some settled cost metadata is unknown; estimates are not a billing cap.' : 'Settled costs reported by AIsa response headers; estimates are not a billing cap.' } });

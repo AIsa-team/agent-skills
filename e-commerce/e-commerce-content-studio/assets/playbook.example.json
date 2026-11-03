@@ -1,25 +1,175 @@
 {
-  "title": "Example product content playbook — replace after research",
+  "title": "Native MCP/CLI product content playbook — replace after research",
   "version": "draft-1",
-  "summary": "One faithful photo export, one localized copy object, and one reference-conditioned product video. All placeholder pricing, models, prompts, and constraints require verification.",
+  "summary": "One AIsa reference-conditioned image and one explicitly selected host-written copy object. Every illustrative model setting, price and constraint requires verification; no generation is authorized by this template.",
   "creativeDirection": "Present the actual product clearly. Preserve its shape, color, logo, materials, package quantity, and accessories. Use only approved product facts.",
   "deliverables": [
     {
-      "id": "shopify-product-image",
+      "id": "shopify-generated-image",
       "sku": "YOUR-SKU",
       "platform": "shopify",
       "placement": "shopify-gallery",
       "kind": "image",
-      "referenceIds": ["product-front"],
-      "claimIds": ["product-appearance"],
-      "ruleIds": ["shopify-gallery-requirement"],
-      "prompt": "Export the supplied product photograph at the approved dimensions without inventing or changing product features.",
-      "model": "local-photo-export",
-      "imageMode": "preserve",
+      "referenceIds": [
+        "product-front"
+      ],
+      "claimIds": [
+        "product-appearance"
+      ],
+      "ruleIds": [
+        "shopify-gallery-requirement"
+      ],
+      "prompt": "Create the approved product scene using the supplied photograph. Preserve the product shape, color, logos, visible materials and quantity.",
+      "model": "REPLACE_WITH_DISCOVERED_REFERENCE_IMAGE_MODEL",
+      "imageMode": "edit",
       "size": "1600x1600",
-      "constraints": { "minWidth": 1600, "minHeight": 1600, "maxBytes": 5000000, "aspectRatio": "1:1" },
-      "estimatedCostUsd": 0,
-      "successCriteria": ["The image retains the actual product pixels and shows the correct SKU.", "Verify final framing and platform requirements against the research report."]
+      "constraints": {
+        "minWidth": 1600,
+        "minHeight": 1600,
+        "maxBytes": 5000000,
+        "aspectRatio": "1:1"
+      },
+      "estimatedCostUsd": 0.05,
+      "successCriteria": [
+        "The image retains the actual product pixels and shows the correct SKU.",
+        "Verify final framing and platform requirements against the research report."
+      ],
+      "pricingSource": "TEMPLATE ONLY — replace with a successful AIsa quote for the exact generated request.",
+      "pricingCheckedAt": "1970-01-01",
+      "nativeRequest": {
+        "tool": "createImageGeneration",
+        "argumentsTemplate": {
+          "body": {
+            "model": "MODEL_PLACEHOLDER",
+            "prompt": "PROMPT_PLACEHOLDER",
+            "image": [
+              "PHOTO_PLACEHOLDER"
+            ],
+            "size": "2048x2048",
+            "n": 1
+          }
+        },
+        "argumentsSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "X-AISA-Cost-Mode": {
+              "description": "Return a free, read-only cost quote for this caller and payload instead of generating.",
+              "enum": [
+                "quote"
+              ],
+              "type": "string"
+            },
+            "body": {
+              "properties": {
+                "image": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    }
+                  ],
+                  "description": "Reference image(s) for models that start from a picture, as an https or data: URL."
+                },
+                "model": {
+                  "description": "An image model from GET /v1/models, for example seedream-5-0-260128, wan2.7-image or gpt-image-2.",
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "n": {
+                  "default": 1,
+                  "description": "Number of images, for models that support more than one.",
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "prompt": {
+                  "description": "Text description of the image to generate.",
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "size": {
+                  "description": "WIDTHxHEIGHT, for example 2048x2048. Accepted sizes depend on the model.",
+                  "example": "2048x2048",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "model",
+                "prompt"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "body"
+          ],
+          "type": "object"
+        },
+        "responseSchema": {
+          "additionalProperties": true,
+          "properties": {
+            "created": {
+              "type": "integer"
+            },
+            "data": {
+              "items": {
+                "additionalProperties": true,
+                "properties": {
+                  "b64_json": {
+                    "description": "Base64-encoded image bytes.",
+                    "type": "string"
+                  },
+                  "revised_prompt": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "description": "Temporary URL of the image.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "data"
+          ],
+          "type": "object"
+        },
+        "result": {
+          "images": {
+            "pointer": "/data",
+            "urlPointer": "/url",
+            "base64Pointer": "/b64_json"
+          }
+        },
+        "catalog": {
+          "source": "TEMPLATE ONLY — replace with saved live model catalog evidence",
+          "checkedAt": "1970-01-01",
+          "modelIds": [
+            "REPLACE_WITH_DISCOVERED_REFERENCE_IMAGE_MODEL"
+          ]
+        },
+        "modelContract": {
+          "source": "TEMPLATE ONLY — confirm this model accepts the reference encoding, size and every option",
+          "checkedAt": "1970-01-01",
+          "supportsReferences": false
+        },
+        "modelPointer": "/body/model",
+        "promptPointer": "/body/prompt",
+        "referenceBindings": [
+          {
+            "referenceId": "product-front",
+            "pointer": "/body/image/0",
+            "encoding": "data-uri"
+          }
+        ]
+      }
     },
     {
       "id": "shopify-product-copy",
@@ -27,38 +177,38 @@
       "platform": "shopify",
       "placement": "shopify-copy",
       "kind": "copy",
-      "referenceIds": ["product-front"],
-      "claimIds": ["product-appearance"],
-      "ruleIds": ["shopify-copy-requirement"],
+      "referenceIds": [
+        "product-front"
+      ],
+      "claimIds": [
+        "product-appearance"
+      ],
+      "ruleIds": [
+        "shopify-copy-requirement"
+      ],
       "prompt": "Write natural en-US product copy using only the approved facts. Return a JSON object with exactly title and description text fields. The illustrative field limits must be replaced with researched requirements or explicitly selected editorial limits.",
-      "model": "REPLACE_WITH_VERIFIED_TEXT_MODEL",
-      "copyLimits": { "title": 70, "description": 1000 },
-      "estimatedCostUsd": 0.05,
-      "pricingSource": "TEMPLATE ONLY — replace with the verified AIsa price source and calculation assumptions",
-      "pricingCheckedAt": "1970-01-01",
-      "successCriteria": ["No unsupported material, performance, certification, health, or sustainability claims.", "Every required field fits its approved character limit."]
-    },
-    {
-      "id": "shopify-product-video",
-      "sku": "YOUR-SKU",
-      "platform": "shopify",
-      "placement": "shopify-video",
-      "kind": "video",
-      "referenceIds": ["product-front"],
-      "claimIds": ["product-appearance"],
-      "ruleIds": ["shopify-video-requirement"],
-      "prompt": "Use the supplied product photograph as the required visual reference. Plan a slow camera move around only the visible product view without inventing unseen geometry, changing labels, or adding accessories. Replace with the approved shot-by-shot storyboard.",
-      "model": "REPLACE_WITH_VERIFIED_IMAGE_TO_VIDEO_MODEL",
-      "size": "1280x720",
-      "durationSeconds": 5,
-      "allowExperimentalVideo": false,
-      "constraints": { "minWidth": 1280, "minHeight": 720, "maxBytes": 50000000, "maxDurationSeconds": 5, "aspectRatio": "16:9" },
-      "estimatedCostUsd": 1,
-      "pricingSource": "TEMPLATE ONLY — replace with the verified AIsa price source for this duration and resolution",
-      "pricingCheckedAt": "1970-01-01",
-      "successCriteria": ["Inspect product geometry, colors, packaging, quantity, and logos throughout the clip.", "Verify duration, resolution, and file size after download."]
+      "model": "host-copy",
+      "copyLimits": {
+        "title": 70,
+        "description": 1000
+      },
+      "estimatedCostUsd": 0,
+      "successCriteria": [
+        "No unsupported material, performance, certification, health, or sustainability claims.",
+        "Every required field fits its approved character limit."
+      ]
     }
   ],
-  "budget": { "estimatedTotalUsd": 1.05, "maxAttemptsPerDeliverable": 2, "costControl": "estimate-only" },
-  "approvalNotes": ["The Wan video adapter is experimental and has not been live-verified. Leave allowExperimentalVideo false unless its uncertainty and paid-request risk are explicitly disclosed and approved by the user; a matching public HTTPS product photo is required.", "Replace all illustrative values and resolve research conflicts before presenting this playbook.", "The estimate does not enforce an AIsa billing cap; the full retry allowance is twice the base estimate.", "Do not generate before the user confirms this exact playbook version."]
+  "budget": {
+    "estimatedTotalUsd": 0.05,
+    "maxAttemptsPerDeliverable": 2,
+    "costControl": "estimate-only"
+  },
+  "approvalNotes": [
+    "This template is intentionally blocked by stale discovery, placeholder pricing and unverified reference support. Replace them using the current model contract and exact request quote.",
+    "The image operation schemas reflect free AIsa MCP discovery on 2026-11-03; refresh them before production. Its generic schema does not validate all model-specific options.",
+    "The host-copy option is a deliberate creative choice with no AIsa request charge. Select an AIsa text model and nativeRequest instead if desired.",
+    "A price estimate may be exceeded and does not impose a provider billing cap. Confirm the pricing risk and retry allowance with the user.",
+    "Show the research report and exact playbook to the user before generation; inspect every output before export."
+  ]
 }

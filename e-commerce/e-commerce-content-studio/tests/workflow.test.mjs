@@ -30,12 +30,12 @@ function fixture() {
   };
   return { brief, references, research, playbook };
 }
-function prepared() {
+function prepared(transport = 'mcp') {
   const { brief, references, research, playbook } = fixture();
-  return setPlaybook(setResearch(initProject(brief, references, NOW), research, NOW), playbook, NOW);
+  return setPlaybook(setResearch(initProject(brief, references, NOW, transport), research, NOW), playbook, NOW);
 }
-function approved() {
-  const state = prepared();
+function approved(transport = 'mcp') {
+  const state = prepared(transport);
   return approvePlaybook(state, { actor: 'user', message: 'I approve this exact playbook.', playbookHash: approvalHash(state) }, NOW);
 }
 
@@ -94,7 +94,7 @@ test('a report can record conflicts but a playbook cannot pass them', () => {
 });
 
 test('research and price evidence must be fresh at approval and generation', () => {
-  const state = approved();
+  const state = approved('rest');
   assert.throws(() => assertReady(state, '2026-10-26T12:00:00.000Z'), /older than 7 days/);
   const plan = structuredClone(state.playbook);
   Object.assign(plan.deliverables[0], { model: 'test-image-edit', imageMode: 'edit', imageSize: '1K', estimatedCostUsd: 0.1, pricingSource: 'https://aisa.one/models/test', pricingCheckedAt: '2026-10-01' });
@@ -159,7 +159,7 @@ test('Amazon main requires actual-photo preserve mode', () => {
 });
 
 test('output constraints and retry estimates are checked before approval', () => {
-  const state = prepared();
+  const state = prepared('rest');
   let plan = structuredClone(state.playbook);
   plan.deliverables[0].constraints = { minWidth: 1600 };
   assert.throws(() => setPlaybook(state, plan, NOW), /below the researched minimum/);

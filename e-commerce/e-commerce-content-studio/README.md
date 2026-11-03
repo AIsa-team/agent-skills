@@ -1,93 +1,101 @@
 # E-commerce Content Studio
 
-An AIsa-powered workflow for 商品图、商品文案 and experimental product videos. It starts with real product photos, researches current platform requirements and comparable creatives, proposes a playbook, then produces content after the user approves that playbook.
+Create researched product images, localized listing copy and product videos for Amazon US, TikTok Shop US and Shopify. The workflow starts with real product photos, produces an evidence-backed creative playbook, and generates only after the user approves it.
 
-Version **1.0.0** supersedes the general-purpose Python `media-gen` workflow with a product-focused TypeScript implementation. The new name, inputs, runtime and approval flow are breaking changes; old Python commands are not the interface for this skill.
+Version **1.1.0** makes host-managed AIsa MCP the default for new projects. It adds native request/quote/result handoffs and model-specific templates without a fixed model-name allowlist. The original direct-API adapters remain an explicit compatibility path. Existing projects are not migrated or resubmitted automatically.
 
-The skill includes a greeting at each new invocation, followed by six options: research/playbook, product images, localized copy, experimental video, a complete package, or resuming/reviewing/exporting an existing project. The menu uses the user's language and honors a choice already made in the request. Product-photo and playbook-approval requirements still apply.
+At each new invocation the skill greets the user with six options: research/playbook, images, localized copy, video, a complete package, or resume/review/export. It honors a selection already expressed in the request. Photos, research and approval remain required.
 
-## Supported in 1.0.0
+## Connection choices
+
+| Context | Connection | Credential responsibility |
+| --- | --- | --- |
+| Agent host with remote MCP and browser | **Default:** AIsa MCP at `https://mcp.aisa.one/mcp` | Host-managed OAuth; no API key requested by the skill |
+| Headless host with remote MCP | Same MCP endpoint | Host MCP configuration may use `AISA_API_KEY` |
+| Host without MCP support | Official `@aisa-one/cli` | Official CLI login/configuration |
+| Explicit direct-API compatibility | Retained REST adapters, only under the shared HTTP fallback gate | Existing `AISA_API_KEY` in the environment |
+
+MCP is an interface; API keys are one authentication method. A key configured for headless MCP does not make the skill a direct-REST client. The native runtime stores credential-free evidence and handoffs, while the host executes the actual MCP or official CLI operations. It does not extract OAuth tokens, launch a hidden API client or silently substitute another connection.
+
+Follow [the shared connection and spending rules in SKILL.md](SKILL.md). Verify the selected connection with the free account/balance operation. New projects default to `mcp`; the CLI mode is explicitly recorded for hosts without MCP. REST requires both MCP and CLI to be unavailable, HTTP support, a valid existing key and the separate direct-HTTP paid-call approval. An authentication or generation failure does not establish that fallback gate.
+
+## Supported content
 
 | Platform | Market and scope |
 | --- | --- |
-| Amazon | US product main images, gallery images, listing copy and product videos |
-| TikTok Shop | US product listing images, copy and product videos |
-| Shopify | Storefront product pages, with an explicit destination country, language and theme/layout |
+| Amazon | US listing main images, gallery images, copy and product videos |
+| TikTok Shop | US product-listing images, copy and videos |
+| Shopify | Product pages with explicit destination country, language and actual theme/layout |
 
-Support means workflow profiles and export validation. It does not mean native seller-account integrations, analytics access, automatic uploading or guaranteed platform acceptance. TikTok paid ads and organic campaigns, Shopify marketplace feeds and other marketplaces are excluded from this version.
+Support means planning and export profiles, not account integrations, analytics access, publishing or guaranteed platform acceptance. Other marketplaces, ads, organic campaigns and marketplace feeds remain outside this release. Planned additions are Etsy US/eBay US, followed by Amazon UK/DE/JP and TikTok Shop UK, then selected Shopee/Lazada/AliExpress markets; these have no committed release dates. See [platform scope](references/platforms.md).
 
-**Video generation is experimental and has not been verified by authenticated end-to-end generation.** Only the Wan 2.7 image-to-video adapter is implemented. Its experimental status must appear in the playbook, and `allowExperimentalVideo: true` requires the user's approval of that playbook. A supported video profile does not establish a working, high-quality video result.
+- **Original-photo export:** `local-photo-export` with `imageMode: "preserve"` fits/resizes an already suitable photo without redrawing or cropping. It does not remove its background or create unseen angles. This remains the only mode for Amazon main images.
+- **Native images/video:** select a suitable model from current AIsa discovery, verify its input/output contract and approve its model-specific options. Product-reference conditioning is required; a text-only model is not a substitute for a product-reference task. A newly listed model does not require adding its name to a local allowlist, but its actual request/response must fit the validated handoff.
+- **Localized copy:** use a suitable native text operation with approved facts, fields and limits. Explicitly approved `host-copy` deliverables can import copy prepared by the host.
+- **Direct-API compatibility:** retained GPT Image/Gemini image adapters, chat copy and experimental Wan video have their own fixed contracts and limitations. They do not limit the native catalog. See [compatibility contracts](references/aisa-contract.md).
 
-The proposed roadmap is **next: Etsy US and eBay US; following: Amazon UK/DE/JP and TikTok Shop UK; later: Shopee SG/MY, Lazada SG/MY and AliExpress US/EU**. These are planned, unsupported targets with no committed dates. Each needs current policy research, placement-specific validation, usable AIsa capabilities and verification before support can be claimed. See [platform scope and sources](references/platforms.md).
+Disclose the selected video model's verification and quality limits in the playbook. The retained REST Wan adapter specifically remains experimental and requires `allowExperimentalVideo: true` plus approval of that limitation. The runtime does not upload references, assemble clips, compose deterministic typography or add captions. Reference conditioning cannot guarantee product fidelity. Catalog discovery and offline validation do not establish successful live generation or marketplace acceptance.
 
-## Implemented production modes
+## What the user provides
 
-- **Original-photo export:** fit/resize the supplied photograph on a white canvas without redrawing or cropping the product. It does not remove the original background. This is the only production mode for Amazon main images in 1.0.0; they need an already compliant source photo and reviewed final framing.
-- **GPT Image product-image edits:** send inline product references to `/v1/images/edits` with an explicitly selected GPT Image 2 model advertised by the current catalog. Request one PNG at medium quality: `1K` square/3:2/2:3 or `2K` square. A direct `gpt-image-2` adapter test on **2026-10-21** returned a decoded 1024×1024 PNG. Other models/sizes and the full CLI workflow were not verified by that call. No automatic model fallback is allowed.
-- **Gemini product-image edits:** the inline-reference adapter remains implemented, but the authenticated catalog check on **2026-10-21** found no compatible image model. Recheck current routes before choosing it; previous example model names are not evidence of availability.
-- **Listing copy:** generate the approved fields from verified product facts through a compatible AIsa chat model.
-- **Experimental Wan 2.7 video:** requires a user-supplied public HTTPS URL for the exact same photo inspected locally. There is no automatic photo upload or text-to-video fallback.
+At least one clear photo of the actual product for **every requested SKU**, including copy-only jobs; target platform/market/category/placement/language; verified facts, variants, included items and brand assets; intended audience, deliverables and budget. Request further views when a shot or detail cannot be established. Competitor images and generated concepts are not product evidence.
 
-The runtime does not remove backgrounds, assemble videos, compose deterministic typography or add captions. It cannot guarantee product fidelity from a generation prompt. Live model availability and output quality must be verified during the actual authorized run; mocked checks and catalog discovery are separate from that verification. These REST adapters do not establish native MCP image generation in the WorkBuddy expert, which uses a separate host-mediated execution path.
+Example requests:
 
-The live test produced a usable image file but reinterpreted the tumbler's lid/rim, so it was **not approved for listing use**. Its 222×222 reference also fell below the full workflow's 256-pixel intake minimum; this was an authorized transport smoke test, not proof of a completed product-content workflow.
+> 用这几张产品照片，帮我做一套 Amazon 美国站商品图和英文文案，先给我看方案。
 
-## What to provide
+> Compare the available AIsa models for this product's Shopify images, then propose a playbook for approval.
 
-- At least one clear photo of the actual product for **every requested SKU**, including copy-only requests. More views may be needed for particular shots or claims.
-- Target platform, market, category, placement and language.
-- Verified specifications, dimensions, variants, included items, supported claims and brand assets.
-- Intended audience, deliverables, creative preferences and production budget.
+> 用这张商品照片做一个 TikTok Shop 美国站短视频，先确认卖点、费用和分镜。
 
-Without usable product photos, the workflow stops before research. Without approval of the proposed playbook, it stops before image/video generation and final copy. Competitor imagery and generated concepts cannot replace product references.
+No usable product photos means no product research or production. No explicit approval of the exact playbook means no generated previews or final copy. Selecting a menu item is not approval.
 
-Example request:
+## Runtime responsibilities
 
-> Use the attached photos and specification sheet to prepare Amazon US product content for SKU BOTTLE-01. Research current requirements and comparable listings, then propose the image sequence, copy approach and video storyboard for my approval. Preserve the actual bottle, logo and included parts.
+The **host agent** discovers live tools/models, checks model contracts, researches policies and comparable creatives, prepares the playbook, obtains user approval, executes native calls and inspects outputs. The **TypeScript runtime** validates photos and records, binds requests to approval/reference/quote evidence, tracks attempts and saved tasks, materializes outputs and validates artifacts.
 
-## How the work is divided
+Requirements: Node.js 22+, `ffmpeg`, `ffprobe`, and host research/image/video inspection tools. TypeScript source and compiled JavaScript ship with Ajv validation dependencies. Run `npm ci --omit=dev` once in the installed skill directory before using the compiled CLI. Local status, review, export and photo preservation do not require an AIsa credential.
 
-The **host agent** conducts live research, inspects comparable creatives, writes the report/playbook, obtains user approval and visually reviews output against product references. The **TypeScript executable** provides workflow records, supported AIsa requests, artifact handling and deterministic validation. Running a command does not replace research or visual review.
+## Commands
 
-The output package contains saved media and copy, the source-backed report, approved playbook, generation provenance and validation results. Public popularity signals are labeled as proxies; “top-performing” is reserved for evidence whose metric and limitations are recorded. A final package is prepared for user review and manual use; this skill does not publish it.
-
-## Requirements
-
-Node.js 22 or later, `ffmpeg`, `ffprobe`, and a host with web research and image/video inspection capabilities. The package includes TypeScript source and compiled JavaScript with no npm runtime dependencies. Media tools are needed for actual decoding, technical QA and photo exports; this package does not implement a video-editing workflow.
-
-Use the authorized AIsa MCP/OAuth connection first. The bundled production executable implements REST and has no MCP/CLI bridge; it is available only under the shared rules' HTTP fallback gate, with an existing `AISA_API_KEY` and the required paid-call approval. Missing native generation capability must be reported, not treated as permission to switch transports. Live model availability, accepted reference formats, usage limits and prices must be checked before production.
-
-Read [SKILL.md](SKILL.md) for the agent workflow and [the creative playbook reference](references/creative-playbook.md) for research, approval and QA records. Mocked or offline checks do not establish successful live AIsa generation; production success must be recorded from the actual run.
-
-## Executable workflow
-
-From the installed skill directory, run `node dist/cli.js --help`. Use absolute paths for project/input/output locations when invoking it elsewhere. The host prepares evidence and review records from work actually performed; importing a record does not perform that research or inspection.
+From the installed skill directory run `node dist/cli.js --help`. Use absolute project/input/output paths when calling it elsewhere. JSON examples are record shapes, not evidence or authorization.
 
 | Command after `node dist/cli.js` | Purpose |
 | --- | --- |
-| `platforms` | Inspect the supported platform/placement profiles |
-| `models` | Discover AIsa catalog routes using `AISA_API_KEY`; this does not verify generation |
-| `init <brief.json> <project-dir>` | Validate product references and initialize a project |
+| `platforms` | Show supported profiles and roadmap |
+| `models [--transport mcp\|cli\|rest]` | Default: give host discovery instructions; only explicit REST uses the direct catalog client |
+| `init <brief.json> <project-dir> [--transport mcp\|cli\|rest]` | Validate real-product references; persist the selected transport, default MCP |
 | `research-import <project-dir> <research.json>` | Record current requirements and inspected comparable evidence |
-| `playbook-import <project-dir> <playbook.json>` | Record the proposed production playbook |
-| `report <project-dir>` | Prepare the report/playbook for user review |
-| `approve <project-dir> <approval.json>` | Record the user's explicit approval of the exact playbook |
-| `generate <project-dir> <deliverable-id>` | Produce an approved deliverable |
-| `resume <project-dir> <deliverable-id>` | Make one status check or resume saved-output recovery |
-| `retry <project-dir> <deliverable-id>` | Retry a confirmed failure or reviewed rejection within the approved allowance |
-| `review <project-dir> <review.json>` | Record inspection findings for the actual saved artifacts |
-| `status <project-dir>` | Show approval and production state |
-| `export <project-dir> <new-destination>` | Export a fully reviewed package to a new destination |
+| `playbook-import <project-dir> <playbook.json>` | Validate and record the proposed playbook and native contract/templates |
+| `report <project-dir>` | Write the report and exact playbook for user review |
+| `approve <project-dir> <approval.json>` | Record explicit user approval of its hash |
+| `connection-import <project-dir> <receipt.json>` | Record a successful native account/balance check without credentials |
+| `build-native-request <project-dir> <deliverable-id> [--job <job-id>]` | Write exact native arguments and hash; `--job` builds an existing-task status request |
+| `prepare-native <project-dir> <request.json>` | Bind the generation handoff to the approved deliverable, connection, schema and exact quote |
+| `cancel-native-prepared <project-dir> <operation-id>` | Cancel an operation that was prepared but never dispatched; retain its audit record |
+| `mark-native-dispatched <project-dir> <operation-id>` | Record intent immediately before the host sends that exact call |
+| `ingest-native-result <project-dir> <operation-id> <result.json>` | Import the actual native response/receipt and retain task IDs, errors and costs |
+| `prepare-native-poll <project-dir> <job-id> <request.json>` | Prepare a quoted status check of the same saved task |
+| `resume-native <project-dir> <deliverable-id>` | Recover/materialize saved native results locally; does not submit a replacement |
+| `import-host-copy <project-dir> <deliverable-id> <copy.json>` | Import copy only for an approved `host-copy` deliverable |
+| `generate / resume / retry <project-dir> <deliverable-id>` | Local photo work or the explicit REST compatibility path; native paid generation uses the handoff commands above |
+| `review <project-dir> <review.json>` | Record inspection against saved artifact hashes |
+| `status <project-dir>` | Show project, approval and production state |
+| `export <project-dir> <new-destination>` | Export a fully reviewed package to a new location |
 
-Do not automate `approve` from an agent-authored recommendation or generate review passes without opening the artifacts. Run one stage at a time, inspect its result and resolve failures before continuing. No production command replaces the user's required playbook confirmation.
+The native execution sequence is **build arguments → quote the exact call → prepare → mark dispatched → host executes once → ingest result → recover/poll as needed → review → export**. Read [native-workflow.md](references/native-workflow.md) for exact receipt shapes, response mappings and failure handling. Do not treat the command table as a replacement for that contract.
 
-Start from the [brief](assets/brief.example.json), [research](assets/research.example.json), [playbook](assets/playbook.example.json), [approval](assets/approval.example.json) and [review](assets/review.example.json) templates. Replace illustrative models, facts, dates, pricing and constraints with real evidence; approval/review examples deliberately do not grant approval. Unsupported image dimensions fail before reserving an attempt. The budget limits estimated spend and attempt count, not actual provider billing. Available settled-cost headers and request IDs are recorded separately; absent cost metadata remains unknown. Do not resubmit an ambiguous charged request; inspect `status` and reconcile its saved job first.
+For existing projects without a recorded transport, local inspection/export stays available. Their original REST generation/recovery path requires explicit `--transport rest` on network commands; do not automatically reinterpret an old paid job as a native request. Do not manually edit a project to bypass the transport lock or approval hash.
 
-The [adapter contract](references/aisa-contract.md) documents implemented routes and gaps. The [research-contract snapshot](references/research-contracts.json) records free MCP schema discovery on 18 October 2026; it does not establish paid execution or current availability. Native AIsa MCP research is preferred; direct search/extract adapters require the same HTTP fallback gate.
+## Evidence, testing and delivery
 
-## API reference
+Start from the [brief](assets/brief.example.json), [research](assets/research.example.json), [native playbook](assets/playbook.example.json), [approval](assets/approval.example.json) and [review](assets/review.example.json) templates. The native example intentionally requires real model/contract/pricing evidence before it can pass. The separate [REST playbook example](assets/playbook.rest.example.json) is only for explicitly selected compatibility projects. Replace all illustrative models, dates, pricing and facts. Approvals must come from the user; reviews must follow inspection of actual artifacts.
 
-See the [AIsa API Reference](https://aisa.one/docs/api-reference) for current endpoint contracts and the [model catalog](https://aisa.one/docs/guides/models) for discovery. Available documentation, authenticated execution access and a completed generation are separate checks.
+Run `npm ci`, `npm run typecheck`, `npm run build` and `npm test` for development checks. Offline fixtures test workflow/contracts, not live provider access, billing or output fidelity. The historical REST GPT Image smoke test returned a decoded PNG but changed product details and was not approved for listing use; see [its contract record](references/aisa-contract.md). No historical test establishes the current behavior of every discovered model.
+
+The delivered package includes assets/copy, research, the approved playbook, provenance and QA. Separate estimates/quotes from known settled costs; missing cost metadata is unknown. An uncertain paid dispatch must be reconciled before resubmission, not retried through a different connection. Generation success alone never establishes product fidelity or platform readiness.
+
+Read [the creative playbook guide](references/creative-playbook.md) for research evidence and QA. Public popularity is a proxy, not proof of conversion. This skill does not publish listings or promise conversion lift.
 
 ## License
 

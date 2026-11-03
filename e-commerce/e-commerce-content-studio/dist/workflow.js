@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { transportOf, validateNativePlan } from "./native-contract.js";
 import { validateImageConfiguration } from "./aisa.js";
 import { PLACEMENTS, PLATFORMS } from "./types.js";
 const FRESHNESS_DAYS = 7;
@@ -264,7 +265,7 @@ function assertResearchUsable(research, now) {
             fail(`Research rule ${rule.id} has a future fetchedAt date.`);
     }
 }
-export function validatePlaybook(value, brief, research) {
+export function validatePlaybook(value, brief, research, transport = "rest") {
     const playbook = object(value, "playbook");
     for (const key of ["title", "version", "summary", "creativeDirection"])
         text(playbook[key], `playbook.${key}`);
@@ -319,7 +320,7 @@ export function validatePlaybook(value, brief, research) {
             if (typeof deliverable.size !== "string" || !/^[1-9]\d{0,4}x[1-9]\d{0,4}$/.test(deliverable.size))
                 fail("Image/video deliverable.size must be explicit WIDTHxHEIGHT pixels.");
         }
-        if (kind === "image" && deliverable.imageMode === "edit") {
+        if (transport === "rest" && kind === "image" && deliverable.imageMode === "edit") {
             const imageSize = oneOf(deliverable.imageSize, ["1K", "2K", "4K"], "deliverable.imageSize (include the source resolution in the approved pricing estimate)");
             const [width, height] = deliverable.size.split("x").map(Number);
             const gcd = (a, b) => b ? gcd(b, a % b) : a;
@@ -333,9 +334,15 @@ export function validatePlaybook(value, brief, research) {
         }
         if (kind === "video") {
             number(deliverable.durationSeconds, "deliverable.durationSeconds", 0.001);
-            if (deliverable.allowExperimentalVideo !== true)
+            if (transport === "rest" && deliverable.allowExperimentalVideo !== true)
                 fail("The current Wan video adapter is experimental and its gateway contract is not live-verified. Set allowExperimentalVideo only when this is disclosed in the proposed playbook for explicit user approval.");
         }
+        if (transport !== "rest" && deliverable.model !== "local-photo-export" && deliverable.model !== "host-copy")
+            validateNativePlan(deliverable.nativeRequest, deliverable);
+        if (deliverable.model === "host-copy" && kind !== "copy")
+            fail("host-copy can only produce copy deliverables.");
+        if (transport === "rest" && deliverable.nativeRequest !== undefined)
+            fail("REST compatibility projects cannot include a native request. Create a separate MCP/CLI project.");
         if (kind === "copy") {
             const limits = object(deliverable.copyLimits, "deliverable.copyLimits");
             if (!Object.keys(limits).length)
@@ -379,7 +386,7 @@ export function validatePlaybook(value, brief, research) {
             }
         }
         const estimate = number(deliverable.estimatedCostUsd, "deliverable.estimatedCostUsd");
-        if (deliverable.model === "local-photo-export") {
+        if (["local-photo-export", "host-copy"].includes(deliverable.model)) {
             if (estimate !== 0)
                 fail("Local photo export has no AIsa generation cost; set estimatedCostUsd to 0.");
         }
@@ -407,10 +414,11 @@ export function validatePlaybook(value, brief, research) {
     strings(playbook.approvalNotes, "playbook.approvalNotes");
     return copy(playbook);
 }
-export function initProject(briefValue, references, now = new Date().toISOString()) {
+export function initProject(briefValue, references, now = new Date().toISOString(), transport = "mcp") {
     const brief = validateBrief(briefValue);
     date(now, "now");
-    return { schemaVersion: 1, brief, references: validateReferences(references, brief), createdAt: now, updatedAt: now };
+    oneOf(transport, ["mcp", "cli", "rest"], "transport");
+    return { schemaVersion: 1, transport, brief, references: validateReferences(references, brief), createdAt: now, updatedAt: now };
 }
 export function validateProject(value) {
     const input = object(value, "project");
@@ -419,12 +427,14 @@ export function validateProject(value) {
     const brief = validateBrief(input.brief);
     const references = validateReferences(input.references, brief);
     const state = { schemaVersion: 1, brief, references, createdAt: date(input.createdAt, "project.createdAt"), updatedAt: date(input.updatedAt, "project.updatedAt") };
+    if (input.transport !== undefined)
+        state.transport = oneOf(input.transport, ["mcp", "cli", "rest"], "project.transport");
     if (input.research !== undefined)
         state.research = validateResearch(input.research, brief);
     if (input.playbook !== undefined) {
         if (!state.research)
             fail("A playbook requires completed research.");
-        state.playbook = validatePlaybook(input.playbook, brief, state.research);
+        state.playbook = validatePlaybook(input.playbook, brief, state.research, transportOf(state));
     }
     if (input.approval !== undefined) {
         const approval = object(input.approval, "approval");
@@ -452,7 +462,7 @@ export function setPlaybook(stateValue, value, now = new Date().toISOString()) {
     if (!state.research)
         fail("Research and its report are required before preparing the playbook.");
     assertResearchUsable(state.research, now);
-    state.playbook = validatePlaybook(value, state.brief, state.research);
+    state.playbook = validatePlaybook(value, state.brief, state.research, transportOf(state));
     delete state.approval;
     state.updatedAt = date(now, "now");
     return state;
@@ -468,7 +478,7 @@ export function approvalHash(stateValue) {
     const state = validateProject(stateValue);
     if (!state.research || !state.playbook)
         fail("Research and a playbook are required to calculate an approval hash.");
-    return createHash("sha256").update(canonical({ schemaVersion: state.schemaVersion, brief: state.brief, references: state.references, research: state.research, playbook: state.playbook })).digest("hex");
+    return createHash("sha256").update(canonical({ schemaVersion: state.schemaVersion, ...(state.transport ? { transport: state.transport } : {}), brief: state.brief, references: state.references, research: state.research, playbook: state.playbook })).digest("hex");
 }
 export function approvePlaybook(stateValue, evidence, now = new Date().toISOString()) {
     const state = validateProject(stateValue);
@@ -500,7 +510,7 @@ export function assertReady(stateValue, now = new Date().toISOString()) {
 }
 function assertPricingCurrent(playbook, now) {
     for (const deliverable of playbook.deliverables) {
-        if (deliverable.model === "local-photo-export")
+        if (["local-photo-export", "host-copy"].includes(deliverable.model))
             continue;
         const age = (Date.parse(now) - Date.parse(deliverable.pricingCheckedAt)) / 86_400_000;
         if (age > FRESHNESS_DAYS || age < -1)
@@ -550,7 +560,9 @@ export function renderPlaybook(stateValue) {
             lines.push(`Image mode: ${deliverable.imageMode}.`);
         if (deliverable.imageSize)
             lines.push(`Requested native source resolution: ${deliverable.imageSize}; its price must be included in the estimate. Original results are saved; exports may be fitted or downsized to the planned dimensions without cropping or hidden upscaling.`);
-        if (deliverable.kind === "video")
+        if (deliverable.nativeRequest)
+            lines.push(`Connection: ${transportOf(state)}. Discovered operation: ${deliverable.nativeRequest.tool}; model evidence: ${deliverable.nativeRequest.catalog.source}. Approved model-specific arguments: ${JSON.stringify(deliverable.nativeRequest.argumentsTemplate)}.`, "");
+        if (transportOf(state) === "rest" && deliverable.kind === "video")
             lines.push("Experimental video adapter: AIsa's documented Wan gateway payload conflicts with other published contracts and has not been live-verified in this release. This deliverable explicitly opts in to a potentially failing paid request; approval must cover that uncertainty. A matching public HTTPS reference photo is required; automatic upload is unavailable.");
         if (deliverable.constraints)
             lines.push(`Media acceptance constraints: ${Object.entries(deliverable.constraints).map(([key, value]) => `${key}: ${value}`).join("; ")}.`);

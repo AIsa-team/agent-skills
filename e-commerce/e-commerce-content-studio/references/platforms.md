@@ -2,9 +2,9 @@
 
 ## Supported workflow profiles
 
-Version 1.0.0 supports the following profiles. A profile helps plan and validate an export; it is not an account connector, uploader or substitute for current policy research.
+Version 1.1.0 supports the following profiles. A profile helps plan and validate an export; it is not an account connector, uploader or substitute for current policy research.
 
-**All video production remains experimental.** The profiles below describe target placements, while the only implemented video adapter is Wan 2.7 image-to-video with a matching user-hosted public HTTPS product photo. Its gateway behavior and output quality have not been verified by authenticated end-to-end generation. Explicit `allowExperimentalVideo: true` and user approval of the disclosed limitation are required. The runtime does not assemble clips, add captions or upload reference photos; see [aisa-contract.md](aisa-contract.md).
+Platform video profiles describe the destination, not guaranteed model quality. Native MCP/CLI production can use a suitable model from the current AIsa catalog with its verified reference-input contract. Disclose the selected model's actual verification limits in the playbook for user approval. The retained direct-API video adapter remains experimental and limited to Wan 2.7 with a matching public HTTPS product photo; that adapter requires `allowExperimentalVideo: true`. The runtime does not assemble clips, add captions or upload references; see [native workflow](native-workflow.md) and [compatibility contracts](aisa-contract.md).
 
 | Platform | Market | Profile | Output context |
 | --- | --- | --- | --- |
@@ -21,9 +21,9 @@ Version 1.0.0 supports the following profiles. A profile helps plan and validate
 
 Require a destination language for every profile. Product category, SKU/variant and placement are part of the requirement key. Shopify support does not mean that every category, jurisdiction or third-party sales channel has a maintained policy pack: research destination rules and report unresolved requirements for the actual request.
 
-For images, `local-photo-export` fits/resizes the supplied photo without removing its background or creating unseen angles. It is the only mode accepted for `amazon-main` in 1.0.0; provide an already compliant source photograph and verify final framing. Gemini reference editing is the only implemented generative image-edit route for other image profiles; other models advertised by a catalog are not automatically usable by this skill.
+For images, `local-photo-export` fits/resizes the supplied photo without removing its background or creating unseen angles. It remains the only mode accepted for `amazon-main`; provide an already compliant source photograph and verify final framing. Other image placements can use discovered reference-conditioned native operations with suitable model-specific contracts. A catalog entry alone does not prove the required input, output or fidelity is supported.
 
-Excluded in 1.0.0: Amazon A+ modules and paid-ad placements; TikTok paid ads, organic campaigns and LIVE; Shopify marketplace feeds, campaign placements and store implementation; native seller-account analytics and automatic publishing. A generic image or video adapter does not extend the supported platform scope.
+Excluded in 1.1.0: Amazon A+ modules and paid-ad placements; TikTok paid ads, organic campaigns and LIVE; Shopify marketplace feeds, campaign placements and store implementation; native seller-account analytics and automatic publishing. A generic image or video adapter does not extend the supported platform scope.
 
 ## Freshness and precedence
 

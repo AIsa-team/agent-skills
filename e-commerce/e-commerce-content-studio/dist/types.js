@@ -6,7 +6,7 @@ export const PLATFORM_SUPPORT = {
         { platform: "tiktok-shop-us", markets: ["US"], scope: "Shop product gallery, listing copy, product listing video" },
         { platform: "shopify", markets: "User-specified market", scope: "Store product media and copy; theme-specific requirements must be researched" },
     ],
-    video: "Experimental Wan adapter; explicit playbook opt-in and a matching public HTTPS photo required. No live generation verified in this release.",
+    video: "MCP/CLI video uses the selected model’s discovered reference-aware operation and approved schema. Direct REST retains its experimental Wan adapter.",
     planned: ["etsy-us", "ebay-us", "amazon-uk", "amazon-de", "amazon-jp", "tiktok-shop-uk", "shopee-sg", "shopee-my", "lazada-sg", "lazada-my", "aliexpress-us", "aliexpress-eu"],
     roadmap: {
         "next (planned)": ["etsy-us", "ebay-us"],
