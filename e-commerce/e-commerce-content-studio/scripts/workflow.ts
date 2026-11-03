@@ -1,4 +1,7 @@
 import { createHash } from "node:crypto";
+import { transportOf, validateNativePlan } from "./native-contract.js";
+import type { Transport } from "./native-contract.js";
+import type { Deliverable } from "./types.js";
 import { validateImageConfiguration } from "./aisa.js";
 import { PLACEMENTS, PLATFORMS } from "./types.js";
 import type { Approval, Brief, Placement, Platform, Playbook, ProjectState, Research, ValidatedReference } from "./types.js";
@@ -205,7 +208,7 @@ function assertResearchUsable(research: Research, now: string): void {
   }
 }
 
-export function validatePlaybook(value: unknown, brief: Brief, research: Research): Playbook {
+export function validatePlaybook(value: unknown, brief: Brief, research: Research, transport: Transport = "rest"): Playbook {
   const playbook = object(value, "playbook");
   for (const key of ["title", "version", "summary", "creativeDirection"]) text(playbook[key], `playbook.${key}`);
   const ids: string[] = [];
@@ -246,7 +249,7 @@ export function validatePlaybook(value: unknown, brief: Brief, research: Researc
     if (kind !== "copy") {
       if (typeof deliverable.size !== "string" || !/^[1-9]\d{0,4}x[1-9]\d{0,4}$/.test(deliverable.size)) fail("Image/video deliverable.size must be explicit WIDTHxHEIGHT pixels.");
     }
-    if (kind === "image" && deliverable.imageMode === "edit") {
+    if (transport === "rest" && kind === "image" && deliverable.imageMode === "edit") {
       const imageSize = oneOf(deliverable.imageSize, ["1K", "2K", "4K"], "deliverable.imageSize (include the source resolution in the approved pricing estimate)");
       const [width, height] = (deliverable.size as string).split("x").map(Number);
       const gcd = (a: number, b: number): number => b ? gcd(b, a % b) : a;
@@ -259,8 +262,11 @@ export function validatePlaybook(value: unknown, brief: Brief, research: Researc
     }
     if (kind === "video") {
       number(deliverable.durationSeconds, "deliverable.durationSeconds", 0.001);
-      if (deliverable.allowExperimentalVideo !== true) fail("The current Wan video adapter is experimental and its gateway contract is not live-verified. Set allowExperimentalVideo only when this is disclosed in the proposed playbook for explicit user approval.");
+      if (transport === "rest" && deliverable.allowExperimentalVideo !== true) fail("The current Wan video adapter is experimental and its gateway contract is not live-verified. Set allowExperimentalVideo only when this is disclosed in the proposed playbook for explicit user approval.");
     }
+    if (transport !== "rest" && deliverable.model !== "local-photo-export" && deliverable.model !== "host-copy") validateNativePlan(deliverable.nativeRequest, deliverable as unknown as Deliverable);
+    if (deliverable.model === "host-copy" && kind !== "copy") fail("host-copy can only produce copy deliverables.");
+    if (transport === "rest" && deliverable.nativeRequest !== undefined) fail("REST compatibility projects cannot include a native request. Create a separate MCP/CLI project.");
     if (kind === "copy") {
       const limits = object(deliverable.copyLimits, "deliverable.copyLimits");
       if (!Object.keys(limits).length) fail("Copy deliverables require explicit field character limits.");
@@ -289,7 +295,7 @@ export function validatePlaybook(value: unknown, brief: Brief, research: Researc
       }
     }
     const estimate = number(deliverable.estimatedCostUsd, "deliverable.estimatedCostUsd");
-    if (deliverable.model === "local-photo-export") {
+    if (["local-photo-export", "host-copy"].includes(deliverable.model as string)) {
       if (estimate !== 0) fail("Local photo export has no AIsa generation cost; set estimatedCostUsd to 0.");
     } else {
       number(deliverable.estimatedCostUsd, "deliverable.estimatedCostUsd for paid generation", 0.000001);
@@ -312,10 +318,11 @@ export function validatePlaybook(value: unknown, brief: Brief, research: Researc
   return copy(playbook as unknown as Playbook);
 }
 
-export function initProject(briefValue: unknown, references: ValidatedReference[], now = new Date().toISOString()): ProjectState {
+export function initProject(briefValue: unknown, references: ValidatedReference[], now = new Date().toISOString(), transport: Transport = "mcp"): ProjectState {
   const brief = validateBrief(briefValue);
   date(now, "now");
-  return { schemaVersion: 1, brief, references: validateReferences(references, brief), createdAt: now, updatedAt: now };
+  oneOf(transport, ["mcp", "cli", "rest"], "transport");
+  return { schemaVersion: 1, transport, brief, references: validateReferences(references, brief), createdAt: now, updatedAt: now };
 }
 export function validateProject(value: unknown): ProjectState {
   const input = object(value, "project");
@@ -323,10 +330,11 @@ export function validateProject(value: unknown): ProjectState {
   const brief = validateBrief(input.brief);
   const references = validateReferences(input.references, brief);
   const state: ProjectState = { schemaVersion: 1, brief, references, createdAt: date(input.createdAt, "project.createdAt"), updatedAt: date(input.updatedAt, "project.updatedAt") };
+  if (input.transport !== undefined) state.transport = oneOf<Transport>(input.transport, ["mcp", "cli", "rest"], "project.transport");
   if (input.research !== undefined) state.research = validateResearch(input.research, brief);
   if (input.playbook !== undefined) {
     if (!state.research) fail("A playbook requires completed research.");
-    state.playbook = validatePlaybook(input.playbook, brief, state.research);
+    state.playbook = validatePlaybook(input.playbook, brief, state.research, transportOf(state));
   }
   if (input.approval !== undefined) {
     const approval = object(input.approval, "approval");
@@ -347,7 +355,7 @@ export function setPlaybook(stateValue: ProjectState, value: unknown, now = new 
   const state = validateProject(stateValue);
   if (!state.research) fail("Research and its report are required before preparing the playbook.");
   assertResearchUsable(state.research, now);
-  state.playbook = validatePlaybook(value, state.brief, state.research);
+  state.playbook = validatePlaybook(value, state.brief, state.research, transportOf(state));
   delete state.approval;
   state.updatedAt = date(now, "now"); return state;
 }
@@ -359,7 +367,7 @@ function canonical(value: unknown): string {
 export function approvalHash(stateValue: ProjectState): string {
   const state = validateProject(stateValue);
   if (!state.research || !state.playbook) fail("Research and a playbook are required to calculate an approval hash.");
-  return createHash("sha256").update(canonical({ schemaVersion: state.schemaVersion, brief: state.brief, references: state.references, research: state.research, playbook: state.playbook })).digest("hex");
+  return createHash("sha256").update(canonical({ schemaVersion: state.schemaVersion, ...(state.transport ? { transport: state.transport } : {}), brief: state.brief, references: state.references, research: state.research, playbook: state.playbook })).digest("hex");
 }
 export function approvePlaybook(stateValue: ProjectState, evidence: { actor: "user"; message: string; playbookHash: string }, now = new Date().toISOString()): ProjectState {
   const state = validateProject(stateValue);
@@ -386,7 +394,7 @@ export function assertReady(stateValue: ProjectState, now = new Date().toISOStri
 
 function assertPricingCurrent(playbook: Playbook, now: string): void {
   for (const deliverable of playbook.deliverables) {
-    if (deliverable.model === "local-photo-export") continue;
+    if (["local-photo-export", "host-copy"].includes(deliverable.model)) continue;
     const age = (Date.parse(now) - Date.parse(deliverable.pricingCheckedAt!)) / 86_400_000;
     if (age > FRESHNESS_DAYS || age < -1) fail(`Pricing evidence for ${deliverable.id} must be checked within the past ${FRESHNESS_DAYS} days before approval or generation.`);
   }
@@ -424,7 +432,8 @@ export function renderPlaybook(stateValue: ProjectState): string {
     if (deliverable.copyLimits) lines.push(`Copy character limits: ${Object.entries(deliverable.copyLimits).map(([field, limit]) => `${field}: ${limit}`).join("; ")}.`);
     if (deliverable.imageMode) lines.push(`Image mode: ${deliverable.imageMode}.`);
     if (deliverable.imageSize) lines.push(`Requested native source resolution: ${deliverable.imageSize}; its price must be included in the estimate. Original results are saved; exports may be fitted or downsized to the planned dimensions without cropping or hidden upscaling.`);
-    if (deliverable.kind === "video") lines.push("Experimental video adapter: AIsa's documented Wan gateway payload conflicts with other published contracts and has not been live-verified in this release. This deliverable explicitly opts in to a potentially failing paid request; approval must cover that uncertainty. A matching public HTTPS reference photo is required; automatic upload is unavailable.");
+    if (deliverable.nativeRequest) lines.push(`Connection: ${transportOf(state)}. Discovered operation: ${deliverable.nativeRequest.tool}; model evidence: ${deliverable.nativeRequest.catalog.source}. Approved model-specific arguments: ${JSON.stringify(deliverable.nativeRequest.argumentsTemplate)}.`, "");
+    if (transportOf(state) === "rest" && deliverable.kind === "video") lines.push("Experimental video adapter: AIsa's documented Wan gateway payload conflicts with other published contracts and has not been live-verified in this release. This deliverable explicitly opts in to a potentially failing paid request; approval must cover that uncertainty. A matching public HTTPS reference photo is required; automatic upload is unavailable.");
     if (deliverable.constraints) lines.push(`Media acceptance constraints: ${Object.entries(deliverable.constraints).map(([key, value]) => `${key}: ${value}`).join("; ")}.`);
     lines.push(`Estimated base cost: USD ${deliverable.estimatedCostUsd.toFixed(4)}.`, "", deliverable.prompt, "", "Acceptance checks:", "", ...deliverable.successCriteria.map(item => `- ${item}`), "");
     if (deliverable.pricingSource) lines.push(`Pricing evidence: ${deliverable.pricingSource}; checked ${deliverable.pricingCheckedAt}.`, "");

@@ -1,16 +1,26 @@
-# AIsa adapter contracts
+# AIsa connections and compatibility contracts
 
-Reviewed **2026-10-21**. The authenticated catalog check found GPT Image edit routes but no image model compatible with the existing Gemini adapter. One direct `gpt-image-2` adapter call returned a decoded 1024×1024 PNG through AIsa. This verifies that request path only: it does not establish other models/sizes, the full CLI workflow or acceptable product fidelity. These REST contracts do not establish native MCP capability for the separately packaged WorkBuddy expert.
+## Default: host-managed MCP
 
-## Discovery and authorization
+New projects use the host's AIsa MCP connection at `https://mcp.aisa.one/mcp`. Browser OAuth needs no API key. Headless MCP may use a key configured by the host; the skill does not retrieve that key or an OAuth token. For hosts without MCP, the official AIsa CLI is a supported host-mediated connection. Follow the shared AIsa connection and spending rules in [SKILL.md](../SKILL.md).
 
-Follow the shared AIsa connection and spending rules in `SKILL.md`. The bundled runtime is REST-only and does not bridge to MCP/CLI. When those interfaces are available, discover and quote native operations; missing native media generation is a capability gap, not permission to bypass the fallback gate.
+The native runtime validates handoffs and results; the host performs discovery, schema loading, quotes and execution through the selected connection. Use [native-workflow.md](native-workflow.md) for its exact records and commands. A successful account check establishes the connection. Catalog discovery, a valid request schema, a successful quote, execution and acceptable product fidelity are separate stages.
 
-For an eligible HTTP fallback, use `GET https://api.aisa.one/v1/models` with `Authorization: Bearer $AISA_API_KEY`. The [current catalog guide](https://aisa.one/docs/guides/models) describes the free response as `data[]` with `id` and `aisa.model_type`, `aisa.capabilities`, and `aisa.routes[]` (`method`, `path`, optional `key`). Every production adapter checks the selected model's type and exact route; unknown models/routes fail before generation. Catalog entries are cached for five minutes within a client instance.
+Native image, video and text choices come from current discovery, not the compatibility adapter list below. Validate model-specific reference formats and options before selecting a model. The operation schema may be broader than the chosen model's contract; a permissive JSON schema does not prove every provider parameter works. Record the approved request template and response mappings, and preserve the exact model, references, prompt and quote binding across dispatch. Never change transport automatically after a failure or uncertain submission.
 
-Use AIsa MCP discovery with the complete goal first, then atomic capabilities; request full schemas and current quotes before paid research. Tools are discovered dynamically, not assumed from static names. Model generation must have a product reference, approved playbook, selected model, price evidence, and approved cost scope. `AisaClient` is the transport layer: use the gated studio workflow rather than calling it independently to bypass those checks.
+## Explicit direct-API compatibility
 
-## Implemented routes
+The rest of this document describes the retained REST adapters, not the default production path. Use them only when both MCP and official CLI are unavailable, HTTP is supported and a valid existing AIsa API key is available, as required by the shared HTTP fallback gate. Select REST explicitly. Keep `AISA_API_KEY` in the process environment, never in chat, project JSON, logs or exports. Paid REST calls additionally require the separate documented scope/cap approval in the shared rules; playbook approval alone does not establish that approval.
+
+Existing REST projects stay readable and may use their original recovery path with explicit transport selection. They are not migrated or resubmitted to MCP automatically. Preserve task IDs, receipts and uncertain outcomes when resuming older work.
+
+The compatibility contracts were reviewed **2026-10-21**. At that check GPT Image edit routes were available and no image model matched the retained Gemini adapter. One direct `gpt-image-2` call returned a decoded 1024×1024 PNG, but its product fidelity was unacceptable. This is historical verification of one request, not evidence for current availability, other models/sizes or a complete approved workflow.
+
+For an eligible HTTP fallback, check the account with the current documented `GET https://api.aisa.one/v1/credits/balance`; use `GET https://api.aisa.one/v1/models` for model discovery only. A catalog response is not a substitute for an account/balance check. The [catalog guide](https://aisa.one/docs/guides/models) describes `data[]` with `id` and `aisa.model_type`, `aisa.capabilities` and `aisa.routes[]` (`method`, `path`, optional `key`). Every REST adapter checks its selected model and exact route; unknown model/route combinations fail before generation. Catalog entries are cached for five minutes within a client instance. Missing capabilities stop the affected deliverable; they do not authorize model or transport substitution.
+
+`AisaClient` is the compatibility transport implementation. Do not call it independently to bypass product, research, approval, pricing or attempt controls. Use [playbook.rest.example.json](../assets/playbook.rest.example.json) only for this explicit compatibility path. Historical examples below are not current pricing evidence.
+
+## Direct-API compatibility routes
 
 | Operation | Route and request | Response |
 | --- | --- | --- |
@@ -26,7 +36,7 @@ Search/extract request and response fields were checked in AIsa's [complete Open
 
 ## GPT Image reference request
 
-The [AIsa GPT Image 2 page](https://aisa.one/models/gpt-image-2) advertises `/v1/images/edits`. Its displayed chat-style example is not a usable image-edit contract, and AIsa's downloaded OpenAPI omits this operation. The adapter uses the JSON `images[].image_url` data-URL shape documented in [OpenAI's image-edit reference](https://developers.openai.com/api/reference/resources/images/methods/edit); the live test confirmed this shape for `gpt-image-2` at medium quality and 1024×1024.
+The [AIsa GPT Image 2 page](https://aisa.one/models/gpt-image-2) advertises `/v1/images/edits`. Its displayed chat-style example is not a usable image-edit contract, and the OpenAPI snapshot checked on 2026-10-21 omitted this operation. The adapter uses the JSON `images[].image_url` data-URL shape documented in [OpenAI's image-edit reference](https://developers.openai.com/api/reference/resources/images/methods/edit); the live test confirmed this shape for `gpt-image-2` at medium quality and 1024×1024.
 
 The selected GPT Image 2 model must advertise the exact edit route in the authenticated catalog. The adapter sends reviewed JPEG, PNG or WebP references inline, at most 16 and 14 MiB combined. It requests one PNG at medium quality with this bounded native-size mapping:
 
@@ -69,7 +79,7 @@ JPEG, PNG, and WebP are accepted. Inline references are capped at 14 MiB combine
 
 The [AIsa Wan 2.7 model page](https://aisa.one/models/wan2.7-i2v) documents `content[]` containing text and HTTPS `image_url` objects with `role:"reference_image"`, plus `duration`, `ratio`, and `generate_audio`. The adapter sends those fields and defaults to five seconds without generated audio. It requires the catalog to advertise both submission and task-status routes.
 
-**Contract gap:** AIsa's downloaded OpenAPI omitted video generation and image edits. Its Wan example uses a shared multimedia shape, while [Alibaba's upstream Wan 2.7 contract](https://www.alibabacloud.com/help/en/model-studio/image-to-video-general-api-reference) uses `input.media` and describes aspect ratio following the first frame. The adapter follows AIsa's published gateway example; it must remain experimental until an authorized reference-conditioned live call confirms gateway translation, portrait/square ratios, response envelope, and output quality. AIsa's example demonstrates 16:9; portrait and square are request options, not verified capability claims. Upstream duration is 2–15 seconds; gateway availability and cost still require confirmation.
+**Historical compatibility-contract gap (2026-10-21):** The OpenAPI snapshot checked then omitted video generation and image edits; this does not describe the current native MCP schemas. Its Wan example uses a shared multimedia shape, while [Alibaba's upstream Wan 2.7 contract](https://www.alibabacloud.com/help/en/model-studio/image-to-video-general-api-reference) uses `input.media` and describes aspect ratio following the first frame. The adapter follows AIsa's published gateway example; it must remain experimental until an authorized reference-conditioned live call confirms gateway translation, portrait/square ratios, response envelope, and output quality. AIsa's example demonstrates 16:9; portrait and square are request options, not verified capability claims. Upstream duration is 2–15 seconds; gateway availability and cost still require confirmation.
 
 Video references require user-accessible HTTPS URLs. The studio verifies that a remote reference matches the inspected local photo before sending it. No upload endpoint, local file URL, or video data-URI support is invented. No text-to-video fallback is allowed. Output URLs may expire; download promptly and preserve the job ID for recovery.
 
@@ -81,4 +91,4 @@ If a successful synchronous response cannot be written to its cache file, its re
 
 Requests have a body-inclusive deadline, a 96 MiB response limit, and disabled redirects. Authentication only goes to `api.aisa.one`; provider error bodies are not printed. Network/timeout failures after POST are ambiguous and are never automatically retried. `AisaError.taskId`, when present, preserves a recoverable video job identifier even when submission parsing fails. HTTP/auth errors stop immediately. A finished video without a usable URL fails validation.
 
-Seedream image editing, Wan image editing, masks, dedicated image uploads, additional video models, and automatic model fallback are **not implemented**. Add one only after checking its complete request contract, reference conditioning, current route, pricing, and response handling. Do not treat an “Edit” catalog badge as a schema or claim that the untested model is production ready.
+In the legacy REST adapters, Seedream image editing, Wan image editing, masks, dedicated image uploads, additional video models, and automatic model fallback are **not implemented**. This list describes those fixed compatibility adapters; it is not the native MCP/CLI model catalog or an allowlist for native production. Add one only after checking its complete request contract, reference conditioning, current route, pricing, and response handling. Do not treat an “Edit” catalog badge as a schema or claim that the untested model is production ready.

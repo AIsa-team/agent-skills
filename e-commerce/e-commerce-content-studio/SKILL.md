@@ -1,10 +1,10 @@
 ---
 name: e-commerce-content-studio
-description: "Prepare platform-specific e-commerce product images and listing copy with AIsa, plus experimental product-video generation. Use for 商品图、商品文案 and listing content for Amazon US, TikTok Shop US or Shopify product pages. Requires real user-supplied product photos, current platform research, an evidence-backed creative playbook and explicit user approval before production."
+description: "Create platform-specific product images, localized listing copy and product videos with AIsa. Use for 商品图、商品文案 and listing content for Amazon US, TikTok Shop US or Shopify product pages. Requires real product photos, current platform research and a user-approved creative playbook; offers suitable models from the live AIsa catalog."
 license: MIT
-compatibility: "Requires Node.js 22+, ffmpeg, ffprobe and a host agent with research and visual inspection tools. Compiled JavaScript ships without npm runtime dependencies. Direct AIsa REST production requires network access and AISA_API_KEY; native MCP research can use its own OAuth connection. Profiles support content preparation and validation, not account integration or publishing."
+compatibility: "Requires Node.js 22+, ffmpeg, ffprobe and a host agent with research and visual inspection tools. New projects use host-managed AIsa MCP; browser OAuth needs no API key. Headless MCP can use a host-configured key. Hosts without MCP may use the official AIsa CLI. Explicit direct-API compatibility requires an existing AISA_API_KEY and the shared HTTP fallback gate. Compiled JavaScript requires the shipped Ajv validation dependencies; install with npm ci --omit=dev."
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # E-commerce Content Studio
@@ -58,92 +58,87 @@ The settled cost of a direct HTTP call is reported by the response header `X-AIS
 - `429`: rate limited. Wait and retry with backoff. Details: https://aisa.one/docs/api-reference/rate-limits
 <!-- aisa-rules:end -->
 
-Turn verified product references into a researched, user-approved content package. The host agent researches, makes creative decisions and inspects media; the TypeScript executable records workflow state, calls supported AIsa operations and validates production artifacts. A successful API response alone is not a finished asset.
+Turn real product references into a researched, user-approved content package. The host handles AIsa discovery and native calls, research, creative decisions and visual inspection. The TypeScript runtime records approvals, prepares and validates request handoffs, tracks results and validates saved artifacts. A successful generation response is not a finished asset.
 
 ## Opening greeting — every invocation
 
-At the start of every new invocation, whether initiated by a user or another agent, make the following concise greeting and menu the **first user-facing response**, before research, setup checks or production. Use the user's language; show one language only. An invoking agent must surface this menu to the user before continuing. Show it once per invocation, not before every command or follow-up within the same invocation.
+Make this concise menu the first user-facing response on every new invocation, including invocations by another agent. Use the user's language and show it once, not before every follow-up:
 
 > Welcome to E-commerce Content Studio. What would you like to work on?
 >
 > 1. Research platform requirements and propose a playbook
 > 2. Create product images
 > 3. Write localized listing copy
-> 4. Create product videos **(experimental)**
+> 4. Create product videos
 > 5. Prepare a complete content package
 > 6. Resume a project, review outputs or export
 >
 > Platforms: **Amazon US · TikTok Shop US · Shopify**.
-> New projects need real product photos; generation starts after you approve the playbook.
+> We can compare available AIsa models for your task. New projects need real product photos; production starts after you approve the playbook.
 
-If the request already identifies an option, acknowledge that selection after the menu and proceed with the supplied information; do not make the user choose again. Otherwise ask for an option or a natural-language goal. For a new project, request only missing product photos and target-platform details, then follow the photo gate below. For an existing project, reuse its verified photos and approval state and ask only for a missing project location. Showing the menu or explaining platform support does not require photos; research and content production do. A menu selection never substitutes for playbook approval.
+If the request already identifies an option, acknowledge it and proceed; do not make the user choose again. Ask only for missing photos, scope or existing project location. The menu and connection/model explanations do not require photos; product research and production do. A menu selection does not approve a playbook.
 
-## Supported scope
+## Scope and connection
 
 | Platform / market | Supported placements |
 | --- | --- |
 | Amazon US | `amazon-main`, `amazon-gallery`, `amazon-copy`, `amazon-video` |
 | TikTok Shop US | `tiktok-gallery`, `tiktok-copy`, `tiktok-video` for product listings |
-| Shopify storefront | `shopify-gallery`, `shopify-copy`, `shopify-video` for product pages; require destination country, language and theme/layout context |
+| Shopify storefront | `shopify-gallery`, `shopify-copy`, `shopify-video`; require destination country, language and actual theme/layout |
 
-These are workflow profiles and export checks. They do not grant seller eligibility, connect account analytics or upload listings. TikTok paid ads, organic campaigns, Shopify marketplace feeds and other countries/platforms are outside version 1.0.0. Read [references/platforms.md](references/platforms.md) for source selection and the explicitly unsupported roadmap.
+These are planning and export profiles, not seller-account connections or publishing. Other platforms, paid ads, organic campaigns and marketplace feeds remain outside this release. See [platform scope and roadmap](references/platforms.md).
 
-**Video generation is experimental.** Only the Wan 2.7 image-to-video adapter is implemented; its gateway translation and output quality have not been verified by authenticated end-to-end generation. A video deliverable must set `allowExperimentalVideo: true`, disclose this limitation in the rendered playbook and receive the user's approval. Platform video profiles do not establish reliable video production.
+**Default to AIsa MCP at `https://mcp.aisa.one/mcp`**, following the shared connection rules above. Let the host manage browser OAuth; do not ask MCP users for an API key. Headless MCP may use a key configured in the host. Verify the actual connection with the free account call before native research or production. When the host has no MCP, use the official AIsa CLI and record that transport. Do not present a transport-choice questionnaire on every invocation.
+
+The native runtime is a host-mediated handoff, not an OAuth client: it never extracts tokens or calls a hidden REST fallback. Its connection, schema, quote and result receipts come from the actual selected MCP/CLI interface. Direct API adapters remain an explicitly selected developer compatibility path only when the shared HTTP fallback gate applies. Keep the selected transport stable throughout a project. Existing REST projects remain readable and recoverable; do not migrate or resubmit them automatically. See [native workflow](references/native-workflow.md) and [compatibility contracts](references/aisa-contract.md).
 
 ## 1. Require product photos
 
-**Stop before research or generation unless every requested SKU has at least one usable user-supplied photo of the real product. This also applies to copy-only jobs.** A description, competitor image, AI concept, inaccessible URL or placeholder is not a substitute. Ask for the missing product photos and wait; do not silently omit a SKU.
+**Stop before research or production unless every requested SKU has at least one usable user-supplied photo of the real product. This includes copy-only jobs.** Descriptions, competitor images, generated concepts, inaccessible URLs and placeholders do not qualify. Request the missing photos and wait; do not omit a SKU silently.
 
-Open the supplied files and verify they are decodable, sufficiently clear and depict the relevant variant. Record their local paths, hashes, SKU/variant mapping and what each view proves. Request more views if a required angle, label or feature cannot be established. Never infer hidden construction, materials, dimensions or included accessories from appearance alone.
+Open and inspect the photos, then record paths, hashes, SKU/variant mapping and what each view proves. Request another view if a required angle or detail cannot be established. Photos alone do not prove materials, dimensions, performance, certifications or included accessories.
 
-Capture the platform, market, product category, placement, destination language, audience, deliverables and budget. Obtain product facts, dimensions/units, variant counts, included items, substantiated claims and brand assets. Shopify requires `themeUrl` or `themeDescription` for the actual theme/intended page layout and crops. Mark missing facts as unknown; product photos do not prove performance claims or certifications. Use [assets/brief.example.json](assets/brief.example.json) for the intake shape, replacing all illustrative values.
+Capture platform, market, product category, placement, language, audience, deliverables and budget. Obtain specifications, units, variant counts, included items, substantiated claims and brand assets. Shopify requires `themeUrl` or `themeDescription`. Use the [brief template](assets/brief.example.json), replacing illustrative values; unknown facts remain unknown.
 
-## 2. Research before proposing creative
+## 2. Research and discover suitable models
 
-Read [references/platforms.md](references/platforms.md). Recheck applicable official sources during each run; bundled profiles and source links are starting points, not a promise of current policy. Record **platform × market × category × placement**, source URL, retrieval date, effective date where available, mandatory rule versus recommendation and any unresolved conflict. A material unresolved requirement blocks that placement.
+Recheck applicable current official platform sources during each run. Record **platform × market × category × placement**, URL, retrieval/effective dates, mandatory rule versus recommendation and unresolved conflicts. A material unresolved requirement blocks that placement. Read [references/platforms.md](references/platforms.md).
 
-Prefer AIsa's authorized native MCP connection and its OAuth flow for research. Direct REST search/extract adapters require the shared rules' HTTP fallback gate and an existing `AISA_API_KEY`. Discover operation schemas, availability and prices before use. The captured [research contracts](references/research-contracts.json) are discovery evidence from 18 October 2026, not proof of current execution access or paid use. If a required operation is unavailable, report the gap; do not invent an endpoint. Use another research method only within the user's authorized scope and disclose it.
+Use AIsa discovery with the full goal, then obtain complete schemas and quote the exact calls under the shared spending rules. Use another research method only within the user's authorized scope and disclose it. The bundled [research schema snapshot](references/research-contracts.json) is historical discovery evidence, not current execution access.
 
-Inspect a focused set of comparable creatives in the same category, market, audience and placement. Cite the actual listing or creative and record its observation date. Separate measured business outcomes, platform-selected performance examples and public proxies. Sales rank, reviews, views and search position do not prove that a particular creative caused sales. When conversion evidence is unavailable, label examples as references with observable signals rather than proven winners.
+Inspect comparable creatives in the same category, audience, market and placement. Cite actual listings/creatives and observation dates. Separate measured outcomes, platform-selected examples and public proxies: rank, reviews, views and search position do not prove that a creative caused sales. Label examples without conversion evidence as references with observable signals.
+
+**Offer the full live AIsa catalog, without a skill-maintained model allowlist.** For a suggested or user-selected model, verify the current operation, model-specific options, reference formats/counts, dimensions/duration, output format and price. Explain differences that affect the user's goal. A model's presence in a catalog does not establish its fitness for every task. Product images and videos require supported conditioning on the approved product references; a text-only model cannot silently replace that input. Use a model-specific request template grounded in the discovered contract, rather than copying one model's parameters to another. If an input format or response cannot be represented by the validated handoff, identify that concrete gap instead of claiming the model is unavailable in AIsa.
 
 ## 3. Present the report and approval gate
 
-Read [references/creative-playbook.md](references/creative-playbook.md). Save a source-backed research report and versioned playbook with the proposed image sequence, copy structure, storyboards, factual claims, visual direction, platform rules, production variants, cost estimates/attempt allowances and QA criteria. Estimates do not cap provider billing. Use the [research](assets/research.example.json) and [playbook](assets/playbook.example.json) templates, replacing placeholder facts, dates, models and prices. Explain which patterns are observations and which are creative hypotheses. Do not copy competitors' images, branding, wording or unsupported claims.
+Read [references/creative-playbook.md](references/creative-playbook.md). Save the research report and versioned playbook with image sequence, copy structure, storyboards, claims, visual direction, platform rules, exact selected models/options, reference mapping, estimates/attempt allowances and QA criteria. Prices and estimates are not billing caps. Use the [research](assets/research.example.json) and [playbook](assets/playbook.example.json) templates.
 
-**Stop and ask the user to confirm or modify that exact playbook before generating any product image, video or final listing copy.** Research notes, positioning options and a storyboard belong before this gate; finished copy and generated previews belong after it. Record the user's explicit approval against the approved version/hash. An agent cannot approve on the user's behalf. Material changes to product references, facts, requirements, creative direction or deliverables require a revised playbook and renewed approval.
+**Stop and ask the user to confirm or modify that exact playbook before generating any product image, video or final listing copy.** Outlines and storyboards belong before this gate; generated previews and finished copy belong after it. Record explicit user approval against the playbook hash. An agent cannot approve on the user's behalf. Changes to products, references, claims, requirements, creative direction, selected model/options or deliverables require a revised playbook and renewed approval.
 
-## 4. Produce through AIsa
+Disclose the verification and quality limits of the chosen operation/model. Do not claim a model passed live generation because its schema or an offline test passed. The retained REST Wan video adapter specifically remains experimental and requires `allowExperimentalVideo: true`; obtain approval of that disclosed limitation when using it.
 
-Read [references/aisa-contract.md](references/aisa-contract.md) before production. The bundled production executable implements REST, not an MCP/CLI bridge. Use it only when the shared rules' direct-HTTP fallback gate and paid-call approval requirements are met; playbook approval alone does not establish that gate. With an available MCP/CLI connection, discover and quote the required native capability. If native generation is unavailable, report that limitation; do not claim this runtime can execute native operations or silently switch to REST. The implemented modes are:
+## 4. Produce through the selected AIsa connection
 
-- **`local-photo-export` / `imageMode: "preserve"`:** resize and fit the supplied photo on a white canvas without generative redrawing or cropping. It does not remove the existing background, isolate the product or create a new angle. This is the only mode allowed for `amazon-main` in 1.0.0; provide an already compliant product photo and check the final framing.
-- **GPT Image reference editing / `imageMode: "edit"`:** send inline product photos through `/v1/images/edits` with an explicitly selected GPT Image 2 model whose current catalog advertises that route. This adapter requests one PNG at medium quality: `1K` square/3:2/2:3 or `2K` square. See the contract reference for exact dimensions and verification status; no automatic model fallback is allowed.
-- **Gemini reference editing / `imageMode: "edit"`:** the `/v1beta/models/{model}:generateContent` adapter remains available, but the authenticated catalog check on **2026-10-21** found no compatible image model. Recheck before selecting it; an old example model cannot establish availability. Native generation size and final export dimensions are separate.
-- **Listing copy:** a catalog-compatible chat model through `/v1/chat/completions`, using the approved product facts and field limits.
-- **Experimental video:** only `wan2.7-i2v`, with `allowExperimentalVideo: true` and a user-supplied public HTTPS `remoteUrl` whose downloaded bytes match the inspected local photo. There is no upload endpoint or text-to-video fallback. Missing hosting stops video production; never silently upload the user's photo elsewhere.
+Follow [references/native-workflow.md](references/native-workflow.md) for MCP/CLI production. Load complete discovered schemas, assemble the approved model-specific arguments with the real photo bytes or verified photo URLs, quote those exact arguments, prepare the bound handoff, mark dispatch before the host call and ingest its actual receipt. Do not paste truncated base64, stringify an argument object twice, invent operation names or reload schemas reflexively before every call. Refresh when incomplete, expired or contradicted by a contract error.
 
-Other image-edit adapters, masking/background removal, deterministic text composition, video assembly and captions are not implemented. Do not promise those deliverables through this runtime. A direct `gpt-image-2` adapter test on **2026-10-21** returned a decoded 1024×1024 PNG; it did not test the full CLI workflow, other models or sizes. Visual review found product-detail changes, so the test image was not listing-approved. These REST adapters do not establish native MCP generation capability in the WorkBuddy expert. Keep all production within approved deliverables and attempt/estimate allowances.
+- **Original-photo export:** `local-photo-export` with `imageMode: "preserve"` fits/resizes the supplied photo without redrawing or cropping. It does not remove an existing background or create unseen angles. This remains the only mode for `amazon-main`; supply an already compliant source and inspect final framing.
+- **Reference-conditioned images/video:** use the selected live model's supported operation and exact approved options. Never silently switch models, drop references or upload product photos elsewhere to satisfy a URL requirement.
+- **Listing copy:** use a suitable discovered AIsa text operation with approved product facts and field limits. Photos are still required at intake, even if the text operation uses only the approved facts.
+- **Direct-API compatibility:** use only the explicit REST path and its documented adapters under [references/aisa-contract.md](references/aisa-contract.md). Native capability failure alone does not authorize REST.
 
-Async task acceptance is not completion: retain task IDs and use `resume` for a bounded status check or saved-output recovery. Use `retry` only after a confirmed failure or inspected rejection within the allowance. An ambiguous POST timeout may have incurred a charge; reconcile it before any resubmission. Inspect terminal errors and save completed media locally.
+Keep every attempt within approved deliverables, estimates and allowances. A task ID means acceptance, not completion. Poll or recover the same task; do not resubmit to check status. An ambiguous paid dispatch can already have incurred a charge: reconcile its receipt/job before any retry. Authentication failures require recovery through the selected interface, not switching to another one. Missing cost metadata means unknown, not free.
 
-Preserve the real product's geometry, color, texture, branding, labels, quantity and variant. Prefer the original-photo export when exact identity matters and the source already suits the placement. A reference-conditioned generation can still alter the product; do not promise pixel preservation from prompting alone. Inspect all typography, dimensions and labels. Reject invented accessories, distorted logos, false scale, unsupported effects and mismatched SKUs.
-
-Generate final copy only from the approved claims ledger and platform field requirements. Localize meaning, units and spelling for the selected destination. Avoid fabricated testimonials, certifications, superlatives, inventory urgency or feature claims. Video must show supported behavior and preserve identity across frames. If the placement needs a longer assembled video, captions or other unimplemented editing, mark that deliverable outside the current runtime instead of calling a short generated clip complete.
+Preserve product geometry, color, finish, branding, labels, quantity and variant. Reference conditioning does not guarantee fidelity. Reject invented accessories, unsupported motion/effects, distorted logos, false scale and mismatched SKUs. Localize copy from the approved claims ledger without fabricating testimonials, certifications, urgency or performance claims. The runtime does not assemble clips, add captions or compose deterministic typography; do not call one short clip a finished edit if the placement needs those steps.
 
 ## 5. Inspect, validate and deliver
 
-Save every final image, video and copy artifact, along with generation metadata and its association with the approved playbook. Run technical validation against the current requirement records: dimensions, aspect ratio, file type/size, duration, fields and relevant text limits. Inspect actual images and video frames against the original references; review all copy and on-image text. Check category constraints, language, product identity, audio and any required AI disclosure or metadata. Automated checks support this review; they cannot establish truthful product appearance by themselves.
+Save media/copy and their generation receipts tied to the approved playbook. Validate dimensions, aspect, actual file format/size, duration, fields and text limits against the current recorded requirements. Inspect images, video frames and motion against original references; review complete copy, typography, claims, language and applicable disclosure requirements. Automated checks cannot establish truthful product appearance.
 
-Record inspected artifact hashes, findings and pass/fail decisions. Never mark unseen media as approved or describe unchecked outputs as platform-ready. Repair within the approved scope and budget, then repeat the affected checks. If an asset cannot pass, deliver the status and needed next step rather than quietly replacing it with a placeholder.
-
-Deliver the local assets and copy, research report, approved playbook, provenance/validation manifest and unresolved limitations. Offer test hypotheses tied to a measurable objective; do not guarantee conversion lift. **Do not automatically publish listings or launch campaigns.**
+Record artifact hashes and actual pass/fail findings. Never approve unseen media or call unchecked output platform-ready. Repair within scope and budget, retain failure history and repeat affected checks. Deliver assets, report, approved playbook and provenance/validation manifest with unresolved limitations. Offer measurable test hypotheses without promising conversion lift. **Do not automatically publish listings or launch campaigns.**
 
 ## Runtime and references
 
-The executable is implemented in TypeScript and ships with compiled JavaScript without npm runtime dependencies. Node.js 22+, `ffmpeg` and `ffprobe` are required for file decoding, technical inspection and photo exports. They do not provide a video-editing workflow in this package. Resolve paths relative to the installed skill root; use absolute job and asset paths when invoking it elsewhere. Host research, approval and visual inspection remain required even when a command completes successfully.
-
-Run `node dist/cli.js --help` from the installed skill root. The workflow is `init` → `research-import` → `playbook-import` → `report` → explicit user confirmation → `approve` → `generate`/`resume` → `review` → `export`. Use `status` for project state and `retry` for an eligible failed/rejected attempt. Use `platforms` for scope and `models` for authenticated catalog discovery; neither verifies generation. See [README.md](README.md) for arguments and the [approval](assets/approval.example.json) and [review](assets/review.example.json) record shapes.
-
-Consult the [AIsa API Reference](https://aisa.one/docs/api-reference) and [model catalog](https://aisa.one/docs/guides/models) for live capability discovery. Supported implementation details and command usage are documented in [README.md](README.md); do not treat a documentation listing as evidence of a successful authenticated generation.
+TypeScript source and compiled JavaScript ship with Ajv schema validation. Run `npm ci --omit=dev` once in the installed skill directory. Node.js 22+, `ffmpeg` and `ffprobe` support decoding, technical QA and photo export. Run `node dist/cli.js --help` from the installed skill root; use absolute project/asset paths elsewhere. See [README.md](README.md) for commands, [native workflow](references/native-workflow.md) for receipt formats and [creative playbook](references/creative-playbook.md) for approval/QA. A completed command does not replace host research, user approval or visual inspection.
 
 MIT distribution license: [LICENSE](../LICENSE).

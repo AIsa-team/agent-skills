@@ -5,33 +5,50 @@ import { pathToFileURL } from 'node:url';
 import { AisaClient } from './aisa.js';
 import { PLATFORM_SUPPORT, PLACEMENTS } from './types.js';
 import type { ProjectState, ValidatedReference } from './types.js';
-import { approvePlaybook, approvalHash, initProject, renderPlaybook, renderResearch, setPlaybook, setResearch, validateBrief, validateProject } from './workflow.js';
+import { approvePlaybook, approvalHash, assertReady, initProject, renderPlaybook, renderResearch, setPlaybook, setResearch, validateBrief, validateProject } from './workflow.js';
 import { atomicJson, inspectMedia } from './media.js';
 import { exportPackage, generate, loadLedger, resume, review, safeId, verifyReferences } from './production.js';
+import { buildNativeRequest, cancelNativePrepared, importConnection, importHostCopy, ingestNativeResult, markNativeDispatched, prepareNative, prepareNativePoll, resumeNative } from './native.js';
 
-const help = `E-commerce Content Studio — version 1.0.0
+const help = `E-commerce Content Studio — version 1.1.0
 
 Node.js 22+, ffmpeg and ffprobe are required. Paths may be absolute.
   platforms                                  Current profiles and future roadmap
-  init <brief.json> <project-dir>             Decode and copy required product photos
+  init <brief.json> <project-dir> [--transport mcp|cli|rest]
+                                             Copy required photos; default connection: MCP
   research-import <project-dir> <research.json>
   playbook-import <project-dir> <playbook.json>
   report <project-dir>                       Write research/playbook reports and hash
   approve <project-dir> <approval.json>       Record the user's exact-version approval
-  generate <project-dir> <deliverable-id>     One approved production attempt
-  resume <project-dir> <deliverable-id>       One status check / resume saved output
-  retry <project-dir> <deliverable-id>        Retry confirmed failure within allowance
+  connection-import <project-dir> <receipt.json>
+  build-native-request <project-dir> <deliverable-id> [--job <job-id>]
+  prepare-native <project-dir> <request.json>
+  mark-native-dispatched <project-dir> <operation-id>
+  cancel-native-prepared <project-dir> <operation-id>
+  ingest-native-result <project-dir> <operation-id> <result.json>
+  prepare-native-poll <project-dir> <job-id> <request.json>
+  resume-native <project-dir> <deliverable-id>
+  import-host-copy <project-dir> <deliverable-id> <copy.json>
+  generate <project-dir> <deliverable-id>     Local photo or explicitly selected REST
+  resume <project-dir> <deliverable-id>       Resume through the saved connection
+  retry <project-dir> <deliverable-id>        REST/local retry after confirmed failure
   review <project-dir> <review.json>          Record actual inspections of all outputs
   status <project-dir>                       Show approval and generation status
   export <project-dir> <new-destination>      Export only a fully reviewed package
-  models                                    Discover AIsa model routes (API key needed)
+  models [--transport mcp|cli|rest]           Host discovery instructions; explicit REST query
 
-Research runs through the host's AIsa MCP tools, with current schema and quote checks.
+Connect AIsa MCP at https://mcp.aisa.one/mcp through your host and complete browser
+authorization. The host checks the account, discovers models and tools, and executes
+quoted native requests. No pasted API key is required for MCP. The official AIsa CLI
+is an explicit host-managed alternative; this helper does not read its credentials.
 Import the source-backed research and proposed playbook; show both to the user before
 recording approval. No product photos means stop, including for copy-only requests.
-For direct REST generation set AISA_API_KEY in the environment. Never pass keys as
-arguments. This tool does not publish listings or claim live account integration.
-Video requires a public HTTPS remoteUrl for the same approved reference photograph.
+For direct REST compatibility, select --transport rest at init and configure
+AISA_API_KEY in the environment. Older projects without a saved transport require
+--transport rest on generate/retry/resume before a REST network operation. Connections
+cannot be switched within a project. No credential or error triggers a fallback.
+Never pass keys as arguments. This tool does not publish listings. REST video requires
+a public HTTPS remoteUrl for the same approved photo; native inputs follow live schemas.
 Estimates and attempt limits do not enforce a provider billing cap.
 `;
 const json = async (path: string): Promise<unknown> => JSON.parse(await readFile(resolve(path), 'utf8'));
@@ -56,25 +73,66 @@ async function lock<T>(directory: string, action: () => Promise<T>): Promise<T> 
   try { await handle.writeFile(JSON.stringify({ pid: process.pid, createdAt: new Date().toISOString() })); return await action(); }
   finally { await handle.close(); await rm(path, { force: true }); }
 }
-function client(): AisaClient | undefined {
-  return process.env.AISA_API_KEY ? new AisaClient({ apiKey: process.env.AISA_API_KEY }) : undefined;
+type Transport = 'mcp' | 'cli' | 'rest';
+type ParsedArgs = { positional: string[]; transport?: Transport; job?: string };
+function parseArgs(args: string[]): ParsedArgs {
+  const parsed: ParsedArgs = { positional: [] };
+  for (let i = 0; i < args.length; i++) {
+    const value = args[i];
+    if (value === '--transport') {
+      if (parsed.transport !== undefined) throw new Error('--transport must be specified only once.');
+      const transport = args[++i];
+      if (!['mcp', 'cli', 'rest'].includes(transport)) throw new Error('--transport must be mcp, cli, or rest.');
+      parsed.transport = transport as Transport;
+    } else if (value === '--job') {
+      if (parsed.job !== undefined) throw new Error('--job must be specified only once.');
+      const job = args[++i];
+      if (!job || job.startsWith('-')) throw new Error('--job requires a saved job ID.');
+      parsed.job = safeId(job);
+    } else if (value.startsWith('-') && !['--help', '-h'].includes(value)) throw new Error('Unknown option. Use help for supported flags; credentials must never be passed as arguments.');
+    else parsed.positional.push(value);
+  }
+  const command = parsed.positional[0];
+  if (parsed.transport && !['init', 'models', 'generate', 'resume', 'retry'].includes(command)) throw new Error(`--transport is not supported by ${command ?? 'this command'}.`);
+  if (parsed.job && command !== 'build-native-request') throw new Error('--job is only supported by build-native-request.');
+  return parsed;
+}
+function selectedTransport(state: ProjectState, requested?: Transport): Transport {
+  const transport = state.transport ?? 'rest';
+  if (requested && requested !== transport) throw new Error(`This project uses ${state.transport ?? 'legacy REST'}. Create a new project to change connections; reconcile existing jobs through their original connection first.`);
+  return transport;
+}
+function restClient(state?: ProjectState, requested?: Transport): AisaClient {
+  if (state && selectedTransport(state, requested) !== 'rest') throw new Error('REST cannot execute a project using another connection.');
+  if (state && state.transport === undefined && requested !== 'rest') throw new Error('This legacy project has no saved connection. Explicitly select --transport rest to resume its REST workflow; this does not change its approval or migrate existing jobs.');
+  if (!process.env.AISA_API_KEY) throw new Error('The explicitly selected REST connection requires AISA_API_KEY in the environment. Never paste the key into a command or project file.');
+  return new AisaClient({ apiKey: process.env.AISA_API_KEY });
+}
+function nativeInstructions(transport: 'mcp' | 'cli'): string {
+  return transport === 'mcp'
+    ? 'Connect AIsa in your host using https://mcp.aisa.one/mcp, complete browser authorization, and run the account check. Import the host connection receipt, then use build-native-request and prepare-native; the host executes the quoted MCP operation. Do not supply an API key or switch to REST.'
+    : 'Use the authenticated official AIsa CLI in your host to check the account and discover current tools. Import its connection receipt, then use build-native-request and prepare-native; the host executes the quoted CLI operation. This helper never reads CLI credentials or switches to REST.';
 }
 
 export async function main(args = process.argv.slice(2)): Promise<unknown> {
-  const [command, first, second, ...extra] = args;
-  if (!command || ['--help', '-h', 'help'].includes(command)) return help;
+  const parsed = parseArgs(args);
+  const [command, first, second, third] = parsed.positional;
+  if (!command || ['--help', '-h', 'help'].includes(command)) {
+    if (parsed.positional.length > 1) throw new Error('help takes no arguments.');
+    return help;
+  }
   if (command === 'platforms') {
-    if (args.length !== 1) throw new Error('platforms takes no arguments.');
-    return { version: '1.0.0', ...PLATFORM_SUPPORT, placements: PLACEMENTS, meaning: 'Content workflow profiles and validated exports; no seller-account or publishing integrations. Future platforms are rejected at intake.' };
+    if (parsed.positional.length !== 1) throw new Error('platforms takes no arguments.');
+    return { version: '1.1.0', ...PLATFORM_SUPPORT, placements: PLACEMENTS, meaning: 'Content workflow profiles and validated exports; no seller-account or publishing integrations. Future platforms are rejected at intake.' };
   }
   if (command === 'models') {
-    if (args.length !== 1) throw new Error('models takes no arguments.');
-    const connection = client();
-    if (!connection) throw new Error('Set AISA_API_KEY for model discovery.');
-    return { models: await connection.listModels(), verification: 'Catalog discovery only; media generation has not been tested by this command.' };
+    if (parsed.positional.length !== 1) throw new Error('models takes no arguments.');
+    const transport = parsed.transport ?? 'mcp';
+    if (transport !== 'rest') return { transport, action: 'host-model-discovery-required', instructions: nativeInstructions(transport), next: 'Discover the live model catalog and selected model detail, complete schemas and quote in the same authenticated session. Offer every suitable currently available model; a catalog entry alone does not prove reference-input support.' };
+    return { transport, models: await restClient().listModels(), verification: 'Catalog discovery only; media generation has not been tested by this command.' };
   }
-  const count: Record<string, number> = { init: 3, 'research-import': 3, 'playbook-import': 3, report: 2, approve: 3, generate: 3, resume: 3, retry: 3, review: 3, status: 2, export: 3 };
-  if (!(command in count) || args.length !== count[command] || extra.length) throw new Error(`Invalid command or arguments.\n${help}`);
+  const count: Record<string, number> = { init: 3, 'research-import': 3, 'playbook-import': 3, report: 2, approve: 3, generate: 3, resume: 3, retry: 3, review: 3, status: 2, export: 3, 'connection-import': 3, 'build-native-request': 3, 'prepare-native': 3, 'mark-native-dispatched': 3, 'cancel-native-prepared': 3, 'ingest-native-result': 4, 'prepare-native-poll': 4, 'resume-native': 3, 'import-host-copy': 4 };
+  if (!(command in count) || parsed.positional.length !== count[command]) throw new Error(`Invalid command or arguments.\n${help}`);
   if (command === 'init') {
     const inputPath = resolve(first!);
     const brief = validateBrief(await json(inputPath));
@@ -97,21 +155,44 @@ export async function main(args = process.argv.slice(2)): Promise<unknown> {
       ref.path = path;
       references.push({ ...ref, path, sha256: info.sha256, mimeType: info.mimeType as ValidatedReference['mimeType'], width: info.width, height: info.height });
     }
-    const state = initProject(brief, references);
+    const state = initProject(brief, references, undefined, parsed.transport ?? 'mcp');
     await atomicJson(join(directory, 'project.json'), state);
-    return { project: directory, stage: 'research-required', photos: references.length, next: 'Inspect the product photos, research the selected platform requirements and comparable creatives, then import the source-backed report.' };
+    return { project: directory, transport: state.transport, stage: 'research-required', photos: references.length, next: 'Inspect the product photos, research the selected platform requirements and comparable creatives, then import the source-backed report.' };
   }
   const directory = resolve(first!);
   return lock(directory, async () => {
     let state = await project(directory);
+    if (parsed.transport) selectedTransport(state, parsed.transport);
     if (command === 'research-import') state = setResearch(state, await json(second!));
     else if (command === 'playbook-import') state = setPlaybook(state, await json(second!));
     else if (command === 'approve') state = approvePlaybook(state, await json(second!) as Parameters<typeof approvePlaybook>[1]);
-    else if (command === 'generate' || command === 'retry') return generate(directory, state, second!, client(), command === 'retry');
-    else if (command === 'resume') return resume(directory, state, second!, client());
+    else if (command === 'connection-import') return importConnection(directory, state, await json(second!));
+    else if (command === 'build-native-request') return buildNativeRequest(directory, state, second!, parsed.job);
+    else if (command === 'prepare-native') return prepareNative(directory, state, await json(second!));
+    else if (command === 'mark-native-dispatched') return markNativeDispatched(directory, state, second!);
+    else if (command === 'cancel-native-prepared') return cancelNativePrepared(directory, state, second!);
+    else if (command === 'ingest-native-result') return ingestNativeResult(directory, state, second!, await json(third!));
+    else if (command === 'prepare-native-poll') return prepareNativePoll(directory, state, second!, await json(third!));
+    else if (command === 'resume-native') return resumeNative(directory, state, second!);
+    else if (command === 'import-host-copy') return importHostCopy(directory, state, second!, await json(third!));
+    else if (command === 'generate' || command === 'retry') {
+      const deliverable = assertReady(state).deliverables.find(item => item.id === second);
+      if (!deliverable) throw new Error('Unknown deliverable in the approved playbook.');
+      if (deliverable.kind === 'image' && deliverable.imageMode === 'preserve') return generate(directory, state, second!, undefined, command === 'retry');
+      const transport = selectedTransport(state, parsed.transport);
+      if (transport !== 'rest') throw new Error(nativeInstructions(transport));
+      return generate(directory, state, second!, restClient(state, parsed.transport), command === 'retry');
+    } else if (command === 'resume') {
+      const transport = selectedTransport(state, parsed.transport);
+      const job = (await loadLedger(directory)).jobs.filter(item => item.deliverableId === second).at(-1);
+      if (transport !== 'rest' && job?.model !== 'local-photo-export') return resumeNative(directory, state, second!);
+      const deliverable = state.playbook?.deliverables.find(item => item.id === second);
+      const needsRest = deliverable?.kind === 'video' && job && ['submitted', 'download-pending'].includes(job.status);
+      return resume(directory, state, second!, needsRest ? restClient(state, parsed.transport) : undefined);
+    }
     else if (command === 'review') return review(directory, state, await json(second!));
     else if (command === 'export') return exportPackage(directory, state, resolve(second!));
-    else if (command === 'status') return { stage: state.approval ? 'approval-recorded' : state.playbook ? 'awaiting-user-approval' : 'research-required', approvalCurrent: state.approval ? state.approval.playbookHash === approvalHash(state) : false, ledger: await loadLedger(directory) };
+    else if (command === 'status') return { transport: state.transport ?? 'legacy-rest', stage: state.approval ? 'approval-recorded' : state.playbook ? 'awaiting-user-approval' : 'research-required', approvalCurrent: state.approval ? state.approval.playbookHash === approvalHash(state) : false, ledger: await loadLedger(directory) };
     await atomicJson(join(directory, 'project.json'), state);
     await reports(directory, state);
     return { project: directory, report: state.research ? join(directory, 'research-report.md') : undefined, playbook: state.playbook ? join(directory, 'playbook.md') : undefined, approvalHash: state.playbook ? approvalHash(state) : undefined, approved: Boolean(state.approval), next: state.playbook && !state.approval ? 'Present both documents and ask the user to confirm or modify this exact playbook. Do not generate previews or final copy yet.' : undefined };
