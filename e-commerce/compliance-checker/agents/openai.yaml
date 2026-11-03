@@ -1,0 +1,4 @@
+interface:
+  display_name: "Compliance Checker"
+  short_description: "Check product selling requirements by market and date"
+  default_prompt: "Use $compliance-checker to check what I need to sell my product overseas."

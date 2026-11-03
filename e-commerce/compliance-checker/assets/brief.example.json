@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-11-03",
+  "product": {
+    "name": "Example rechargeable handheld fan",
+    "facts": ["Synthetic intake example; no real product documents have been reviewed"]
+  },
+  "destinations": [{ "country": "US" }],
+  "plannedSale": { "note": "The seller has not decided the launch date" },
+  "unknowns": ["Battery specification and intended user age are unknown"]
+}
