@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "synthetic": true,
+  "brief": {
+    "schemaVersion": 1,
+    "asOf": "2026-11-03",
+    "product": {
+      "name": "Example adult canvas tote bag",
+      "facts": ["Synthetic product description supplied for a CLI demonstration"]
+    },
+    "destinations": [{ "country": "DE", "platforms": [{ "name": "Shopify", "site": "Store targeting Germany" }] }],
+    "plannedSale": { "start": "2027-01-01", "end": "2027-03-31" },
+    "seller": { "location": "China", "shipFrom": "China", "fulfilment": "Unknown" },
+    "unknowns": ["Packaging and fulfilment arrangements need confirmation"]
+  },
+  "scope": "Synthetic demonstration of an unresolved packaging question; no legal research has been conducted",
+  "evidence": [{
+    "id": "source-example",
+    "title": "Placeholder source — not inspected",
+    "url": "https://example.com/placeholder",
+    "authority": "other",
+    "jurisdictions": ["DE"],
+    "accessedAt": "2026-11-03",
+    "excerpt": "Synthetic placeholder only. This is not evidence of a legal requirement.",
+    "inspected": false
+  }],
+  "findings": [{
+    "id": "packaging-question",
+    "title": "Packaging responsibilities remain unassessed",
+    "scope": "Potential packaging obligations for the example product entering Germany",
+    "status": "insufficient-evidence",
+    "kind": "law",
+    "jurisdiction": "DE",
+    "sourceIds": ["source-example"],
+    "explanation": "The example contains no inspected official source and no confirmed fulfilment facts.",
+    "action": "Confirm packaging and fulfilment arrangements, then inspect current official requirements for the planned sales period.",
+    "applicability": {
+      "reason": "Applicability has not been established from evidence.",
+      "temporalStatus": "uncertain",
+      "ruleStatus": "unknown"
+    }
+  }]
+}
