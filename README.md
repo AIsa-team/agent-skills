@@ -24,8 +24,9 @@ The generic AIsa Skill is the platform entry at [`platform/aisa/`](./platform/ai
 | [Marketing](./marketing/) | 5 | SEO/GEO review, creator partnerships and discovery, and traffic research. |
 | [E-commerce](./e-commerce/) | 4 | Product selection, market assessment, pricing, tracking, compliance research, and product content production. |
 | [Creative](./creative/) | 0 | Image and video generation workflows. |
+| [AIsa Connect](./AIsa-connect/) | 9 | Cross-app business, sales, marketing, scheduling, network and DevOps workflows. |
 
-This catalog contains **49 skills**.
+This catalog contains **58 skills**.
 
 <!-- catalog:end -->
 
@@ -121,6 +122,20 @@ This catalog contains **49 skills**.
 
 | Skill | Version | Description |
 |---|---|---|
+
+### [AIsa Connect](./AIsa-connect/)
+
+| Skill | Version | Description |
+|---|---|---|
+| [appointment-scheduling](./AIsa-connect/appointment-scheduling/) | 0.1.0 | Coordinate appointment scheduling across calendar, booking, video meeting and communication apps with AIsa Connect. Use to find meeting windows, prepare booking links, draft invitations or make specifically authorized bookings; not automatic scheduling from untrusted email instructions. |
+| [content-calendar](./AIsa-connect/content-calendar/) | 0.1.0 | Plan and maintain a multi-channel content calendar from real product information, brand assets and past content through AIsa Connect. Use for weekly editorial plans, repurposing, channel briefs and draft copy; not lifecycle email enrollment or automatic publishing. |
+| [crm-automation](./AIsa-connect/crm-automation/) | 0.1.0 | Audit CRM data quality and prepare evidence-backed fixes with AIsa Connect. Use for duplicate contacts, missing owners or fields, stale close dates and record reconciliation in HubSpot, Salesforce or Pipedrive; not another meeting summary or automatic deal-stage advancement. |
+| [devops-automation](./AIsa-connect/devops-automation/) | 0.1.0 | Correlate repository changes, CI jobs, monitoring and existing issues through AIsa Connect. Use to triage failing builds, explain a regression window and prepare an engineering handoff; not an autonomous deploy, rerun, rollback or code-changing agent. |
+| [email-marketing-automation](./AIsa-connect/email-marketing-automation/) | 0.1.0 | Design audience segments, lifecycle email sequences, entry/exit rules and reviewable platform drafts through AIsa Connect. Use for welcome, nurture or re-engagement automation across Mailchimp, Klaviyo, CRM and commerce data; not cold outreach or unapproved campaign activation. |
+| [marketing-analytics](./AIsa-connect/marketing-analytics/) | 0.1.0 | Analyze acquisition, funnel conversion, sales outcomes and customer feedback across connected marketing apps with AIsa. Use for weekly marketing performance reviews, channel comparisons and evidence-based growth experiments; not campaign activation or budget changes. |
+| [meeting-notes](./AIsa-connect/meeting-notes/) | 0.1.0 | Turn a customer call transcript into meeting notes, decisions, action owners, a follow-up email and proposed CRM updates through AIsa Connect. Use after discovery, demo or onboarding calls; not for recording meetings or a general CRM hygiene audit. |
+| [network-automation](./AIsa-connect/network-automation/) | 0.1.0 | Build a routine network health review from existing telemetry, device inventory and tickets through AIsa Connect. Use for branch health checks, asset reconciliation and evidence-linked Jira or Slack updates; not autonomous network configuration or incident command. |
+| [weekly-report](./AIsa-connect/weekly-report/) | 0.1.0 | Create a weekly business report from CRM, payment, calendar, email and team updates through AIsa Connect. Use for weekly briefings, pipeline and cash follow-ups, owner decisions and next-week priorities; keep marketing channel analysis in Marketing Analytics. |
 
 <!-- skills:end -->
 

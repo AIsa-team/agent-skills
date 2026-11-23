@@ -33,6 +33,9 @@ jobs:
       - name: Check shared rules blocks
         run: python3 scripts/sync_shared_rules.py --check
 
+      - name: Check Connect landing-page Skill paths
+        run: python3 scripts/validate_connect_paths.py
+
       - name: Validate skills against the published OpenAPI
         # Downloads https://aisa.one/openapi.json (hash recorded in the report).
         # Rerun offline with: python3 scripts/validate_skills.py --openapi build/openapi.json
