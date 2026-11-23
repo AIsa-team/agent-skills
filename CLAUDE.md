@@ -9,6 +9,7 @@ A catalog of **agent skills** for the AIsa platform (https://aisa.one).
 Top-level directories are categories, and every immediate child is a
 self-contained skill:
 
+- `AIsa-connect/` — cross-app business, sales, marketing and operations workflows
 - `platform/` — generic AIsa CLI/MCP Skill
 - `financial/` — market data, stock research, portfolios, prediction markets
 - `search-research/` — web, academic, Tavily, Perplexity, recent research

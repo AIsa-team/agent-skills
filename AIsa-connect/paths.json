@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "skills": [
+    {
+      "slug": "weekly-report",
+      "path": "AIsa-connect/weekly-report/SKILL.md",
+      "url": "https://github.com/AIsa-team/agent-skills/blob/main/AIsa-connect/weekly-report/SKILL.md"
+    },
+    {
+      "slug": "meeting-notes",
+      "path": "AIsa-connect/meeting-notes/SKILL.md",
+      "url": "https://github.com/AIsa-team/agent-skills/blob/main/AIsa-connect/meeting-notes/SKILL.md"
+    },
+    {
+      "slug": "marketing-analytics",
+      "path": "AIsa-connect/marketing-analytics/SKILL.md",
+      "url": "https://github.com/AIsa-team/agent-skills/blob/main/AIsa-connect/marketing-analytics/SKILL.md"
+    },
+    {
+      "slug": "content-calendar",
+      "path": "AIsa-connect/content-calendar/SKILL.md",
+      "url": "https://github.com/AIsa-team/agent-skills/blob/main/AIsa-connect/content-calendar/SKILL.md"
+    },
+    {
+      "slug": "appointment-scheduling",
+      "path": "AIsa-connect/appointment-scheduling/SKILL.md",
+      "url": "https://github.com/AIsa-team/agent-skills/blob/main/AIsa-connect/appointment-scheduling/SKILL.md"
+    },
+    {
+      "slug": "crm-automation",
+      "path": "AIsa-connect/crm-automation/SKILL.md",
+      "url": "https://github.com/AIsa-team/agent-skills/blob/main/AIsa-connect/crm-automation/SKILL.md"
+    },
+    {
+      "slug": "email-marketing-automation",
+      "path": "AIsa-connect/email-marketing-automation/SKILL.md",
+      "url": "https://github.com/AIsa-team/agent-skills/blob/main/AIsa-connect/email-marketing-automation/SKILL.md"
+    },
+    {
+      "slug": "devops-automation",
+      "path": "AIsa-connect/devops-automation/SKILL.md",
+      "url": "https://github.com/AIsa-team/agent-skills/blob/main/AIsa-connect/devops-automation/SKILL.md"
+    },
+    {
+      "slug": "network-automation",
+      "path": "AIsa-connect/network-automation/SKILL.md",
+      "url": "https://github.com/AIsa-team/agent-skills/blob/main/AIsa-connect/network-automation/SKILL.md"
+    }
+  ]
+}

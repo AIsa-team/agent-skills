@@ -264,5 +264,37 @@
   "aisa-ecommerce-gemini": {
     "type": "docs",
     "url": "https://aisa.one/docs/api-reference/chat/post_models-model-generatecontent.md"
+  },
+  "connect-reference-weekly-report": {
+    "type": "docs",
+    "url": "https://raw.githubusercontent.com/anthropics/knowledge-work-plugins/0e0fcacddcc892eb92a1b7873ff9d68159c47571/small-business/skills/monday-brief/SKILL.md"
+  },
+  "connect-reference-meeting-notes": {
+    "type": "docs",
+    "url": "https://raw.githubusercontent.com/anthropics/knowledge-work-plugins/0e0fcacddcc892eb92a1b7873ff9d68159c47571/sales/skills/call-summary/SKILL.md"
+  },
+  "connect-reference-marketing-analytics": {
+    "type": "docs",
+    "url": "https://raw.githubusercontent.com/anthropics/knowledge-work-plugins/0e0fcacddcc892eb92a1b7873ff9d68159c47571/small-business/skills/marketing-monday/SKILL.md"
+  },
+  "connect-reference-content-calendar": {
+    "type": "docs",
+    "url": "https://raw.githubusercontent.com/anthropics/knowledge-work-plugins/0e0fcacddcc892eb92a1b7873ff9d68159c47571/small-business/skills/social-content-engine/SKILL.md"
+  },
+  "connect-reference-appointment-scheduling": {
+    "type": "docs",
+    "url": "https://raw.githubusercontent.com/anthropics/knowledge-work-plugins/0e0fcacddcc892eb92a1b7873ff9d68159c47571/sales/skills/schedule-meeting/SKILL.md"
+  },
+  "connect-reference-crm-automation": {
+    "type": "docs",
+    "url": "https://raw.githubusercontent.com/anthropics/knowledge-work-plugins/0e0fcacddcc892eb92a1b7873ff9d68159c47571/small-business/skills/crm-autopilot/SKILL.md"
+  },
+  "connect-reference-email-marketing-automation": {
+    "type": "docs",
+    "url": "https://raw.githubusercontent.com/anthropics/knowledge-work-plugins/0e0fcacddcc892eb92a1b7873ff9d68159c47571/marketing/skills/email-sequence/SKILL.md"
+  },
+  "connect-reference-devops-automation": {
+    "type": "docs",
+    "url": "https://raw.githubusercontent.com/anthropics/knowledge-work-plugins/0e0fcacddcc892eb92a1b7873ff9d68159c47571/engineering/skills/debug/SKILL.md"
   }
 }

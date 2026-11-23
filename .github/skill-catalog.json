@@ -32,6 +32,10 @@
     "creative": {
       "name": "Creative",
       "description": "Image and video generation workflows."
+    },
+    "AIsa-connect": {
+      "name": "AIsa Connect",
+      "description": "Cross-app business, sales, marketing, scheduling, network and DevOps workflows."
     }
   }
 }
