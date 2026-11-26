@@ -17,6 +17,7 @@ from skills_ref import validate as validate_skill
 
 CATEGORY_NAMES = (
     "AIsa-connect",
+    "aisa-creators",
     "ai-models",
     "creative",
     "e-commerce",

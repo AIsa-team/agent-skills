@@ -296,5 +296,13 @@
   "connect-reference-devops-automation": {
     "type": "docs",
     "url": "https://raw.githubusercontent.com/anthropics/knowledge-work-plugins/0e0fcacddcc892eb92a1b7873ff9d68159c47571/engineering/skills/debug/SKILL.md"
+  },
+  "creator-task-registry": {
+    "type": "json",
+    "url": "https://api.aisa.one/v1/tasks?domain=creators"
+  },
+  "creator-fake-view-reference": {
+    "type": "docs",
+    "url": "https://aisa.one/docs/api-reference/tikhub/get_tikhub-tiktok-analytics-detect_fake_views.md"
   }
 }
