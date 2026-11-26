@@ -36,6 +36,10 @@
     "AIsa-connect": {
       "name": "AIsa Connect",
       "description": "Cross-app business, sales, marketing, scheduling, network and DevOps workflows."
+    },
+    "aisa-creators": {
+      "name": "AIsa Creators",
+      "description": "Creator discovery, campaign fit, audience analysis and TikTok commerce evidence."
     }
   }
 }

@@ -25,8 +25,9 @@ The generic AIsa Skill is the platform entry at [`platform/aisa/`](./platform/ai
 | [E-commerce](./e-commerce/) | 4 | Product selection, market assessment, pricing, tracking, compliance research, and product content production. |
 | [Creative](./creative/) | 0 | Image and video generation workflows. |
 | [AIsa Connect](./AIsa-connect/) | 9 | Cross-app business, sales, marketing, scheduling, network and DevOps workflows. |
+| [AIsa Creators](./aisa-creators/) | 7 | Creator discovery, campaign fit, audience analysis and TikTok commerce evidence. |
 
-This catalog contains **58 skills**.
+This catalog contains **65 skills**.
 
 <!-- catalog:end -->
 
@@ -136,6 +137,18 @@ This catalog contains **58 skills**.
 | [meeting-notes](./AIsa-connect/meeting-notes/) | 0.1.0 | Turn a customer call transcript into meeting notes, decisions, action owners, a follow-up email and proposed CRM updates through AIsa Connect. Use after discovery, demo or onboarding calls; not for recording meetings or a general CRM hygiene audit. |
 | [network-automation](./AIsa-connect/network-automation/) | 0.1.0 | Build a routine network health review from existing telemetry, device inventory and tickets through AIsa Connect. Use for branch health checks, asset reconciliation and evidence-linked Jira or Slack updates; not autonomous network configuration or incident command. |
 | [weekly-report](./AIsa-connect/weekly-report/) | 0.1.0 | Create a weekly business report from CRM, payment, calendar, email and team updates through AIsa Connect. Use for weekly briefings, pipeline and cash follow-ups, owner decisions and next-week priorities; keep marketing channel analysis in Marketing Analytics. |
+
+### [AIsa Creators](./aisa-creators/)
+
+| Skill | Version | Description |
+|---|---|---|
+| [analyze-creator-audience](./aisa-creators/analyze-creator-audience/) | 0.1.0 | Use AIsa audience reports to assess whether a known creator reaches a campaign market and audience, with source-specific coverage. |
+| [check-creator-shop-sales](./aisa-creators/check-creator-shop-sales/) | 0.1.0 | Use AIsa creator commerce and TikTok Shop data to review a creator’s sales history, product mix and suitability for an affiliate campaign. |
+| [check-tiktok-fake-views](./aisa-creators/check-tiktok-fake-views/) | 0.1.0 | Assess view inflation for a TikTok video or the most-viewed of a creator’s ten latest posts, with a sourced risk score and collaboration recommendation. |
+| [find-competitor-creators](./aisa-creators/find-competitor-creators/) | 0.1.0 | Use AIsa social and commerce data to study competitor creator campaigns, identify disclosed partners and prioritize outreach. |
+| [find-creators-by-brief](./aisa-creators/find-creators-by-brief/) | 0.1.0 | Use AIsa to turn a product, market and campaign goal into a creator shortlist with public contacts, content fit and an invitation draft. |
+| [find-creators-by-keyword](./aisa-creators/find-creators-by-keyword/) | 0.1.0 | Use AIsa social post search to identify creators who repeatedly publish about buyer keywords, hashtags or local phrases. |
+| [find-similar-creators](./aisa-creators/find-similar-creators/) | 0.1.0 | Use AIsa to expand a known creator profile into comparable accounts, exclude the seed and prepare a contactable campaign shortlist. |
 
 <!-- skills:end -->
 

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "owner": "unassigned",
+  "languages": [],
+  "runtime": {},
+  "entrypoints": [],
+  "checks": {
+    "lint": [],
+    "typecheck": [],
+    "build": [],
+    "test": []
+  },
+  "upstreams": [
+    "aisa-authentication",
+    "aisa-mcp",
+    "aisa-cli",
+    "aisa-mcp-catalog",
+    "aisa-api-marketing",
+    "creator-fake-view-reference"
+  ]
+}
