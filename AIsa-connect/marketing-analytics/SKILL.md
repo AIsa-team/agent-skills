@@ -3,7 +3,7 @@ name: marketing-analytics
 description: "Analyze acquisition, funnel conversion, sales outcomes and customer feedback across connected marketing apps with AIsa. Use for weekly marketing performance reviews, channel comparisons and evidence-based growth experiments; not campaign activation or budget changes."
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # Marketing Analytics

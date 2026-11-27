@@ -3,7 +3,7 @@ name: network-automation
 description: "Build a routine network health review from existing telemetry, device inventory and tickets through AIsa Connect. Use for branch health checks, asset reconciliation and evidence-linked Jira or Slack updates; not autonomous network configuration or incident command."
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # Network Automation

@@ -3,7 +3,7 @@ name: devops-automation
 description: "Correlate repository changes, CI jobs, monitoring and existing issues through AIsa Connect. Use to triage failing builds, explain a regression window and prepare an engineering handoff; not an autonomous deploy, rerun, rollback or code-changing agent."
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # DevOps Automation

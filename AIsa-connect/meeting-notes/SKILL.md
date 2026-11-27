@@ -3,7 +3,7 @@ name: meeting-notes
 description: "Turn a customer call transcript into meeting notes, decisions, action owners, a follow-up email and proposed CRM updates through AIsa Connect. Use after discovery, demo or onboarding calls; not for recording meetings or a general CRM hygiene audit."
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # Meeting Notes

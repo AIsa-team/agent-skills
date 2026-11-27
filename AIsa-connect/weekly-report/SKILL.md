@@ -3,7 +3,7 @@ name: weekly-report
 description: "Create a weekly business report from CRM, payment, calendar, email and team updates through AIsa Connect. Use for weekly briefings, pipeline and cash follow-ups, owner decisions and next-week priorities; keep marketing channel analysis in Marketing Analytics."
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # Weekly Report

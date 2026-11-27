@@ -3,7 +3,7 @@ name: email-marketing-automation
 description: "Design audience segments, lifecycle email sequences, entry/exit rules and reviewable platform drafts through AIsa Connect. Use for welcome, nurture or re-engagement automation across Mailchimp, Klaviyo, CRM and commerce data; not cold outreach or unapproved campaign activation."
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # Email Marketing Automation

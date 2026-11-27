@@ -3,7 +3,7 @@ name: content-calendar
 description: "Plan and maintain a multi-channel content calendar from real product information, brand assets and past content through AIsa Connect. Use for weekly editorial plans, repurposing, channel briefs and draft copy; not lifecycle email enrollment or automatic publishing."
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # Content Calendar

@@ -3,7 +3,7 @@ name: crm-automation
 description: "Audit CRM data quality and prepare evidence-backed fixes with AIsa Connect. Use for duplicate contacts, missing owners or fields, stale close dates and record reconciliation in HubSpot, Salesforce or Pipedrive; not another meeting summary or automatic deal-stage advancement."
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # CRM Automation
