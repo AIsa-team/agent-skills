@@ -62,15 +62,26 @@ Business owners and small-team leads. Work across the app accounts the user conn
 Before reading or changing connected app data, read
 [references/connect-runtime.md](references/connect-runtime.md). It defines account
 selection, capability discovery, execution and recovery for this workflow.
-If a required app account is not connected or its authorization has expired,
-follow that reference to show the user a clickable authorization link and ask
-them to click it. Resume dependent operations only after verifying the connection
-is active for the intended account and has the required permissions.
+First establish which apps the user actually wants to use for this task. Ask
+the scenario question below for any missing choices and wait for the answer;
+reuse app choices the user has already explicitly supplied. Only then check
+those apps and obtain authorization links for missing or expired connections.
+Start task data operations after the required connections and permissions are
+verified, following the runtime reference.
+
+## Confirm the apps for this task
+
+If app choices are missing, ask in the user's language, adapting this question
+to the requested work and omitting roles already resolved:
+
+“Which apps do you use for the sales/CRM, payments/orders, team updates and
+calendar/email you want in this report? Should I return the report here, or use
+a document app you name? You can skip categories you do not use.”
 
 ## App roles
 
-Choose the user's available stack; alternatives in a row are choices, not a
-requirement to connect every app. Verify live actions and account permissions.
+These are examples of app roles, not a preselected or required stack. Use the
+user's named apps and verify their live actions and account permissions.
 
 | App or category | Role in this workflow |
 |---|---|
@@ -91,8 +102,9 @@ metric definitions when provided; do not interview the user about new KPIs.
 ## Build the business picture
 
 1. Read changes in the selected CRM, payment/order exceptions, relevant team
-   threads, calendar commitments and prior decisions. One available source is
-   enough for a partial report; identify the missing coverage once.
+   threads, calendar commitments and prior decisions from the apps the user
+   selected. If a required source is unavailable, wait for its connection or the
+   user's explicit agreement to a reduced scope; disclose any agreed omissions.
 2. Separate pipeline value from won revenue, invoiced amounts, cash received,
    refunds and order totals. Keep currency, period and source definition beside
    each metric. Never add a Stripe payment to its matching Shopify order as

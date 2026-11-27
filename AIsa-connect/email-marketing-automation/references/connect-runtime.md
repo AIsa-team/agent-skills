@@ -8,23 +8,37 @@ no sibling Skill is required.
 1. Reuse a working AIsa connection. If setup is needed, follow
    https://aisa.one/llms.txt. Use the shared rules in SKILL.md for authentication,
    quotes, spending and errors. Installing this Skill does not connect app accounts.
-2. Search AIsa for the complete task with the app names, then inspect the matching
-   connector actions and their input schemas. Tool names, app identifiers,
+2. Establish the user's app choices before generating authorization links or
+   reading task data. Ask the scenario's app question in the user's language,
+   covering only the roles needed for the requested task; then wait for an
+   explicit answer. Reuse apps explicitly named in the request or already
+   selected by this user for the same project, and ask only about unresolved
+   roles. An example in this Skill, a catalog listing or an existing connection
+   is not evidence that the user wants that app used. Do not choose a default
+   stack. Accept "none", pasted source material or a chat-only deliverable when
+   they meet the task; optional sources and destinations need not be connected.
+3. Search AIsa for the task with the user's selected app names, then inspect the
+   matching connector actions and schemas. Tool names, app identifiers,
    operation types and permissions come from discovery, not from examples here.
-   The catalog at https://aisa.one/catalog/connectors describes candidate apps;
-   presence in it is not evidence that the user's account is connected.
-3. Resolve the actual app account, tenant/workspace and connection identifier.
+   If a chosen app or required action is unsupported, explain the limitation and
+   ask the user to choose an alternative or narrow the scope; do not silently
+   replace their app. Built-in data tools do not require linking a personal app
+   account. The catalog at https://aisa.one/catalog/connectors describes candidate
+   apps; presence in it is not evidence of a live connection or permission.
+4. Resolve the selected app account, tenant/workspace and connection identifier.
    If multiple accounts could match, ask which one. Select one system of record
    per category unless the user explicitly wants multiple systems reconciled.
    Do not confuse AIsa Social account connections with AIsa Connect office apps.
-4. Check the selected account's connection status before dependent app operations.
-   If a required account is missing or its authorization has expired, pause those
-   operations and explain which app needs connecting and why. Obtain an
+5. Check connection status only for the apps selected for the agreed task.
+   Reuse active connections with the required permissions. If a required account
+   is missing or its authorization has expired, pause task data operations,
+   explain which app needs connecting and why, and obtain an
    authorization URL through AIsa's discovered, supported hosted connection flow;
    display it as a clickable link and explicitly ask the user to click it and
-   complete authorization. For example: "Please click the authorization link above
-   to connect Gmail so I can read the updates needed for your weekly report."
-   Use the actual returned URL, never a fabricated link. If a hosted link cannot
+   authorize the selected account.
+   Generate links only for the apps the user selected; label each link with the
+   app name and purpose when several need connecting. Use the actual returned
+   URL, never a fabricated link. If a hosted link cannot
    be obtained, explain the blocker and direct the user to
    https://console.aisa.one/apps to find the app's Connect entry and follow its
    connection instructions. Built-in apps are different from linked accounts.
@@ -36,7 +50,14 @@ no sibling Skill is required.
    required for the task. Resume dependent operations only when verified. If the
    status is pending, expired, denied or cannot be verified, explain what remains
    and keep those operations paused; do not repeatedly retry or claim success.
-5. Read the action's operation type, required scopes and schema before use.
+6. Start real task data operations only after every app required for the agreed
+   scope has a verified active connection and the necessary permissions. Do not
+   quietly produce a partial report, read another connected app or substitute
+   sample data while a required connection is pending. If the user declines a
+   connection or it cannot be completed, ask whether to exclude that source or
+   use an alternative, and proceed only within the user's revised scope. Mark
+   agreed coverage gaps explicitly. Generating a link is not completing the task.
+7. Read the action's operation type, required scopes and schema before use.
    Catalogued writes still require the selected connection's authorization.
    Gmail and Google Calendar can expose read and write actions; do not assume
    either that writes always work or that every Google connection is read-only.
