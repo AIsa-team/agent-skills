@@ -1,67 +1,74 @@
 # Skill maintenance report
 
-Generated 2026-11-26T01:07:10.644881+00:00. Warnings are advisory.
+Generated 2026-11-27T01:07:32.830470+00:00. Warnings are advisory.
 
 | Skill | Owner | Version | Update age | Review age | Status |
 |---|---|---|---|---|---|
-| AIsa-connect/appointment-scheduling | unassigned | 0.1.0 | 2d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
-| AIsa-connect/content-calendar | unassigned | 0.1.0 | 2d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
-| AIsa-connect/crm-automation | unassigned | 0.1.0 | 2d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
-| AIsa-connect/devops-automation | unassigned | 0.1.0 | 2d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
-| AIsa-connect/email-marketing-automation | unassigned | 0.1.0 | 2d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
-| AIsa-connect/marketing-analytics | unassigned | 0.1.0 | 2d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
-| AIsa-connect/meeting-notes | unassigned | 0.1.0 | 2d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
-| AIsa-connect/network-automation | unassigned | 0.1.0 | 2d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
-| AIsa-connect/weekly-report | unassigned | 0.1.0 | 2d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
-| ai-models/aisa-provider | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| ai-models/cn-llm | @chaimengphp | 1.0.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| ai-models/llm-router | @chaimengphp | 1.0.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| e-commerce/compliance-checker | unassigned | 1.0.0 | 22d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| e-commerce/e-commerce-content-studio | @chaimengphp | 1.1.0 | 22d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| e-commerce/product-selection | unassigned | 1.0.2 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| e-commerce/product-tracking | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| financial/crypto-market-data | @karensheng | 1.0.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| financial/market | @chaimengphp | 1.0.2 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| financial/marketpulse | @chaimengphp | 1.0.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| financial/prediction-market-arbitrage | @karensheng | 1.0.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| financial/prediction-market-arbitrage-zh | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| financial/prediction-market-data | @karensheng | 1.0.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| financial/prediction-market-data-zh | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| financial/stock-analysis | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| financial/stock-dividend | unassigned | 1.0.3 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| financial/stock-hot | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| financial/stock-portfolio | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| financial/stock-rumors | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| financial/stock-watchlist | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| financial/trend-forecast | @drowecode | 1.0.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| financial/us-stock-analyst | unassigned | 1.0.2 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| marketing/article-seo-geo-review | @zhenlonghe | 1.0.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| marketing/creator-marketing | @fatflowers | 0.0.2 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| marketing/kol-creator-discovery | @lijing-22 | 1.0.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| marketing/seo-keyword-research | @lijing-22 | 1.0.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| marketing/use-similarweb | @lhymmEU | 1.1.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| platform/aisa | @eddiearc | 1.0.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| search-research/aisa-tavily | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| search-research/last30days | @karensheng | 1.1.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| search-research/last30days-zh | unassigned | 1.0.10 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| search-research/multi-search | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| search-research/multi-source-search | @chaimengphp | 1.0.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| search-research/perplexity-research | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| search-research/perplexity-search | @chaimengphp | 1.0.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| search-research/scholar-search | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| search-research/smart-search | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| search-research/tavily-extract | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| search-research/tavily-search | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| search-research/web-search | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| social-media/aisa-twitter-api | unassigned | 1.1.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| social-media/aisa-twitter-command-center | unassigned | 1.0.4 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| social-media/aisa-twitter-post-engage | unassigned | 1.0.4 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| social-media/aisa-youtube-search | unassigned | 1.0.2 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| social-media/twitter-autopilot | @chaimengphp | 1.0.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| social-media/twitter-command-center-search-post | @chaimengphp | 1.0.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| social-media/x-intelligence-automation | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| social-media/youtube-search | unassigned | 1.0.1 | 37d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
-| social-media/youtube-serp | @chaimengphp | 1.0.1 | 37d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| AIsa-connect/appointment-scheduling | unassigned | 0.1.0 | 3d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
+| AIsa-connect/content-calendar | unassigned | 0.1.0 | 3d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
+| AIsa-connect/crm-automation | unassigned | 0.1.0 | 3d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
+| AIsa-connect/devops-automation | unassigned | 0.1.0 | 3d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
+| AIsa-connect/email-marketing-automation | unassigned | 0.1.0 | 3d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
+| AIsa-connect/marketing-analytics | unassigned | 0.1.0 | 3d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
+| AIsa-connect/meeting-notes | unassigned | 0.1.0 | 3d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
+| AIsa-connect/network-automation | unassigned | 0.1.0 | 3d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
+| AIsa-connect/weekly-report | unassigned | 0.1.0 | 3d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
+| ai-models/aisa-provider | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| ai-models/cn-llm | @chaimengphp | 1.0.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| ai-models/llm-router | @chaimengphp | 1.0.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| aisa-creators/analyze-creator-audience | unassigned | 0.1.0 | 0d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
+| aisa-creators/check-creator-shop-sales | unassigned | 0.1.0 | 0d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
+| aisa-creators/check-tiktok-fake-views | unassigned | 0.1.0 | 0d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
+| aisa-creators/find-competitor-creators | unassigned | 0.1.0 | 0d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
+| aisa-creators/find-creators-by-brief | unassigned | 0.1.0 | 0d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
+| aisa-creators/find-creators-by-keyword | unassigned | 0.1.0 | 0d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
+| aisa-creators/find-similar-creators | unassigned | 0.1.0 | 0d | never verified | owner unassigned; review overdue; upstream change pending; monitoring unavailable |
+| e-commerce/compliance-checker | unassigned | 1.0.0 | 23d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| e-commerce/e-commerce-content-studio | @chaimengphp | 1.1.0 | 23d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| e-commerce/product-selection | unassigned | 1.0.2 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| e-commerce/product-tracking | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| financial/crypto-market-data | @karensheng | 1.0.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| financial/market | @chaimengphp | 1.0.2 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| financial/marketpulse | @chaimengphp | 1.0.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| financial/prediction-market-arbitrage | @karensheng | 1.0.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| financial/prediction-market-arbitrage-zh | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| financial/prediction-market-data | @karensheng | 1.0.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| financial/prediction-market-data-zh | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| financial/stock-analysis | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| financial/stock-dividend | unassigned | 1.0.3 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| financial/stock-hot | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| financial/stock-portfolio | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| financial/stock-rumors | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| financial/stock-watchlist | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| financial/trend-forecast | @drowecode | 1.0.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| financial/us-stock-analyst | unassigned | 1.0.2 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| marketing/article-seo-geo-review | @zhenlonghe | 1.0.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| marketing/creator-marketing | @fatflowers | 0.0.2 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| marketing/kol-creator-discovery | @lijing-22 | 1.0.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| marketing/seo-keyword-research | @lijing-22 | 1.0.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| marketing/use-similarweb | @lhymmEU | 1.1.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| platform/aisa | @eddiearc | 1.0.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| search-research/aisa-tavily | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| search-research/last30days | @karensheng | 1.1.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| search-research/last30days-zh | unassigned | 1.0.10 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| search-research/multi-search | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| search-research/multi-source-search | @chaimengphp | 1.0.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| search-research/perplexity-research | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| search-research/perplexity-search | @chaimengphp | 1.0.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| search-research/scholar-search | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| search-research/smart-search | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| search-research/tavily-extract | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| search-research/tavily-search | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| search-research/web-search | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| social-media/aisa-twitter-api | unassigned | 1.1.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| social-media/aisa-twitter-command-center | unassigned | 1.0.4 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| social-media/aisa-twitter-post-engage | unassigned | 1.0.4 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| social-media/aisa-youtube-search | unassigned | 1.0.2 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| social-media/twitter-autopilot | @chaimengphp | 1.0.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| social-media/twitter-command-center-search-post | @chaimengphp | 1.0.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| social-media/x-intelligence-automation | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| social-media/youtube-search | unassigned | 1.0.1 | 38d | never verified | owner unassigned; no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
+| social-media/youtube-serp | @chaimengphp | 1.0.1 | 38d | never verified | no update in 14 days; review overdue; upstream change pending; monitoring unavailable |
 
 ## Pending evidence
 
@@ -101,6 +108,27 @@ Generated 2026-11-26T01:07:10.644881+00:00. Warnings are advisory.
 - ai-models/llm-router — changed upstreams: [aisa-authentication](https://aisa.one/docs/guides/authentication.md)
 - ai-models/llm-router — unavailable upstreams: [aisa-api-ai-models](https://aisa.one/openapi.yaml)
 - ai-models/llm-router — unreviewed upstreams: [aisa-authentication](https://aisa.one/docs/guides/authentication.md), [aisa-api-ai-models](https://aisa.one/openapi.yaml)
+- aisa-creators/analyze-creator-audience — changed upstreams: [aisa-authentication](https://aisa.one/docs/guides/authentication.md), [aisa-cli](https://registry.npmjs.org/@aisa-one%2Fcli/latest), [aisa-mcp-catalog](https://mcp.aisa.one/servers)
+- aisa-creators/analyze-creator-audience — unavailable upstreams: [aisa-mcp](https://mcp.aisa.one/mcp), [aisa-mcp-catalog](https://mcp.aisa.one/servers), [aisa-api-marketing](https://aisa.one/openapi.yaml)
+- aisa-creators/analyze-creator-audience — unreviewed upstreams: [aisa-authentication](https://aisa.one/docs/guides/authentication.md), [aisa-mcp](https://mcp.aisa.one/mcp), [aisa-cli](https://registry.npmjs.org/@aisa-one%2Fcli/latest), [aisa-mcp-catalog](https://mcp.aisa.one/servers), [aisa-api-marketing](https://aisa.one/openapi.yaml), [creator-task-registry](https://api.aisa.one/v1/tasks?domain=creators)
+- aisa-creators/check-creator-shop-sales — changed upstreams: [aisa-authentication](https://aisa.one/docs/guides/authentication.md), [aisa-cli](https://registry.npmjs.org/@aisa-one%2Fcli/latest), [aisa-mcp-catalog](https://mcp.aisa.one/servers)
+- aisa-creators/check-creator-shop-sales — unavailable upstreams: [aisa-mcp](https://mcp.aisa.one/mcp), [aisa-mcp-catalog](https://mcp.aisa.one/servers), [aisa-api-marketing](https://aisa.one/openapi.yaml)
+- aisa-creators/check-creator-shop-sales — unreviewed upstreams: [aisa-authentication](https://aisa.one/docs/guides/authentication.md), [aisa-mcp](https://mcp.aisa.one/mcp), [aisa-cli](https://registry.npmjs.org/@aisa-one%2Fcli/latest), [aisa-mcp-catalog](https://mcp.aisa.one/servers), [aisa-api-marketing](https://aisa.one/openapi.yaml), [creator-task-registry](https://api.aisa.one/v1/tasks?domain=creators)
+- aisa-creators/check-tiktok-fake-views — changed upstreams: [aisa-authentication](https://aisa.one/docs/guides/authentication.md), [aisa-cli](https://registry.npmjs.org/@aisa-one%2Fcli/latest), [aisa-mcp-catalog](https://mcp.aisa.one/servers)
+- aisa-creators/check-tiktok-fake-views — unavailable upstreams: [aisa-mcp](https://mcp.aisa.one/mcp), [aisa-mcp-catalog](https://mcp.aisa.one/servers), [aisa-api-marketing](https://aisa.one/openapi.yaml)
+- aisa-creators/check-tiktok-fake-views — unreviewed upstreams: [aisa-authentication](https://aisa.one/docs/guides/authentication.md), [aisa-mcp](https://mcp.aisa.one/mcp), [aisa-cli](https://registry.npmjs.org/@aisa-one%2Fcli/latest), [aisa-mcp-catalog](https://mcp.aisa.one/servers), [aisa-api-marketing](https://aisa.one/openapi.yaml), [creator-fake-view-reference](https://aisa.one/docs/api-reference/tikhub/get_tikhub-tiktok-analytics-detect_fake_views.md)
+- aisa-creators/find-competitor-creators — changed upstreams: [aisa-authentication](https://aisa.one/docs/guides/authentication.md), [aisa-cli](https://registry.npmjs.org/@aisa-one%2Fcli/latest), [aisa-mcp-catalog](https://mcp.aisa.one/servers)
+- aisa-creators/find-competitor-creators — unavailable upstreams: [aisa-mcp](https://mcp.aisa.one/mcp), [aisa-mcp-catalog](https://mcp.aisa.one/servers), [aisa-api-marketing](https://aisa.one/openapi.yaml)
+- aisa-creators/find-competitor-creators — unreviewed upstreams: [aisa-authentication](https://aisa.one/docs/guides/authentication.md), [aisa-mcp](https://mcp.aisa.one/mcp), [aisa-cli](https://registry.npmjs.org/@aisa-one%2Fcli/latest), [aisa-mcp-catalog](https://mcp.aisa.one/servers), [aisa-api-marketing](https://aisa.one/openapi.yaml), [creator-task-registry](https://api.aisa.one/v1/tasks?domain=creators)
+- aisa-creators/find-creators-by-brief — changed upstreams: [aisa-authentication](https://aisa.one/docs/guides/authentication.md), [aisa-cli](https://registry.npmjs.org/@aisa-one%2Fcli/latest), [aisa-mcp-catalog](https://mcp.aisa.one/servers)
+- aisa-creators/find-creators-by-brief — unavailable upstreams: [aisa-mcp](https://mcp.aisa.one/mcp), [aisa-mcp-catalog](https://mcp.aisa.one/servers), [aisa-api-marketing](https://aisa.one/openapi.yaml)
+- aisa-creators/find-creators-by-brief — unreviewed upstreams: [aisa-authentication](https://aisa.one/docs/guides/authentication.md), [aisa-mcp](https://mcp.aisa.one/mcp), [aisa-cli](https://registry.npmjs.org/@aisa-one%2Fcli/latest), [aisa-mcp-catalog](https://mcp.aisa.one/servers), [aisa-api-marketing](https://aisa.one/openapi.yaml), [creator-task-registry](https://api.aisa.one/v1/tasks?domain=creators)
+- aisa-creators/find-creators-by-keyword — changed upstreams: [aisa-authentication](https://aisa.one/docs/guides/authentication.md), [aisa-cli](https://registry.npmjs.org/@aisa-one%2Fcli/latest), [aisa-mcp-catalog](https://mcp.aisa.one/servers)
+- aisa-creators/find-creators-by-keyword — unavailable upstreams: [aisa-mcp](https://mcp.aisa.one/mcp), [aisa-mcp-catalog](https://mcp.aisa.one/servers), [aisa-api-marketing](https://aisa.one/openapi.yaml)
+- aisa-creators/find-creators-by-keyword — unreviewed upstreams: [aisa-authentication](https://aisa.one/docs/guides/authentication.md), [aisa-mcp](https://mcp.aisa.one/mcp), [aisa-cli](https://registry.npmjs.org/@aisa-one%2Fcli/latest), [aisa-mcp-catalog](https://mcp.aisa.one/servers), [aisa-api-marketing](https://aisa.one/openapi.yaml), [creator-task-registry](https://api.aisa.one/v1/tasks?domain=creators)
+- aisa-creators/find-similar-creators — changed upstreams: [aisa-authentication](https://aisa.one/docs/guides/authentication.md), [aisa-cli](https://registry.npmjs.org/@aisa-one%2Fcli/latest), [aisa-mcp-catalog](https://mcp.aisa.one/servers)
+- aisa-creators/find-similar-creators — unavailable upstreams: [aisa-mcp](https://mcp.aisa.one/mcp), [aisa-mcp-catalog](https://mcp.aisa.one/servers), [aisa-api-marketing](https://aisa.one/openapi.yaml)
+- aisa-creators/find-similar-creators — unreviewed upstreams: [aisa-authentication](https://aisa.one/docs/guides/authentication.md), [aisa-mcp](https://mcp.aisa.one/mcp), [aisa-cli](https://registry.npmjs.org/@aisa-one%2Fcli/latest), [aisa-mcp-catalog](https://mcp.aisa.one/servers), [aisa-api-marketing](https://aisa.one/openapi.yaml), [creator-task-registry](https://api.aisa.one/v1/tasks?domain=creators)
 - e-commerce/compliance-checker — changed upstreams: [aisa-mcp-catalog](https://mcp.aisa.one/servers), [aisa-cli](https://registry.npmjs.org/@aisa-one%2Fcli/latest), [aisa-authentication](https://aisa.one/docs/guides/authentication.md)
 - e-commerce/compliance-checker — unavailable upstreams: [aisa-mcp](https://mcp.aisa.one/mcp), [aisa-mcp-catalog](https://mcp.aisa.one/servers), [aisa-api-search-research](https://aisa.one/openapi.yaml), [aisa-api-marketing](https://aisa.one/openapi.yaml)
 - e-commerce/compliance-checker — unreviewed upstreams: [aisa-mcp](https://mcp.aisa.one/mcp), [aisa-mcp-catalog](https://mcp.aisa.one/servers), [aisa-cli](https://registry.npmjs.org/@aisa-one%2Fcli/latest), [aisa-authentication](https://aisa.one/docs/guides/authentication.md), [aisa-api-search-research](https://aisa.one/openapi.yaml), [aisa-api-marketing](https://aisa.one/openapi.yaml)
