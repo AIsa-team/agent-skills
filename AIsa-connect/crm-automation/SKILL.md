@@ -3,7 +3,7 @@ name: crm-automation
 description: "Audit CRM data quality and prepare evidence-backed fixes with AIsa Connect. Use for duplicate contacts, missing owners or fields, stale close dates and record reconciliation in HubSpot, Salesforce or Pipedrive; not another meeting summary or automatic deal-stage advancement."
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # CRM Automation
@@ -62,11 +62,25 @@ Sales, Sales Ops and RevOps. Work across the app accounts the user connects thro
 Before reading or changing connected app data, read
 [references/connect-runtime.md](references/connect-runtime.md). It defines account
 selection, capability discovery, execution and recovery for this workflow.
+First establish which apps the user actually wants to use for this task. Ask
+the scenario question below for any missing choices and wait for the answer;
+reuse app choices the user has already explicitly supplied. Only then check
+those apps and obtain authorization links for missing or expired connections.
+Start task data operations after the required connections and permissions are
+verified, following the runtime reference.
+
+## Confirm the apps for this task
+
+If app choices are missing, ask in the user's language, adapting this question
+to the requested work and omitting roles already resolved:
+
+“Which CRM should I review? If I need to cross-check records, which email,
+spreadsheet or lead-source apps do you use and want included?”
 
 ## App roles
 
-Choose the user's available stack; alternatives in a row are choices, not a
-requirement to connect every app. Verify live actions and account permissions.
+These are examples of app roles, not a preselected or required stack. Use the
+user's named apps and verify their live actions and account permissions.
 
 | App or category | Role in this workflow |
 |---|---|

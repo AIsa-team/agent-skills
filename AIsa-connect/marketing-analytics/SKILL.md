@@ -3,7 +3,7 @@ name: marketing-analytics
 description: "Analyze acquisition, funnel conversion, sales outcomes and customer feedback across connected marketing apps with AIsa. Use for weekly marketing performance reviews, channel comparisons and evidence-based growth experiments; not campaign activation or budget changes."
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # Marketing Analytics
@@ -62,11 +62,26 @@ Marketing, growth leads and business owners. Work across the app accounts the us
 Before reading or changing connected app data, read
 [references/connect-runtime.md](references/connect-runtime.md). It defines account
 selection, capability discovery, execution and recovery for this workflow.
+First establish which apps the user actually wants to use for this task. Ask
+the scenario question below for any missing choices and wait for the answer;
+reuse app choices the user has already explicitly supplied. Only then check
+those apps and obtain authorization links for missing or expired connections.
+Start task data operations after the required connections and permissions are
+verified, following the runtime reference.
+
+## Confirm the apps for this task
+
+If app choices are missing, ask in the user's language, adapting this question
+to the requested work and omitting roles already resolved:
+
+“Which apps hold the channel/site analytics, CRM leads and revenue or orders
+for this review? Do you have a KPI spreadsheet to use? Name only the sources
+you want included, and where you want the analysis returned.”
 
 ## App roles
 
-Choose the user's available stack; alternatives in a row are choices, not a
-requirement to connect every app. Verify live actions and account permissions.
+These are examples of app roles, not a preselected or required stack. Use the
+user's named apps and verify their live actions and account permissions.
 
 | App or category | Role in this workflow |
 |---|---|
