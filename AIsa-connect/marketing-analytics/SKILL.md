@@ -62,6 +62,10 @@ Marketing, growth leads and business owners. Work across the app accounts the us
 Before reading or changing connected app data, read
 [references/connect-runtime.md](references/connect-runtime.md). It defines account
 selection, capability discovery, execution and recovery for this workflow.
+If a required app account is not connected or its authorization has expired,
+follow that reference to show the user a clickable authorization link and ask
+them to click it. Resume dependent operations only after verifying the connection
+is active for the intended account and has the required permissions.
 
 ## App roles
 

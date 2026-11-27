@@ -17,13 +17,25 @@ no sibling Skill is required.
    If multiple accounts could match, ask which one. Select one system of record
    per category unless the user explicitly wants multiple systems reconciled.
    Do not confuse AIsa Social account connections with AIsa Connect office apps.
-4. If an account is missing, explain the two connection routes: ask the agent to
-   connect the named app, or open https://console.aisa.one/apps, search for it and
-   choose its Connect entry. Built-in apps are different from linked accounts.
-   Use the discovered hosted connection flow; the user completes authorization.
+4. Check the selected account's connection status before dependent app operations.
+   If a required account is missing or its authorization has expired, pause those
+   operations and explain which app needs connecting and why. Obtain an
+   authorization URL through AIsa's discovered, supported hosted connection flow;
+   display it as a clickable link and explicitly ask the user to click it and
+   complete authorization. For example: "Please click the authorization link above
+   to connect Gmail so I can read the updates needed for your weekly report."
+   Use the actual returned URL, never a fabricated link. If a hosted link cannot
+   be obtained, explain the blocker and direct the user to
+   https://console.aisa.one/apps to find the app's Connect entry and follow its
+   connection instructions. Built-in apps are different from linked accounts.
    Do not invent an externalUserId: use the host application's known end-user
    identity or request the missing context. Do not ask for passwords in chat.
-   Treat a connection link as pending until its status reports connected.
+   A generated link, a link click or the user's confirmation alone is not proof
+   of connection. After the user authorizes, query AIsa's connection status again
+   and verify the intended account/workspace, active connection and permissions
+   required for the task. Resume dependent operations only when verified. If the
+   status is pending, expired, denied or cannot be verified, explain what remains
+   and keep those operations paused; do not repeatedly retry or claim success.
 5. Read the action's operation type, required scopes and schema before use.
    Catalogued writes still require the selected connection's authorization.
    Gmail and Google Calendar can expose read and write actions; do not assume
